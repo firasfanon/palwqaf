@@ -1,0 +1,469 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* Base Styles */
+* {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Noto Sans Arabic', 'Inter', Arial, sans-serif;
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+  color: #1f2937;
+  background-color: #fafafa;
+}
+
+/* RTL Support */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="ltr"] {
+  text-align: left;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Amiri', 'Noto Sans Arabic', serif;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #1f2937;
+}
+
+.font-display {
+  font-family: 'Amiri', 'Noto Sans Arabic', serif;
+}
+
+.font-body {
+  font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
+}
+
+/* Islamic Design Elements */
+.islamic-border {
+  border-image: linear-gradient(45deg, #22c55e, #eab308) 1;
+}
+
+.islamic-gradient {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #eab308 100%);
+}
+
+.golden-gradient {
+  background: linear-gradient(135deg, #f59e0b 0%, #eab308 50%, #d97706 100%);
+}
+
+.sage-gradient {
+  background: linear-gradient(135deg, #5a7a5a 0%, #4a6b4a 50%, #3d5a3d 100%);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f0fdf4;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #22c55e;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #16a34a;
+}
+
+/* Text Utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Islamic Patterns */
+.islamic-pattern {
+  background-image: radial-gradient(circle at 1px 1px, rgba(34, 197, 94, 0.08) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+.geometric-pattern {
+  background-image: 
+    linear-gradient(45deg, rgba(34, 197, 94, 0.05) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(34, 197, 94, 0.05) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(234, 179, 8, 0.05) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(234, 179, 8, 0.05) 75%);
+  background-size: 32px 32px;
+  background-position: 0 0, 0 16px, 16px -16px, -16px 0px;
+}
+
+/* Hover Effects */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(34, 197, 94, 0.15);
+}
+
+/* Gradient Text */
+.gradient-text {
+  background: linear-gradient(135deg, #22c55e, #eab308);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.islamic-text {
+  background: linear-gradient(135deg, #16a34a, #22c55e, #eab308);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Custom Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Animation Classes */
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-fade-in-down {
+  animation: fadeInDown 0.6s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.5s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.6s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.6s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.6s ease-out forwards;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s linear infinite;
+}
+
+.animate-bounce-slow {
+  animation: bounce 3s infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse 4s infinite;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(34, 197, 94, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.8);
+  }
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+/* Loading States */
+.loading-shimmer {
+  background: linear-gradient(90deg, #f0fdf4 25%, #dcfce7 50%, #f0fdf4 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Interactive Elements */
+.interactive-hover {
+  transition: all 0.3s ease;
+}
+
+.interactive-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.15);
+}
+
+/* Focus States */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-islamic-500 focus:ring-offset-2 focus:ring-offset-white;
+}
+
+/* Button Variants */
+.btn-primary {
+  @apply bg-islamic-600 text-white px-8 py-4 rounded-xl font-semibold hover:bg-islamic-700 transition-all duration-300 transform hover:scale-105 shadow-islamic focus-ring font-body;
+}
+
+.btn-secondary {
+  @apply bg-white text-islamic-600 border-2 border-islamic-600 px-8 py-4 rounded-xl font-semibold hover:bg-islamic-50 transition-all duration-300 transform hover:scale-105 focus-ring font-body;
+}
+
+.btn-outline {
+  @apply border-2 border-sage-300 text-sage-700 px-8 py-4 rounded-xl font-semibold hover:border-islamic-600 hover:text-islamic-600 transition-all duration-300 focus-ring font-body;
+}
+
+.btn-golden {
+  @apply bg-golden-500 text-white px-8 py-4 rounded-xl font-semibold hover:bg-golden-600 transition-all duration-300 transform hover:scale-105 shadow-warm focus-ring font-body;
+}
+
+/* Card Styles */
+.card {
+  @apply bg-white rounded-2xl shadow-elegant p-8 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 border border-islamic-100;
+}
+
+.card-islamic {
+  @apply bg-white rounded-2xl shadow-islamic p-8 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 border-r-4 border-islamic-500 islamic-pattern;
+}
+
+.card-golden {
+  @apply bg-white rounded-2xl shadow-warm p-8 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 border-r-4 border-golden-500;
+}
+
+.card-sage {
+  @apply bg-white rounded-2xl shadow-soft p-8 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 border-r-4 border-sage-500;
+}
+
+/* Typography */
+.heading-1 {
+  @apply text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 leading-tight font-display;
+}
+
+.heading-2 {
+  @apply text-3xl md:text-4xl font-bold text-gray-800 leading-tight font-display;
+}
+
+.heading-3 {
+  @apply text-2xl md:text-3xl font-bold text-gray-800 leading-tight font-display;
+}
+
+.body-large {
+  @apply text-lg md:text-xl text-gray-600 leading-relaxed font-body;
+}
+
+.body-text {
+  @apply text-base text-gray-600 leading-relaxed font-body;
+}
+
+.text-islamic {
+  @apply text-islamic-700;
+}
+
+.text-golden {
+  @apply text-golden-600;
+}
+
+.text-sage {
+  @apply text-sage-600;
+}
+
+/* Spacing System */
+.section-padding {
+  @apply py-20 px-4;
+}
+
+.container-spacing {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.element-spacing {
+  @apply space-y-8;
+}
+
+.content-spacing {
+  @apply space-y-6;
+}
+
+.tight-spacing {
+  @apply space-y-4;
+}
+
+/* Responsive Utilities */
+@media (max-width: 768px) {
+  .mobile-padding {
+    @apply px-6;
+  }
+  
+  .mobile-text-center {
+    @apply text-center;
+  }
+  
+  .mobile-spacing {
+    @apply space-y-6;
+  }
+}
+
+/* Islamic Design Components */
+.mosque-dome {
+  background: radial-gradient(ellipse at center, #22c55e 0%, #16a34a 70%, #15803d 100%);
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+}
+
+.minaret {
+  background: linear-gradient(to bottom, #eab308 0%, #ca8a04 100%);
+  border-radius: 4px 4px 0 0;
+}
+
+.crescent {
+  border: 3px solid #eab308;
+  border-radius: 50%;
+  border-right-color: transparent;
+  transform: rotate(-45deg);
+}
+
+/* Enhanced Form Styles */
+.form-input {
+  @apply w-full px-4 py-3 border-2 border-sage-200 rounded-xl focus:border-islamic-500 focus:ring-2 focus:ring-islamic-200 transition-all duration-300 font-body bg-white;
+}
+
+.form-select {
+  @apply w-full px-4 py-3 border-2 border-sage-200 rounded-xl focus:border-islamic-500 focus:ring-2 focus:ring-islamic-200 transition-all duration-300 font-body bg-white;
+}
+
+.form-textarea {
+  @apply w-full px-4 py-3 border-2 border-sage-200 rounded-xl focus:border-islamic-500 focus:ring-2 focus:ring-islamic-200 transition-all duration-300 font-body bg-white resize-none;
+}
+
+/* Status Indicators */
+.status-active {
+  @apply bg-islamic-100 text-islamic-800 border border-islamic-200;
+}
+
+.status-pending {
+  @apply bg-golden-100 text-golden-800 border border-golden-200;
+}
+
+.status-inactive {
+  @apply bg-sage-100 text-sage-800 border border-sage-200;
+}
+
+.status-error {
+  @apply bg-red-100 text-red-800 border border-red-200;
+}
+
+/* Print Styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-break {
+    page-break-after: always;
+  }
+  
+  body {
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+  
+  .print-header {
+    border-bottom: 2px solid #22c55e;
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+  }
+}

@@ -2,13 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, Users, MapPin, ArrowLeft, Star, Clock, Eye, ChevronLeft, ChevronRight, Play, Image as ImageIcon, Video, Award, Building, BookOpen, Heart, TrendingUp, Globe, Phone, Mail, Newspaper, Megaphone, HandHeart, Fuel as Mosque, GraduationCap, Calculator, FileInput as FileInvoice, Kanban as Kaaba, Skull as Bullhorn, CalendarCheck, Hand as Hands, Video as PhotoVideo, Search as SearchPlus, Facebook, Twitter, Instagram, Youtube, Info, Link as LinkIcon, Handshake, Quote, Target, CheckCircle, Crown, Sparkles, Zap } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
+import { useToast } from '../hooks/useToast';
+import WelcomeModal from '../components/UI/WelcomeModal';
 
 const HomePage = () => {
   const { news, announcements, activities } = useData();
+  const { success, info } = useToast();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [activeTab, setActiveTab] = useState('images');
   const [activeServiceTab, setActiveServiceTab] = useState('zakat');
   const [activeEventTab, setActiveEventTab] = useState('events');
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [counters, setCounters] = useState({
     mosques: 0,
     imams: 0,
@@ -270,6 +274,24 @@ const HomePage = () => {
     return () => observer.disconnect();
   }, []);
 
+  // ترحيب بالمستخدم عند تحميل الصفحة
+  useEffect(() => {
+    // فحص إذا كانت هذه أول زيارة
+    const hasVisited = localStorage.getItem('hasVisitedBefore');
+    if (!hasVisited) {
+      const timer = setTimeout(() => {
+        setShowWelcomeModal(true);
+        localStorage.setItem('hasVisitedBefore', 'true');
+      }, 1500);
+      return () => clearTimeout(timer);
+    } else {
+      const timer = setTimeout(() => {
+        info('مرحباً بك مرة أخرى', 'تصفح آخر التحديثات والأخبار');
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [info]);
+
   const latestNews = news.slice(0, 3);
   const latestAnnouncements = announcements.slice(0, 4);
 
@@ -292,7 +314,7 @@ const HomePage = () => {
             </div>
             
             <div className="relative z-10 h-full flex items-center">
-              <div className="container-spacing">
+              <div className="container mx-auto px-4">
                 <div className="max-w-4xl text-white animate-slide-up">
                   <h1 className="text-4xl md:text-6xl font-bold mb-6 font-display leading-tight text-white">
                     {slide.title}
@@ -353,7 +375,7 @@ const HomePage = () => {
 
       {/* Minister Section */}
       <section className="bg-white py-20 -mt-16 relative z-10 shadow-elegant">
-        <div className="container-spacing">
+        <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-center">
             <div className="text-center lg:text-right">
               <div className="w-64 h-80 bg-gradient-to-br from-islamic-600 to-sage-700 rounded-2xl mx-auto lg:mx-0 flex items-center justify-center text-white shadow-xl">
@@ -368,7 +390,7 @@ const HomePage = () => {
             <div className="lg:col-span-2">
               <div className="flex items-center space-x-4 space-x-reverse mb-6">
                 <Quote className="w-12 h-12 text-islamic-600" />
-                <h2 className="heading-2 text-islamic-800">كلمة معالي الوزير</h2>
+                <h2 className="text-3xl font-bold text-islamic-800 font-display">كلمة معالي الوزير</h2>
               </div>
               
               <div className="space-y-6 text-sage-700 font-body leading-relaxed">
@@ -406,10 +428,10 @@ const HomePage = () => {
 
       {/* Animated Statistics */}
       <section id="stats-section" className="bg-gradient-to-br from-islamic-50 to-golden-50 py-20">
-        <div className="container-spacing">
+        <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="heading-2 text-islamic-800 mb-6">إنجازاتنا بالأرقام</h2>
-            <p className="body-large text-sage-600 max-w-3xl mx-auto">
+            <h2 className="text-3xl font-bold text-islamic-800 mb-6 font-display">إنجازاتنا بالأرقام</h2>
+            <p className="text-xl text-sage-600 max-w-3xl mx-auto font-body">
               أرقام تعكس حجم العمل والإنجازات التي حققتها الوزارة في خدمة المجتمع الفلسطيني
             </p>
           </div>
@@ -448,15 +470,15 @@ const HomePage = () => {
       </section>
 
       {/* Latest News */}
-      <section className="section-padding bg-white">
-        <div className="container-spacing">
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-12">
             <div>
-              <h2 className="heading-2 text-islamic-800 mb-4 flex items-center space-x-3 space-x-reverse">
+              <h2 className="text-3xl font-bold text-islamic-800 mb-4 flex items-center space-x-3 space-x-reverse font-display">
                 <Newspaper className="w-8 h-8 text-islamic-600" />
                 <span>أخبار الوزارة</span>
               </h2>
-              <p className="body-text text-sage-600">تابع أحدث الأخبار والمستجدات من وزارة الأوقاف</p>
+              <p className="text-sage-600 font-body">تابع أحدث الأخبار والمستجدات من وزارة الأوقاف</p>
             </div>
             <Link
               to="/news"
@@ -513,14 +535,14 @@ const HomePage = () => {
 
       {/* Announcements Section */}
       <section className="py-20 bg-gradient-to-br from-golden-50 to-islamic-50">
-        <div className="container-spacing">
+        <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-12">
             <div>
-              <h2 className="heading-2 text-islamic-800 mb-4 flex items-center space-x-3 space-x-reverse">
+              <h2 className="text-3xl font-bold text-islamic-800 mb-4 flex items-center space-x-3 space-x-reverse font-display">
                 <Megaphone className="w-8 h-8 text-golden-600" />
                 <span>الإعلانات</span>
               </h2>
-              <p className="body-text text-sage-600">إعلانات وتنبيهات مهمة للمواطنين</p>
+              <p className="text-sage-600 font-body">إعلانات وتنبيهات مهمة للمواطنين</p>
             </div>
             <Link
               to="/announcements"
@@ -557,14 +579,14 @@ const HomePage = () => {
       </section>
 
       {/* Services Section with Tabs */}
-      <section className="section-padding bg-gradient-to-br from-islamic-50 to-white geometric-pattern">
-        <div className="container-spacing">
+      <section className="py-20 bg-gradient-to-br from-islamic-50 to-white geometric-pattern">
+        <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="heading-2 text-islamic-800 mb-6 flex items-center justify-center space-x-3 space-x-reverse">
+            <h2 className="text-3xl font-bold text-islamic-800 mb-6 flex items-center justify-center space-x-3 space-x-reverse font-display">
               <HandHeart className="w-8 h-8 text-islamic-600" />
               <span>خدمات الوزارة</span>
             </h2>
-            <p className="body-large text-sage-600 max-w-3xl mx-auto">
+            <p className="text-xl text-sage-600 max-w-3xl mx-auto font-body">
               نقدم مجموعة شاملة من الخدمات الدينية والإدارية لخدمة المجتمع الفلسطيني
             </p>
           </div>
@@ -617,14 +639,14 @@ const HomePage = () => {
       </section>
 
       {/* Important Links Section */}
-      <section className="section-padding bg-white">
-        <div className="container-spacing">
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="heading-2 text-islamic-800 mb-6 flex items-center justify-center space-x-3 space-x-reverse">
+            <h2 className="text-3xl font-bold text-islamic-800 mb-6 flex items-center justify-center space-x-3 space-x-reverse font-display">
               <LinkIcon className="w-8 h-8 text-islamic-600" />
               <span>أهم روابط الوزارة</span>
             </h2>
-            <p className="body-large text-sage-600 max-w-3xl mx-auto">
+            <p className="text-xl text-sage-600 max-w-3xl mx-auto font-body">
               روابط سريعة للوصول إلى أهم الخدمات والمعلومات
             </p>
           </div>
@@ -656,14 +678,14 @@ const HomePage = () => {
       </section>
 
       {/* Events and Social Activities Section */}
-      <section className="section-padding bg-gradient-to-br from-sage-50 to-islamic-50">
-        <div className="container-spacing">
+      <section className="py-20 bg-gradient-to-br from-sage-50 to-islamic-50">
+        <div className="container mx-auto px-4">
           <div className="bg-white rounded-2xl shadow-elegant overflow-hidden">
             {/* Header */}
             <div className="islamic-gradient text-white p-8">
               <div className="flex items-center space-x-4 space-x-reverse">
                 <Calendar className="w-8 h-8 text-golden-300" />
-                <h2 className="heading-2 text-white">الفعاليات والاجتماعيات</h2>
+                <h2 className="text-3xl font-bold text-white font-display">الفعاليات والاجتماعيات</h2>
               </div>
             </div>
 
@@ -745,14 +767,14 @@ const HomePage = () => {
       </section>
 
       {/* Media Gallery */}
-      <section className="section-padding bg-white">
-        <div className="container-spacing">
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
           <div className="bg-white rounded-2xl shadow-elegant overflow-hidden">
             {/* Header */}
             <div className="islamic-gradient text-white p-8">
               <div className="flex items-center space-x-4 space-x-reverse">
                 <PhotoVideo className="w-8 h-8 text-golden-300" />
-                <h2 className="heading-2 text-white">معرض الصور والفيديو</h2>
+                <h2 className="text-3xl font-bold text-white font-display">معرض الصور والفيديو</h2>
               </div>
             </div>
 
@@ -846,14 +868,14 @@ const HomePage = () => {
       </section>
 
       {/* Social Media Section */}
-      <section className="section-padding islamic-gradient text-white">
-        <div className="container-spacing">
+      <section className="py-20 islamic-gradient text-white">
+        <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="heading-2 text-white mb-6 flex items-center justify-center space-x-3 space-x-reverse">
+            <h2 className="text-3xl font-bold text-white mb-6 flex items-center justify-center space-x-3 space-x-reverse font-display">
               <Globe className="w-8 h-8 text-golden-300" />
               <span>تواصل معنا على وسائل التواصل</span>
             </h2>
-            <p className="body-large text-golden-200 max-w-3xl mx-auto">
+            <p className="text-xl text-golden-200 max-w-3xl mx-auto font-body">
               تابعونا على منصات التواصل الاجتماعي للحصول على آخر الأخبار والتحديثات
             </p>
           </div>
@@ -883,11 +905,11 @@ const HomePage = () => {
       </section>
 
       {/* Contact Section */}
-      <section className="section-padding bg-gradient-to-br from-sage-800 to-islamic-900 text-white">
-        <div className="container-spacing">
+      <section className="py-20 bg-gradient-to-br from-sage-800 to-islamic-900 text-white">
+        <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="heading-2 text-white mb-8 flex items-center space-x-3 space-x-reverse">
+              <h2 className="text-3xl font-bold text-white mb-8 flex items-center space-x-3 space-x-reverse font-display">
                 <Info className="w-8 h-8 text-golden-300" />
                 <span>معلومات التواصل</span>
               </h2>
@@ -962,6 +984,12 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+
+      {/* Welcome Modal */}
+      <WelcomeModal 
+        isOpen={showWelcomeModal} 
+        onClose={() => setShowWelcomeModal(false)} 
+      />
     </div>
   );
 };

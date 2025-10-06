@@ -1,155 +1,217 @@
 import React, { useState } from 'react';
-import { Phone, Mail, MapPin, Clock, Globe, Send, User, MessageSquare, Building, Users, Calendar, Star, CheckCircle, AlertTriangle, Info, Download, Share2, Eye, ArrowLeft, Plus, Target, Heart, BookOpen, Shield, Award, Zap, Sparkles, Crown, Gem, TrendingUp, BarChart3, Navigation, Compass, Flag, Home, Settings, FileText, Headphones, Video, Image as ImageIcon, Printer, Fan as Fax } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock, Send, User, MessageSquare, Building, Globe, Calendar, Info, AlertTriangle, CheckCircle, Star, Heart, Share2, Bookmark, Download, Upload, Settings, Plus, Edit, Trash2, Search, Filter, Eye, TrendingUp, BarChart3, Activity, Target, Award, Sparkles, Crown, Gem, HandHeart, GraduationCap, Megaphone, Volume2, VolumeX, Bell, RefreshCw, Save, Copy, ExternalLink, Navigation, Compass, Flag, Archive, Layers, Grid, List, Facebook, Twitter, Instagram, Youtube, Linkedin, MessageCircle as WhatsApp, Printer, Fan as Fax, Headphones, HelpCircle, FileText, Image as ImageIcon, Video, Mic, BookOpen } from 'lucide-react';
+import { useToast } from '../hooks/useToast';
 
 const ContactPage = () => {
+  const { success, info, error: showError } = useToast();
+  const [selectedDepartment, setSelectedDepartment] = useState('general');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     subject: '',
     message: '',
-    department: '',
-    priority: 'normal'
+    department: 'general',
+    priority: 'normal',
+    attachments: []
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [showMap, setShowMap] = useState(false);
+  const [activeTab, setActiveTab] = useState('contact');
 
   const departments = [
-    { id: 'general', name: 'الاستفسارات العامة', icon: Info },
-    { id: 'waqf', name: 'إدارة الأوقاف', icon: Building },
-    { id: 'mosques', name: 'شؤون المساجد', icon: Crown },
-    { id: 'education', name: 'التعليم الديني', icon: BookOpen },
-    { id: 'social', name: 'الخدمات الاجتماعية', icon: Heart },
-    { id: 'technical', name: 'الدعم التقني', icon: Settings },
-    { id: 'media', name: 'الإعلام والعلاقات العامة', icon: Globe }
+    {
+      id: 'general',
+      name: 'الاستعلامات العامة',
+      icon: Info,
+      phone: '+970 2 298 2500',
+      email: 'info@awqaf.gov.ps',
+      manager: 'الأستاذ محمد أحمد',
+      office: 'الطابق الأول - مكتب 101',
+      hours: 'الأحد - الخميس: 8:00 ص - 3:00 م',
+      description: 'للاستفسارات العامة والمعلومات الأساسية'
+    },
+    {
+      id: 'mosques',
+      name: 'إدارة المساجد',
+      icon: Building,
+      phone: '+970 2 298 2534',
+      email: 'mosques@awqaf.gov.ps',
+      manager: 'الأستاذ أحمد محمد',
+      office: 'الطابق الثاني - مكتب 201',
+      hours: 'الأحد - الخميس: 8:00 ص - 3:00 م',
+      description: 'خدمات إدارة وصيانة المساجد'
+    },
+    {
+      id: 'religious',
+      name: 'الشؤون الدينية',
+      icon: BookOpen,
+      phone: '+970 2 298 2535',
+      email: 'fatwa@awqaf.gov.ps',
+      manager: 'الشيخ محمد علي',
+      office: 'الطابق الثاني - مكتب 205',
+      hours: 'الأحد - الخميس: 8:00 ص - 3:00 م',
+      description: 'الفتاوى والإرشاد الديني'
+    },
+    {
+      id: 'education',
+      name: 'التعليم الديني',
+      icon: GraduationCap,
+      phone: '+970 2 298 2536',
+      email: 'education@awqaf.gov.ps',
+      manager: 'الدكتور نور الدين',
+      office: 'الطابق الثالث - مكتب 301',
+      hours: 'الأحد - الخميس: 8:00 ص - 3:00 م',
+      description: 'برامج التعليم والدورات الدينية'
+    },
+    {
+      id: 'social',
+      name: 'الخدمات الاجتماعية',
+      icon: Heart,
+      phone: '+970 2 298 2539',
+      email: 'social@awqaf.gov.ps',
+      manager: 'الأستاذة فاطمة خالد',
+      office: 'الطابق الأول - مكتب 105',
+      hours: 'الأحد - الخميس: 8:00 ص - 3:00 م',
+      description: 'المساعدات والدعم الاجتماعي'
+    },
+    {
+      id: 'media',
+      name: 'الإعلام والعلاقات العامة',
+      icon: Megaphone,
+      phone: '+970 2 298 2540',
+      email: 'media@awqaf.gov.ps',
+      manager: 'الأستاذ سامر محمود',
+      office: 'الطابق الثالث - مكتب 305',
+      hours: 'الأحد - الخميس: 8:00 ص - 3:00 م',
+      description: 'الإعلام والتواصل مع الجمهور'
+    }
   ];
 
-  const contactMethods = [
+  const socialMedia = [
     {
-      id: 'phone',
-      title: 'الهاتف',
-      icon: Phone,
-      color: 'from-green-500 to-green-600',
-      primary: '+970 2 298 2532',
-      secondary: '+970 2 298 2533',
-      description: 'للاستفسارات العاجلة والطوارئ',
-      hours: 'الأحد - الخميس: 8:00 ص - 3:00 م'
+      name: 'فيسبوك',
+      icon: Facebook,
+      url: 'https://facebook.com/awqaf.palestine',
+      followers: '125K',
+      color: 'text-blue-600'
     },
     {
-      id: 'email',
-      title: 'البريد الإلكتروني',
-      icon: Mail,
-      color: 'from-blue-500 to-blue-600',
-      primary: 'info@awqaf.gov.ps',
-      secondary: 'contact@awqaf.gov.ps',
-      description: 'للاستفسارات التفصيلية والوثائق',
-      hours: 'رد خلال 24 ساعة'
+      name: 'تويتر',
+      icon: Twitter,
+      url: 'https://twitter.com/awqaf_palestine',
+      followers: '89K',
+      color: 'text-sky-500'
     },
     {
-      id: 'location',
-      title: 'الموقع',
-      icon: MapPin,
-      color: 'from-purple-500 to-purple-600',
-      primary: 'رام الله - فلسطين',
-      secondary: 'شارع الإرسال، بجانب المقاطعة',
-      description: 'للزيارات الشخصية والاجتماعات',
-      hours: 'الأحد - الخميس: 8:00 ص - 3:00 م'
+      name: 'إنستغرام',
+      icon: Instagram,
+      url: 'https://instagram.com/awqaf.palestine',
+      followers: '67K',
+      color: 'text-pink-600'
     },
     {
-      id: 'fax',
-      title: 'الفاكس',
-      icon: Printer,
-      color: 'from-orange-500 to-orange-600',
-      primary: '+970 2 298 2534',
-      secondary: '+970 2 298 2535',
-      description: 'لإرسال الوثائق الرسمية',
-      hours: '24 ساعة'
+      name: 'يوتيوب',
+      icon: Youtube,
+      url: 'https://youtube.com/awqafpalestine',
+      followers: '45K',
+      color: 'text-red-600'
+    },
+    {
+      name: 'واتساب',
+      icon: WhatsApp,
+      url: 'https://wa.me/970591234567',
+      followers: 'متاح',
+      color: 'text-green-600'
+    },
+    {
+      name: 'لينكد إن',
+      icon: Linkedin,
+      url: 'https://linkedin.com/company/awqaf-palestine',
+      followers: '23K',
+      color: 'text-blue-700'
     }
   ];
 
   const officeLocations = [
     {
       id: 1,
-      name: 'المكتب الرئيسي',
-      address: 'رام الله - شارع الإرسال',
-      phone: '+970 2 298 2532',
-      email: 'ramallah@awqaf.gov.ps',
-      manager: 'الأستاذ أحمد محمد الأحمد',
-      services: ['الإدارة العامة', 'الأوقاف', 'الشؤون المالية'],
+      name: 'المقر الرئيسي',
+      address: 'شارع الإرسال، رام الله، فلسطين',
+      phone: '+970 2 298 2500',
+      fax: '+970 2 298 2501',
+      email: 'info@awqaf.gov.ps',
       hours: 'الأحد - الخميس: 8:00 ص - 3:00 م',
-      coordinates: { lat: 31.9038, lng: 35.2034 }
+      services: ['جميع الخدمات', 'مكتب الوزير', 'الإدارة العامة'],
+      coordinates: { lat: 31.9046, lng: 35.2042 }
     },
     {
       id: 2,
-      name: 'مكتب القدس',
-      address: 'القدس - البلدة القديمة',
-      phone: '+970 2 628 3292',
-      email: 'jerusalem@awqaf.gov.ps',
-      manager: 'الشيخ عكرمة صبري',
-      services: ['المسجد الأقصى', 'المقدسات', 'الزيارات'],
-      hours: 'الأحد - الخميس: 8:00 ص - 3:00 م',
-      coordinates: { lat: 31.7767, lng: 35.2345 }
-    },
-    {
-      id: 3,
       name: 'مكتب غزة',
-      address: 'غزة - شارع الرشيد',
+      address: 'شارع عمر المختار، غزة، فلسطين',
       phone: '+970 8 282 3456',
+      fax: '+970 8 282 3457',
       email: 'gaza@awqaf.gov.ps',
-      manager: 'الدكتور عمر الزهار',
-      services: ['المساجد', 'الخدمات الاجتماعية', 'التعليم'],
       hours: 'الأحد - الخميس: 8:00 ص - 3:00 م',
+      services: ['إدارة المساجد', 'الشؤون الدينية', 'الخدمات الاجتماعية'],
       coordinates: { lat: 31.5017, lng: 34.4668 }
     },
     {
-      id: 4,
+      id: 3,
       name: 'مكتب نابلس',
-      address: 'نابلس - شارع الفاروق',
-      phone: '+970 9 238 4567',
+      address: 'البلدة القديمة، نابلس، فلسطين',
+      phone: '+970 9 238 7890',
+      fax: '+970 9 238 7891',
       email: 'nablus@awqaf.gov.ps',
-      manager: 'الدكتور خالد النابلسي',
-      services: ['المساجد الإقليمية', 'التدريب', 'الأنشطة'],
       hours: 'الأحد - الخميس: 8:00 ص - 3:00 م',
+      services: ['إدارة المساجد', 'التعليم الديني', 'الأنشطة'],
       coordinates: { lat: 32.2211, lng: 35.2544 }
     }
   ];
 
-  const socialMedia = [
-    { name: 'فيسبوك', url: 'https://facebook.com/awqaf.ps', icon: '📘', followers: '125K' },
-    { name: 'تويتر', url: 'https://twitter.com/awqaf_ps', icon: '🐦', followers: '89K' },
-    { name: 'إنستغرام', url: 'https://instagram.com/awqaf.ps', icon: '📷', followers: '67K' },
-    { name: 'يوتيوب', url: 'https://youtube.com/awqafps', icon: '📺', followers: '45K' }
+  const emergencyContacts = [
+    {
+      title: 'الطوارئ العامة',
+      phone: '+970 59 123 4567',
+      description: 'متاح 24/7 للحالات العاجلة',
+      icon: AlertTriangle,
+      color: 'text-red-600'
+    },
+    {
+      title: 'الدعم الفني',
+      phone: '+970 59 234 5678',
+      description: 'دعم تقني للخدمات الإلكترونية',
+      icon: Settings,
+      color: 'text-blue-600'
+    },
+    {
+      title: 'خدمة العملاء',
+      phone: '+970 59 345 6789',
+      description: 'استفسارات ومساعدة عامة',
+      icon: Headphones,
+      color: 'text-green-600'
+    }
   ];
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name || !formData.email || !formData.message) {
+      showError('بيانات ناقصة', 'يرجى ملء جميع الحقول المطلوبة');
+      return;
+    }
+    success('تم إرسال الرسالة', 'سيتم الرد عليك في أقرب وقت ممكن');
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      subject: '',
+      message: '',
+      department: 'general',
+      priority: 'normal',
+      attachments: []
+    });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    // محاكاة إرسال النموذج
-    try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      setSubmitStatus('success');
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: '',
-        department: '',
-        priority: 'normal'
-      });
-    } catch (error) {
-      setSubmitStatus('error');
-    } finally {
-      setIsSubmitting(false);
-      setTimeout(() => setSubmitStatus('idle'), 5000);
-    }
-  };
+  const selectedDept = departments.find(dept => dept.id === selectedDepartment);
 
   return (
     <div className="min-h-screen bg-gray-50 pt-8">
@@ -158,384 +220,527 @@ const ContactPage = () => {
         <div className="islamic-gradient text-white rounded-2xl p-8 mb-8 islamic-pattern">
           <div className="text-center">
             <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl animate-float">
-              <MessageSquare className="w-12 h-12 text-islamic-600" />
+              <Phone className="w-12 h-12 text-islamic-600" />
             </div>
-            <h1 className="heading-1 text-white mb-4">تواصل معنا</h1>
+            <h1 className="heading-1 text-white mb-4">اتصل بنا</h1>
             <p className="body-large text-golden-200 max-w-4xl mx-auto">
-              نحن هنا لخدمتكم والإجابة على جميع استفساراتكم في أي وقت
+              نحن هنا لخدمتكم والإجابة على استفساراتكم في أي وقت
             </p>
           </div>
         </div>
 
-        {/* Contact Methods */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {contactMethods.map((method, index) => (
-            <div key={method.id} className={`card-islamic hover-lift animate-fade-in-up`} style={{ animationDelay: `${index * 0.1}s` }}>
-              <div className={`w-16 h-16 bg-gradient-to-br ${method.color} rounded-xl flex items-center justify-center mb-6 shadow-lg`}>
-                <method.icon className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-islamic-800 mb-3 font-display">{method.title}</h3>
-              <div className="space-y-2 mb-4">
-                <p className="font-bold text-sage-800 font-body" dir="ltr">{method.primary}</p>
-                <p className="text-sage-600 font-body" dir="ltr">{method.secondary}</p>
-              </div>
-              <p className="text-sage-600 text-sm mb-3 font-body">{method.description}</p>
-              <p className="text-xs text-islamic-600 font-body">{method.hours}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Contact Form */}
-          <div className="bg-white rounded-2xl shadow-elegant p-8">
-            <div className="flex items-center space-x-3 space-x-reverse mb-6">
-              <div className="w-12 h-12 islamic-gradient rounded-xl flex items-center justify-center">
-                <Send className="w-6 h-6 text-white" />
-              </div>
-              <h2 className="heading-2 text-islamic-800">أرسل رسالة</h2>
-            </div>
-
-            {submitStatus === 'success' && (
-              <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
-                <div className="flex items-center space-x-2 space-x-reverse">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                  <p className="text-green-800 font-body">تم إرسال رسالتك بنجاح. سنتواصل معك قريباً.</p>
-                </div>
-              </div>
-            )}
-
-            {submitStatus === 'error' && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
-                <div className="flex items-center space-x-2 space-x-reverse">
-                  <AlertTriangle className="w-5 h-5 text-red-600" />
-                  <p className="text-red-800 font-body">حدث خطأ في إرسال الرسالة. يرجى المحاولة مرة أخرى.</p>
-                </div>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-islamic-700 mb-2 font-body">
-                    الاسم الكامل *
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    required
-                    className="form-input"
-                    placeholder="أدخل اسمك الكامل"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-semibold text-islamic-700 mb-2 font-body">
-                    البريد الإلكتروني *
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
-                    className="form-input"
-                    placeholder="example@email.com"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-islamic-700 mb-2 font-body">
-                    رقم الهاتف
-                  </label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    className="form-input"
-                    placeholder="+970 X XXX XXXX"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-semibold text-islamic-700 mb-2 font-body">
-                    القسم المختص
-                  </label>
-                  <select
-                    name="department"
-                    value={formData.department}
-                    onChange={handleInputChange}
-                    className="form-select"
-                  >
-                    <option value="">اختر القسم</option>
-                    {departments.map(dept => (
-                      <option key={dept.id} value={dept.id}>{dept.name}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-islamic-700 mb-2 font-body">
-                    موضوع الرسالة *
-                  </label>
-                  <input
-                    type="text"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleInputChange}
-                    required
-                    className="form-input"
-                    placeholder="موضوع الرسالة"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-semibold text-islamic-700 mb-2 font-body">
-                    الأولوية
-                  </label>
-                  <select
-                    name="priority"
-                    value={formData.priority}
-                    onChange={handleInputChange}
-                    className="form-select"
-                  >
-                    <option value="low">منخفضة</option>
-                    <option value="normal">عادية</option>
-                    <option value="high">مهمة</option>
-                    <option value="urgent">عاجلة</option>
-                  </select>
-                </div>
-              </div>
-
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="card-islamic">
+            <div className="flex items-center justify-between">
               <div>
-                <label className="block text-sm font-semibold text-islamic-700 mb-2 font-body">
-                  نص الرسالة *
-                </label>
-                <textarea
-                  name="message"
-                  value={formData.message}
-                  onChange={handleInputChange}
-                  required
-                  rows={6}
-                  className="form-textarea"
-                  placeholder="اكتب رسالتك هنا..."
-                />
+                <p className="text-sm font-medium text-sage-600 font-body">أقسام الخدمة</p>
+                <p className="text-3xl font-bold text-islamic-700 font-display">{departments.length}</p>
               </div>
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? (
-                  <div className="flex items-center justify-center space-x-2 space-x-reverse">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    <span>جاري الإرسال...</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center space-x-2 space-x-reverse">
-                    <Send className="w-5 h-5" />
-                    <span>إرسال الرسالة</span>
-                  </div>
-                )}
-              </button>
-            </form>
+              <Building className="w-8 h-8 text-islamic-500" />
+            </div>
           </div>
-
-          {/* Quick Contact Info */}
-          <div className="space-y-6">
-            {/* Emergency Contact */}
-            <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-2xl p-6 border border-red-200">
-              <div className="flex items-center space-x-3 space-x-reverse mb-4">
-                <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center">
-                  <AlertTriangle className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold text-red-800 font-display">الطوارئ</h3>
+          
+          <div className="card-golden">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-sage-600 font-body">ساعات الخدمة</p>
+                <p className="text-2xl font-bold text-golden-700 font-display">7 ساعات</p>
               </div>
-              <p className="text-red-700 mb-4 font-body">للحالات الطارئة والاستفسارات العاجلة</p>
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2 space-x-reverse">
-                  <Phone className="w-4 h-4 text-red-600" />
-                  <span className="font-bold text-red-800" dir="ltr">+970 2 298 2530</span>
-                </div>
-                <div className="flex items-center space-x-2 space-x-reverse">
-                  <Mail className="w-4 h-4 text-red-600" />
-                  <span className="font-bold text-red-800" dir="ltr">emergency@awqaf.gov.ps</span>
-                </div>
-              </div>
+              <Clock className="w-8 h-8 text-golden-500" />
             </div>
-
-            {/* Working Hours */}
-            <div className="bg-white rounded-2xl shadow-elegant p-6">
-              <div className="flex items-center space-x-3 space-x-reverse mb-4">
-                <div className="w-12 h-12 islamic-gradient rounded-xl flex items-center justify-center">
-                  <Clock className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold text-islamic-800 font-display">ساعات العمل</h3>
+          </div>
+          
+          <div className="card-sage">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-sage-600 font-body">المكاتب الفرعية</p>
+                <p className="text-3xl font-bold text-sage-700 font-display">{officeLocations.length}</p>
               </div>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="font-body text-sage-600">الأحد - الخميس</span>
-                  <span className="font-bold text-islamic-700 font-body">8:00 ص - 3:00 م</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="font-body text-sage-600">الجمعة</span>
-                  <span className="font-bold text-sage-700 font-body">8:00 ص - 12:00 م</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="font-body text-sage-600">السبت</span>
-                  <span className="font-bold text-red-600 font-body">مغلق</span>
-                </div>
-                <div className="border-t border-sage-200 pt-3 mt-3">
-                  <p className="text-sm text-islamic-600 font-body">خدمة الطوارئ متاحة على مدار الساعة</p>
-                </div>
-              </div>
+              <MapPin className="w-8 h-8 text-sage-500" />
             </div>
-
-            {/* Social Media */}
-            <div className="bg-white rounded-2xl shadow-elegant p-6">
-              <div className="flex items-center space-x-3 space-x-reverse mb-4">
-                <div className="w-12 h-12 golden-gradient rounded-xl flex items-center justify-center">
-                  <Globe className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold text-islamic-800 font-display">تابعنا على</h3>
+          </div>
+          
+          <div className="card">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-sage-600 font-body">وسائل التواصل</p>
+                <p className="text-3xl font-bold text-gray-700 font-display">{socialMedia.length}</p>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                {socialMedia.map((social, index) => (
-                  <a
-                    key={index}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-2 space-x-reverse p-3 bg-islamic-50 rounded-lg hover:bg-islamic-100 transition-colors"
-                  >
-                    <span className="text-2xl">{social.icon}</span>
-                    <div>
-                      <p className="font-medium text-islamic-800 font-body">{social.name}</p>
-                      <p className="text-xs text-sage-600">{social.followers}</p>
-                    </div>
-                  </a>
-                ))}
-              </div>
+              <Globe className="w-8 h-8 text-gray-500" />
             </div>
           </div>
         </div>
 
-        {/* Office Locations */}
-        <div className="bg-white rounded-2xl shadow-elegant p-8 mb-8">
-          <h2 className="heading-2 text-islamic-800 mb-6">مكاتبنا في المحافظات</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {officeLocations.map((office) => (
-              <div key={office.id} className="bg-gradient-to-br from-islamic-50 to-golden-50 rounded-xl p-6 border border-islamic-200">
-                <div className="flex items-center space-x-3 space-x-reverse mb-4">
-                  <div className="w-12 h-12 islamic-gradient rounded-xl flex items-center justify-center">
-                    <Building className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-islamic-800 font-display">{office.name}</h3>
-                    <p className="text-sm text-sage-600 font-body">{office.manager}</p>
-                  </div>
-                </div>
-                
-                <div className="space-y-3 mb-4">
-                  <div className="flex items-center space-x-2 space-x-reverse">
-                    <MapPin className="w-4 h-4 text-islamic-600" />
-                    <span className="text-sage-700 font-body">{office.address}</span>
-                  </div>
-                  <div className="flex items-center space-x-2 space-x-reverse">
-                    <Phone className="w-4 h-4 text-golden-600" />
-                    <span className="text-sage-700 font-body" dir="ltr">{office.phone}</span>
-                  </div>
-                  <div className="flex items-center space-x-2 space-x-reverse">
-                    <Mail className="w-4 h-4 text-blue-600" />
-                    <span className="text-sage-700 font-body" dir="ltr">{office.email}</span>
-                  </div>
-                  <div className="flex items-center space-x-2 space-x-reverse">
-                    <Clock className="w-4 h-4 text-purple-600" />
-                    <span className="text-sage-700 font-body">{office.hours}</span>
-                  </div>
-                </div>
-                
-                <div className="mb-4">
-                  <h4 className="font-semibold text-sage-800 mb-2 font-display">الخدمات:</h4>
-                  <div className="flex flex-wrap gap-1">
-                    {office.services.map((service, index) => (
-                      <span key={index} className="px-2 py-1 bg-white text-islamic-700 text-xs rounded-full border border-islamic-200">
-                        {service}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                
-                <button className="w-full bg-islamic-600 text-white py-2 rounded-lg hover:bg-islamic-700 transition-colors font-body">
-                  <Navigation className="w-4 h-4 inline ml-2" />
-                  الاتجاهات
+        {/* Navigation Tabs */}
+        <div className="bg-white rounded-2xl shadow-elegant mb-8">
+          <div className="border-b border-sage-200">
+            <nav className="flex space-x-8 space-x-reverse px-6">
+              {[
+                { id: 'contact', name: 'نموذج التواصل', icon: MessageSquare },
+                { id: 'departments', name: 'الأقسام', icon: Building },
+                { id: 'locations', name: 'المواقع', icon: MapPin },
+                { id: 'social', name: 'وسائل التواصل', icon: Globe },
+                { id: 'emergency', name: 'الطوارئ', icon: AlertTriangle }
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center space-x-2 space-x-reverse py-4 px-2 border-b-2 font-medium text-sm transition-colors ${
+                    activeTab === tab.id
+                      ? 'border-islamic-600 text-islamic-600'
+                      : 'border-transparent text-sage-500 hover:text-sage-700 hover:border-sage-300'
+                  }`}
+                >
+                  <tab.icon className="w-4 h-4" />
+                  <span className="font-body">{tab.name}</span>
                 </button>
+              ))}
+            </nav>
+          </div>
+
+          <div className="p-6">
+            {activeTab === 'contact' && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Contact Form */}
+                <div>
+                  <h2 className="text-xl font-semibold text-islamic-800 mb-6 font-display">إرسال رسالة</h2>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-islamic-700 mb-2 font-body">الاسم الكامل *</label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.name}
+                          onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                          className="form-input"
+                          placeholder="أدخل اسمك الكامل"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-islamic-700 mb-2 font-body">البريد الإلكتروني *</label>
+                        <input
+                          type="email"
+                          required
+                          value={formData.email}
+                          onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                          className="form-input"
+                          placeholder="example@email.com"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-islamic-700 mb-2 font-body">رقم الهاتف</label>
+                        <input
+                          type="tel"
+                          value={formData.phone}
+                          onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                          className="form-input"
+                          placeholder="+970 59 123 4567"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-islamic-700 mb-2 font-body">القسم المختص</label>
+                        <select
+                          value={formData.department}
+                          onChange={(e) => setFormData(prev => ({ ...prev, department: e.target.value }))}
+                          className="form-select"
+                        >
+                          {departments.map(dept => (
+                            <option key={dept.id} value={dept.id}>{dept.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-islamic-700 mb-2 font-body">موضوع الرسالة *</label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.subject}
+                          onChange={(e) => setFormData(prev => ({ ...prev, subject: e.target.value }))}
+                          className="form-input"
+                          placeholder="موضوع الرسالة"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-islamic-700 mb-2 font-body">الأولوية</label>
+                        <select
+                          value={formData.priority}
+                          onChange={(e) => setFormData(prev => ({ ...prev, priority: e.target.value }))}
+                          className="form-select"
+                        >
+                          <option value="low">منخفضة</option>
+                          <option value="normal">عادية</option>
+                          <option value="high">عالية</option>
+                          <option value="urgent">عاجلة</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-islamic-700 mb-2 font-body">نص الرسالة *</label>
+                      <textarea
+                        required
+                        rows={6}
+                        value={formData.message}
+                        onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
+                        className="form-input"
+                        placeholder="اكتب رسالتك هنا..."
+                      ></textarea>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-islamic-700 mb-2 font-body">المرفقات (اختياري)</label>
+                      <div className="border-2 border-dashed border-sage-300 rounded-lg p-4 text-center hover:border-islamic-500 transition-colors">
+                        <Upload className="w-8 h-8 text-sage-400 mx-auto mb-2" />
+                        <p className="text-sm text-sage-600 font-body">اسحب الملفات هنا أو انقر للاختيار</p>
+                        <p className="text-xs text-sage-500 font-body">يدعم: PDF, DOC, JPG, PNG (حد أقصى 10MB)</p>
+                        <input type="file" className="hidden" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
+                      </div>
+                    </div>
+                    
+                    <button type="submit" className="w-full btn-primary">
+                      <Send className="w-5 h-5 ml-2" />
+                      إرسال الرسالة
+                    </button>
+                  </form>
+                </div>
+
+                {/* Department Info */}
+                <div className="space-y-6">
+                  <div className="card-golden">
+                    <h3 className="text-lg font-semibold text-golden-800 mb-4 font-display">معلومات القسم المختار</h3>
+                    {selectedDept && (
+                      <div className="space-y-4">
+                        <div className="flex items-center space-x-3 space-x-reverse">
+                          <div className="w-12 h-12 golden-gradient rounded-xl flex items-center justify-center">
+                            <selectedDept.icon className="w-6 h-6 text-white" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-golden-800 font-display">{selectedDept.name}</h4>
+                            <p className="text-sm text-sage-600 font-body">{selectedDept.description}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div className="flex items-center space-x-2 space-x-reverse">
+                            <Phone className="w-4 h-4 text-golden-600" />
+                            <span className="text-sage-700 font-body" dir="ltr">{selectedDept.phone}</span>
+                          </div>
+                          <div className="flex items-center space-x-2 space-x-reverse">
+                            <Mail className="w-4 h-4 text-golden-600" />
+                            <span className="text-sage-700 font-body" dir="ltr">{selectedDept.email}</span>
+                          </div>
+                          <div className="flex items-center space-x-2 space-x-reverse">
+                            <Building className="w-4 h-4 text-golden-600" />
+                            <span className="text-sage-700 font-body">{selectedDept.office}</span>
+                          </div>
+                          <div className="flex items-center space-x-2 space-x-reverse">
+                            <User className="w-4 h-4 text-golden-600" />
+                            <span className="text-sage-700 font-body">{selectedDept.manager}</span>
+                          </div>
+                          <div className="flex items-center space-x-2 space-x-reverse">
+                            <Clock className="w-4 h-4 text-golden-600" />
+                            <span className="text-sage-700 font-body">{selectedDept.hours}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Quick Contact */}
+                  <div className="card-sage">
+                    <h3 className="text-lg font-semibold text-sage-800 mb-4 font-display">تواصل سريع</h3>
+                    <div className="space-y-3">
+                      <button className="w-full flex items-center space-x-3 space-x-reverse px-4 py-3 bg-white text-sage-700 rounded-lg hover:bg-sage-50 transition-colors border border-sage-200">
+                        <Phone className="w-5 h-5 text-green-600" />
+                        <span className="font-body">اتصال مباشر</span>
+                      </button>
+                      <button className="w-full flex items-center space-x-3 space-x-reverse px-4 py-3 bg-white text-sage-700 rounded-lg hover:bg-sage-50 transition-colors border border-sage-200">
+                        <WhatsApp className="w-5 h-5 text-green-600" />
+                        <span className="font-body">واتساب</span>
+                      </button>
+                      <button className="w-full flex items-center space-x-3 space-x-reverse px-4 py-3 bg-white text-sage-700 rounded-lg hover:bg-sage-50 transition-colors border border-sage-200">
+                        <Calendar className="w-5 h-5 text-blue-600" />
+                        <span className="font-body">حجز موعد</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* FAQ */}
+                  <div className="card">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4 font-display">الأسئلة الشائعة</h3>
+                    <div className="space-y-3">
+                      {[
+                        'كيف يمكنني حجز موعد مع الوزير؟',
+                        'ما هي أوقات استقبال المواطنين؟',
+                        'كيف أحصل على فتوى شرعية؟',
+                        'ما هي خدمات إدارة المساجد؟'
+                      ].map((question, idx) => (
+                        <button key={idx} className="w-full text-right p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                          <div className="flex items-center space-x-2 space-x-reverse">
+                            <HelpCircle className="w-4 h-4 text-blue-600" />
+                            <span className="text-sm text-gray-700 font-body">{question}</span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
-            ))}
+            )}
+
+            {activeTab === 'departments' && (
+              <div>
+                <h2 className="text-xl font-semibold text-islamic-800 mb-6 font-display">أقسام الوزارة</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {departments.map((dept) => (
+                    <div key={dept.id} className="card-islamic">
+                      <div className="flex items-center space-x-4 space-x-reverse mb-4">
+                        <div className="w-12 h-12 islamic-gradient rounded-xl flex items-center justify-center">
+                          <dept.icon className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-islamic-800 font-display">{dept.name}</h3>
+                          <p className="text-sm text-sage-600 font-body">{dept.description}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <div className="flex items-center space-x-2 space-x-reverse">
+                          <Phone className="w-4 h-4 text-islamic-600" />
+                          <span className="text-sage-700 font-body" dir="ltr">{dept.phone}</span>
+                        </div>
+                        <div className="flex items-center space-x-2 space-x-reverse">
+                          <Mail className="w-4 h-4 text-islamic-600" />
+                          <span className="text-sage-700 font-body" dir="ltr">{dept.email}</span>
+                        </div>
+                        <div className="flex items-center space-x-2 space-x-reverse">
+                          <Building className="w-4 h-4 text-islamic-600" />
+                          <span className="text-sage-700 font-body">{dept.office}</span>
+                        </div>
+                        <div className="flex items-center space-x-2 space-x-reverse">
+                          <User className="w-4 h-4 text-islamic-600" />
+                          <span className="text-sage-700 font-body">{dept.manager}</span>
+                        </div>
+                        <div className="flex items-center space-x-2 space-x-reverse">
+                          <Clock className="w-4 h-4 text-islamic-600" />
+                          <span className="text-sage-700 font-body">{dept.hours}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-4 pt-4 border-t border-islamic-200">
+                        <button
+                          onClick={() => {
+                            setSelectedDepartment(dept.id);
+                            setActiveTab('contact');
+                          }}
+                          className="btn-primary w-full"
+                        >
+                          <MessageSquare className="w-5 h-5 ml-2" />
+                          تواصل مع القسم
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'locations' && (
+              <div>
+                <h2 className="text-xl font-semibold text-islamic-800 mb-6 font-display">مواقع المكاتب</h2>
+                <div className="space-y-6">
+                  {officeLocations.map((location) => (
+                    <div key={location.id} className="card-islamic">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                          <h3 className="text-lg font-semibold text-islamic-800 mb-4 font-display">{location.name}</h3>
+                          <div className="space-y-3">
+                            <div className="flex items-center space-x-2 space-x-reverse">
+                              <MapPin className="w-4 h-4 text-islamic-600" />
+                              <span className="text-sage-700 font-body">{location.address}</span>
+                            </div>
+                            <div className="flex items-center space-x-2 space-x-reverse">
+                              <Phone className="w-4 h-4 text-islamic-600" />
+                              <span className="text-sage-700 font-body" dir="ltr">{location.phone}</span>
+                            </div>
+                            <div className="flex items-center space-x-2 space-x-reverse">
+                              <Printer className="w-4 h-4 text-islamic-600" />
+                              <span className="text-sage-700 font-body" dir="ltr">{location.fax}</span>
+                            </div>
+                            <div className="flex items-center space-x-2 space-x-reverse">
+                              <Mail className="w-4 h-4 text-islamic-600" />
+                              <span className="text-sage-700 font-body" dir="ltr">{location.email}</span>
+                            </div>
+                            <div className="flex items-center space-x-2 space-x-reverse">
+                              <Clock className="w-4 h-4 text-islamic-600" />
+                              <span className="text-sage-700 font-body">{location.hours}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="mt-4">
+                            <h4 className="font-semibold text-islamic-800 mb-2 font-display">الخدمات المتاحة:</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {location.services.map((service, idx) => (
+                                <span key={idx} className="px-2 py-1 bg-islamic-100 text-islamic-700 text-xs rounded-full font-body">
+                                  {service}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-gray-100 rounded-xl p-4 flex items-center justify-center">
+                          <div className="text-center">
+                            <MapPin className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                            <p className="text-gray-600 font-body">خريطة الموقع</p>
+                            <button className="btn-primary mt-4">
+                              <Navigation className="w-5 h-5 ml-2" />
+                              عرض على الخريطة
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'social' && (
+              <div>
+                <h2 className="text-xl font-semibold text-islamic-800 mb-6 font-display">وسائل التواصل الاجتماعي</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {socialMedia.map((platform) => (
+                    <div key={platform.name} className="card-islamic text-center">
+                      <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <platform.icon className={`w-8 h-8 ${platform.color}`} />
+                      </div>
+                      <h3 className="text-lg font-semibold text-islamic-800 mb-2 font-display">{platform.name}</h3>
+                      <p className="text-sage-600 mb-4 font-body">{platform.followers} متابع</p>
+                      <a
+                        href={platform.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-primary w-full"
+                      >
+                        <ExternalLink className="w-5 h-5 ml-2" />
+                        زيارة الصفحة
+                      </a>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="card-golden mt-8">
+                  <h3 className="text-lg font-semibold text-golden-800 mb-4 font-display">اشترك في التحديثات</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h4 className="font-semibold text-golden-800 mb-3 font-display">النشرة الإخبارية</h4>
+                      <div className="flex space-x-2 space-x-reverse">
+                        <input
+                          type="email"
+                          placeholder="بريدك الإلكتروني"
+                          className="form-input flex-1"
+                        />
+                        <button className="btn-primary">
+                          <Send className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-golden-800 mb-3 font-display">إشعارات الجوال</h4>
+                      <div className="flex space-x-2 space-x-reverse">
+                        <input
+                          type="tel"
+                          placeholder="رقم الجوال"
+                          className="form-input flex-1"
+                        />
+                        <button className="btn-primary">
+                          <Bell className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'emergency' && (
+              <div>
+                <h2 className="text-xl font-semibold text-islamic-800 mb-6 font-display">أرقام الطوارئ</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {emergencyContacts.map((contact) => (
+                    <div key={contact.title} className="card border-l-4 border-red-500">
+                      <div className="flex items-center space-x-3 space-x-reverse mb-4">
+                        <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                          <contact.icon className={`w-6 h-6 ${contact.color}`} />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-800 font-display">{contact.title}</h3>
+                          <p className="text-sm text-gray-600 font-body">{contact.description}</p>
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-red-600 mb-4 font-display" dir="ltr">{contact.phone}</p>
+                        <button className="btn-primary w-full bg-red-600 hover:bg-red-700">
+                          <Phone className="w-5 h-5 ml-2" />
+                          اتصال فوري
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="card-islamic mt-8">
+                  <div className="text-center">
+                    <AlertTriangle className="w-16 h-16 text-red-600 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-red-800 mb-4 font-display">تنبيه مهم</h3>
+                    <p className="text-sage-700 font-body leading-relaxed">
+                      أرقام الطوارئ مخصصة للحالات العاجلة فقط. للاستفسارات العادية يرجى استخدام القنوات الاعتيادية للتواصل.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* FAQ Section */}
-        <div className="bg-white rounded-2xl shadow-elegant p-8 mb-8">
-          <h2 className="heading-2 text-islamic-800 mb-6">الأسئلة الشائعة</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[
-              {
-                question: 'كيف يمكنني التقدم لخدمات الوزارة؟',
-                answer: 'يمكنك زيارة أقرب مكتب لنا أو التواصل عبر الهاتف أو البريد الإلكتروني لمعرفة الإجراءات المطلوبة.'
-              },
-              {
-                question: 'ما هي ساعات عمل المكاتب؟',
-                answer: 'نعمل من الأحد إلى الخميس من 8:00 صباحاً حتى 3:00 مساءً، والجمعة حتى 12:00 ظهراً.'
-              },
-              {
-                question: 'كيف يمكنني التبرع للأوقاف؟',
-                answer: 'يمكنك التبرع من خلال زيارة مكاتبنا أو التواصل مع قسم الأوقاف لمعرفة طرق التبرع المتاحة.'
-              },
-              {
-                question: 'هل تقدمون خدمات إلكترونية؟',
-                answer: 'نعم، نوفر العديد من الخدمات الإلكترونية من خلال موقعنا الإلكتروني وتطبيق الهاتف المحمول.'
-              },
-              {
-                question: 'كيف يمكنني الحصول على فتوى شرعية؟',
-                answer: 'يمكنك التواصل مع قسم الشؤون الدينية أو زيارة أقرب مسجد للحصول على الإرشاد الشرعي.'
-              },
-              {
-                question: 'ما هي شروط العمل في الوزارة؟',
-                answer: 'تختلف الشروط حسب المنصب. يمكنك مراجعة قسم الموارد البشرية أو موقعنا للاطلاع على الوظائف المتاحة.'
-              }
-            ].map((faq, index) => (
-              <div key={index} className="bg-islamic-50 rounded-xl p-6">
-                <h4 className="font-semibold text-islamic-800 mb-3 font-display">{faq.question}</h4>
-                <p className="text-sage-700 font-body leading-relaxed">{faq.answer}</p>
+        {/* Contact Summary */}
+        <div className="card-islamic">
+          <h3 className="text-lg font-semibold text-islamic-800 mb-6 font-display">ملخص معلومات التواصل</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="w-16 h-16 islamic-gradient rounded-full flex items-center justify-center mx-auto mb-4">
+                <Phone className="w-8 h-8 text-white" />
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Map Section */}
-        <div className="bg-white rounded-2xl shadow-elegant p-8">
-          <h2 className="heading-2 text-islamic-800 mb-6">موقعنا على الخريطة</h2>
-          <div className="bg-gradient-to-br from-islamic-100 to-golden-100 rounded-xl p-8 text-center">
-            <MapPin className="w-16 h-16 text-islamic-600 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-islamic-800 mb-2 font-display">المكتب الرئيسي</h3>
-            <p className="text-sage-700 mb-4 font-body">رام الله - شارع الإرسال، بجانب المقاطعة</p>
-            <div className="flex items-center justify-center space-x-4 space-x-reverse">
-              <button className="btn-primary">
-                <Navigation className="w-5 h-5 ml-2" />
-                فتح في الخرائط
-              </button>
-              <button className="btn-secondary">
-                <Download className="w-5 h-5 ml-2" />
-                تحميل الموقع
-              </button>
+              <h4 className="font-semibold text-islamic-800 mb-2 font-display">الهاتف الرئيسي</h4>
+              <p className="text-2xl font-bold text-islamic-700 mb-2 font-display" dir="ltr">+970 2 298 2500</p>
+              <p className="text-sage-600 font-body">متاح خلال ساعات العمل الرسمية</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 golden-gradient rounded-full flex items-center justify-center mx-auto mb-4">
+                <Mail className="w-8 h-8 text-white" />
+              </div>
+              <h4 className="font-semibold text-golden-800 mb-2 font-display">البريد الإلكتروني</h4>
+              <p className="text-xl font-bold text-golden-700 mb-2 font-display" dir="ltr">info@awqaf.gov.ps</p>
+              <p className="text-sage-600 font-body">للمراسلات الرسمية والاستفسارات</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 sage-gradient rounded-full flex items-center justify-center mx-auto mb-4">
+                <MapPin className="w-8 h-8 text-white" />
+              </div>
+              <h4 className="font-semibold text-sage-800 mb-2 font-display">العنوان</h4>
+              <p className="text-lg font-bold text-sage-700 mb-2 font-display">شارع الإرسال، رام الله</p>
+              <p className="text-sage-600 font-body">المقر الرئيسي للوزارة</p>
             </div>
           </div>
         </div>

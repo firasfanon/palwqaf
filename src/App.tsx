@@ -21,7 +21,6 @@ import ReportsStatistics from './pages/admin/ReportsStatistics';
 import NationalWaqfRegistryPage from './pages/admin/NationalWaqfRegistry';
 import GeneralSettings from './pages/admin/GeneralSettings';
 import HomePageManagement from './pages/admin/HomePageManagement';
-import WebsiteManagement from './pages/admin/WebsiteManagement';
 import AboutPage from './pages/AboutPage';
 import MinisterPage from './pages/MinisterPage';
 import VisionMissionPage from './pages/VisionMissionPage';
@@ -35,35 +34,27 @@ import ProjectsPage from './pages/ProjectsPage';
 import ContactPage from './pages/ContactPage';
 import EServicesPage from './pages/EServicesPage';
 import NotificationsPage from './pages/NotificationsPage';
-import SearchPage from './pages/SearchPage';
-import NewsDetailPage from './pages/NewsDetailPage';
-import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
-import TermsOfServicePage from './pages/TermsOfServicePage';
-import SitemapPage from './pages/SitemapPage';
 import { AuthProvider } from './contexts/AuthContext';
 import { DataProvider } from './contexts/DataContext';
 import { PermissionsProvider } from './contexts/PermissionsContext';
-import { ToastContainer } from './components/UI';
-import { useToast } from './hooks/useToast';
 
-const AppContent = () => {
-  const { toasts, removeToast } = useToast();
-  
+function App() {
   return (
-    <>
-      <Router>
-        <Routes>
-          {/* جميع المسارات الموجودة */}
-          <Route path="/" element={
-            <div className="min-h-screen bg-gray-50" dir="rtl">
-              <Header />
-              <main className="min-h-screen">
-                <HomePage />
-              </main>
-              <Footer />
-            </div>
-          } />
-          {/* باقي المسارات... */}
+    <AuthProvider>
+      <PermissionsProvider>
+        <DataProvider>
+          <Router>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={
+                <div className="min-h-screen bg-gray-50" dir="rtl">
+                  <Header />
+                  <main className="min-h-screen">
+                    <HomePage />
+                  </main>
+                  <Footer />
+                </div>
+              } />
               <Route path="/news" element={
                 <div className="min-h-screen bg-gray-50" dir="rtl">
                   <Header />
@@ -93,59 +84,10 @@ const AppContent = () => {
               } />
               <Route path="/login" element={<LoginPage />} />
               
-              {/* Search and Utility Pages */}
-              <Route path="/search" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <SearchPage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
-              <Route path="/news/:id" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <NewsDetailPage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
-              <Route path="/privacy" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <PrivacyPolicyPage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
-              <Route path="/terms" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <TermsOfServicePage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
-              <Route path="/sitemap" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <SitemapPage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
-              
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<Dashboard />} />
-                <Route path="dashboard" element={<Dashboard />} />
                 <Route path="homepage" element={<HomePageManagement />} />
-                <Route path="website" element={<WebsiteManagement />} />
                 <Route path="national-registry" element={<NationalWaqfRegistryPage />} />
                 <Route path="cases" element={<CasesManagement />} />
                 <Route path="waqf-lands" element={<WaqfLandsManagement />} />
@@ -215,15 +157,6 @@ const AppContent = () => {
                   <Footer />
                 </div>
               } />
-              <Route path="/e-services" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <EServicesPage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
               <Route path="/mosques" element={
                 <div className="min-h-screen bg-gray-50" dir="rtl">
                   <Header />
@@ -278,19 +211,8 @@ const AppContent = () => {
                   <Footer />
                 </div>
               } />
-        </Routes>
-      </Router>
-      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
-    </>
-  );
-};
-
-function App() {
-  return (
-    <AuthProvider>
-      <PermissionsProvider>
-        <DataProvider>
-          <AppContent />
+            </Routes>
+          </Router>
         </DataProvider>
       </PermissionsProvider>
     </AuthProvider>

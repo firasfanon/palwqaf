@@ -43,7 +43,8 @@ import {
   RefreshCw,
   Copy,
   Move,
-  MoreVertical
+  MoreVertical,
+  Info
 } from 'lucide-react';
 import { useData } from '../../contexts/DataContext';
 
@@ -54,6 +55,7 @@ const HomePageManagement: React.FC = () => {
   const [modalType, setModalType] = useState<'news' | 'announcement' | 'activity' | 'sermon' | 'service' | 'mosque' | 'project'>('news');
   const [editingItem, setEditingItem] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeContentTab, setActiveContentTab] = useState('content');
 
   const sections = [
     { id: 'overview', name: 'نظرة عامة', icon: Home, color: 'text-islamic-600' },
@@ -64,6 +66,20 @@ const HomePageManagement: React.FC = () => {
     { id: 'social', name: 'الخدمات الاجتماعية', icon: Heart, color: 'text-pink-600' },
     { id: 'mosques', name: 'المساجد', icon: Building, color: 'text-teal-600' },
     { id: 'projects', name: 'المشاريع', icon: Rocket, color: 'text-indigo-600' }
+  ];
+
+  const contentSections = [
+    { id: 'content', name: 'إدارة المحتوى', icon: FileText },
+    { id: 'pages', name: 'الصفحات الثابتة', icon: Globe },
+    { id: 'settings', name: 'إعدادات الصفحة', icon: Settings }
+  ];
+
+  const staticPages = [
+    { id: 'minister', name: 'كلمة الوزير', icon: User, path: '/minister', status: 'active' },
+    { id: 'vision', name: 'الرؤية والرسالة', icon: Target, path: '/vision', status: 'active' },
+    { id: 'structure', name: 'الهيكل التنظيمي', icon: Building, path: '/structure', status: 'active' },
+    { id: 'former-ministers', name: 'الوزراء السابقون', icon: Crown, path: '/former-ministers', status: 'active' },
+    { id: 'about', name: 'عن الوزارة', icon: Info, path: '/about', status: 'active' }
   ];
 
   // بيانات تجريبية للخدمات الاجتماعية
@@ -227,11 +243,11 @@ const HomePageManagement: React.FC = () => {
           {sections.slice(1).map((section) => (
             <button
               key={section.id}
-              onClick={() => handleAddNew(section.id as typeof modalType)}
+              onClick={() => setActiveSection(section.id)}
               className="flex flex-col items-center p-6 border-2 border-sage-200 rounded-xl hover:border-islamic-500 hover:bg-islamic-50 transition-all duration-300"
             >
               <section.icon className={`w-8 h-8 mb-3 ${section.color}`} />
-              <span className="font-medium text-sage-800 font-body">إضافة {section.name}</span>
+              <span className="font-medium text-sage-800 font-body">إدارة {section.name}</span>
             </button>
           ))}
         </div>
@@ -773,24 +789,180 @@ const HomePageManagement: React.FC = () => {
     </div>
   );
 
+  const renderPagesManagement = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="heading-2 text-islamic-800">إدارة الصفحات الثابتة</h2>
+        <button className="btn-primary">
+          <Plus className="w-5 h-5 ml-2" />
+          إضافة صفحة جديدة
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {staticPages.map((page) => (
+          <div key={page.id} className="card-islamic">
+            <div className="flex items-center space-x-3 space-x-reverse mb-4">
+              <div className="w-12 h-12 islamic-gradient rounded-xl flex items-center justify-center">
+                <page.icon className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-islamic-800 font-display">{page.name}</h3>
+                <p className="text-sm text-sage-600 font-body">{page.path}</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between mb-4">
+              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                page.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+              }`}>
+                {page.status === 'active' ? 'نشطة' : 'غير نشطة'}
+              </span>
+              <div className="flex items-center space-x-2 space-x-reverse">
+                <button className="text-blue-600 hover:text-blue-700">
+                  <Eye className="w-4 h-4" />
+                </button>
+                <button className="text-green-600 hover:text-green-700">
+                  <Edit className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <button className="w-full bg-islamic-600 text-white py-2 rounded-lg hover:bg-islamic-700 transition-colors font-body">
+                تحرير المحتوى
+              </button>
+              <button className="w-full bg-golden-600 text-white py-2 rounded-lg hover:bg-golden-700 transition-colors font-body">
+                معاينة الصفحة
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderPageSettings = () => (
+    <div className="space-y-6">
+      <h2 className="heading-2 text-islamic-800">إعدادات الصفحة الرئيسية</h2>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="card-islamic">
+          <h3 className="text-lg font-semibold text-islamic-800 mb-4 font-display">إعدادات العرض</h3>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="font-body text-sage-700">عرض شريط الأخبار العاجلة</span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" defaultChecked className="sr-only peer" />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-islamic-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-islamic-600"></div>
+              </label>
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <span className="font-body text-sage-700">عرض الإحصائيات المتحركة</span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" defaultChecked className="sr-only peer" />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-islamic-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-islamic-600"></div>
+              </label>
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <span className="font-body text-sage-700">عرض معرض الصور</span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" defaultChecked className="sr-only peer" />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-islamic-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-islamic-600"></div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div className="card-golden">
+          <h3 className="text-lg font-semibold text-golden-800 mb-4 font-display">إعدادات المحتوى</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-golden-700 mb-2 font-body">عدد الأخبار في الصفحة الرئيسية</label>
+              <select className="form-select">
+                <option value="3">3 أخبار</option>
+                <option value="6">6 أخبار</option>
+                <option value="9">9 أخبار</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-golden-700 mb-2 font-body">عدد الإعلانات المعروضة</label>
+              <select className="form-select">
+                <option value="3">3 إعلانات</option>
+                <option value="5">5 إعلانات</option>
+                <option value="10">10 إعلانات</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-golden-700 mb-2 font-body">ترتيب الأقسام</label>
+              <div className="space-y-2">
+                {['الأخبار', 'الإعلانات', 'الأنشطة', 'الخدمات'].map((section, index) => (
+                  <div key={index} className="flex items-center justify-between bg-white p-3 rounded-lg">
+                    <span className="font-body">{section}</span>
+                    <div className="flex items-center space-x-2 space-x-reverse">
+                      <button className="text-gray-400 hover:text-gray-600">
+                        <Move className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderContent = () => {
+    if (activeSection !== 'overview') {
+      return (
+        <div className="space-y-6">
+          {/* Content Management Tabs */}
+          <div className="bg-white rounded-2xl shadow-elegant p-2">
+            <div className="flex gap-2">
+              {contentSections.map((section) => (
+                <button
+                  key={section.id}
+                  onClick={() => setActiveContentTab(section.id)}
+                  className={`flex items-center space-x-2 space-x-reverse px-6 py-3 rounded-xl transition-all duration-300 font-body ${
+                    activeContentTab === section.id
+                      ? 'bg-islamic-600 text-white shadow-islamic'
+                      : 'text-sage-700 hover:bg-islamic-50 hover:text-islamic-700'
+                  }`}
+                >
+                  <section.icon className="w-5 h-5" />
+                  <span className="font-medium">{section.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Content based on active tab */}
+          {activeContentTab === 'content' && (
+            <>
+              {activeSection === 'news' && renderNewsManagement()}
+              {activeSection === 'announcements' && renderAnnouncementsManagement()}
+              {activeSection === 'activities' && renderActivitiesManagement()}
+              {activeSection === 'sermons' && renderSermonsManagement()}
+              {activeSection === 'social' && renderSocialServicesManagement()}
+              {activeSection === 'mosques' && renderMosquesManagement()}
+              {activeSection === 'projects' && renderProjectsManagement()}
+            </>
+          )}
+          {activeContentTab === 'pages' && renderPagesManagement()}
+          {activeContentTab === 'settings' && renderPageSettings()}
+        </div>
+      );
+    }
+
     switch (activeSection) {
       case 'overview':
         return renderOverview();
-      case 'news':
-        return renderNewsManagement();
-      case 'announcements':
-        return renderAnnouncementsManagement();
-      case 'activities':
-        return renderActivitiesManagement();
-      case 'sermons':
-        return renderSermonsManagement();
-      case 'social':
-        return renderSocialServicesManagement();
-      case 'mosques':
-        return renderMosquesManagement();
-      case 'projects':
-        return renderProjectsManagement();
       default:
         return renderOverview();
     }

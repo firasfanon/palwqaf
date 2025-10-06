@@ -157,6 +157,15 @@ function App() {
                   <Footer />
                 </div>
               } />
+              <Route path="/e-services" element={
+                <div className="min-h-screen bg-gray-50" dir="rtl">
+                  <Header />
+                  <main className="min-h-screen">
+                    <EServicesPage />
+                  </main>
+                  <Footer />
+                </div>
+              } />
               <Route path="/mosques" element={
                 <div className="min-h-screen bg-gray-50" dir="rtl">
                   <Header />

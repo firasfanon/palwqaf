@@ -42,6 +42,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       color: 'text-islamic-600'
     },
     { 
+      id: 'website', 
+      name: 'إدارة الموقع الإلكتروني', 
+      icon: Globe, 
+      path: '/admin/website',
+      color: 'text-blue-600'
+    },
+    { 
       id: 'national-registry', 
       name: 'المفتاح الوطني للأوقاف', 
       icon: Key, 

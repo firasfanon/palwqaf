@@ -2,848 +2,435 @@ import React, { useState } from 'react';
 import { 
   User, 
   Calendar, 
-  Phone, 
-  Mail, 
-  MapPin, 
-  Clock, 
-  Star, 
   Award, 
   BookOpen, 
-  Users, 
-  Building, 
-  Globe, 
   Heart, 
   Target, 
-  CheckCircle, 
-  ArrowLeft, 
-  Eye, 
-  Share2, 
-  Bookmark, 
-  Download, 
-  Upload, 
-  Settings, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  AlertTriangle, 
-  Info, 
-  Zap, 
-  Activity, 
-  TrendingUp, 
-  BarChart3, 
-  Grid, 
-  List, 
-  Search, 
-  Filter, 
-  Send, 
-  MessageSquare, 
-  Video, 
-  Image as ImageIcon, 
-  FileText, 
-  Mic, 
-  Camera, 
-  Printer, 
-  Save, 
-  Copy, 
-  ExternalLink, 
-  Navigation, 
-  Compass, 
-  Flag, 
-  Archive, 
-  Layers, 
-  Sparkles, 
-  Crown, 
-  Gem, 
-  HandHeart, 
-  GraduationCap, 
-  Megaphone, 
-  Volume2, 
-  VolumeX, 
-  Bell, 
-  RefreshCw, 
-  Briefcase
+  Quote,
+  Phone,
+  Mail,
+  MapPin,
+  Globe,
+  Building,
+  Users,
+  Star,
+  CheckCircle,
+  ArrowLeft,
+  Download,
+  Share2,
+  Printer,
+  Eye,
+  Clock,
+  TrendingUp,
+  Handshake,
+  Shield,
+  Lightbulb
 } from 'lucide-react';
-import { useToast } from '../hooks/useToast';
 
 const MinisterPage = () => {
-  const { success, info, error: showError } = useToast();
-  const [showScheduleModal, setShowScheduleModal] = useState(false);
-  const [showMediaModal, setShowMediaModal] = useState(false);
-  const [selectedTab, setSelectedTab] = useState('biography');
-  const [selectedMedia, setSelectedMedia] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState('biography');
 
-  const ministerInfo = {
-    name: 'معالي الدكتور محمد أحمد الخالدي',
-    title: 'وزير الأوقاف والشؤون الدينية',
-    image: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=400',
-    biography: `معالي الدكتور محمد أحمد الخالدي، وزير الأوقاف والشؤون الدينية في دولة فلسطين. حاصل على درجة الدكتوراه في الشريعة الإسلامية من جامعة الأزهر الشريف، ولديه خبرة واسعة في مجال الإدارة الدينية والأوقاف.
+  const tabs = [
+    { id: 'biography', name: 'السيرة الذاتية', icon: User },
+    { id: 'message', name: 'كلمة الوزير', icon: Quote },
+    { id: 'achievements', name: 'الإنجازات', icon: Award },
+    { id: 'vision', name: 'الرؤية المستقبلية', icon: Target }
+  ];
 
-يؤمن معاليه بأهمية دور الأوقاف في التنمية المجتمعية والاقتصادية، ويسعى لتطوير الخدمات الدينية وتحديث إدارة الأوقاف لتواكب متطلبات العصر مع الحفاظ على الأصالة الإسلامية.`,
-    
-    achievements: [
-      'تطوير نظام إدارة الأوقاف الإلكتروني',
-      'إطلاق برنامج صيانة وترميم المساجد التاريخية',
-      'تأسيس مركز التعليم الديني المتطور',
-      'تطوير برامج الحج والعمرة',
-      'إنشاء صندوق التكافل الاجتماعي',
-      'تعزيز العلاقات الدينية الدولية'
-    ],
-    
-    education: [
-      'دكتوراه في الشريعة الإسلامية - جامعة الأزهر الشريف (2010)',
-      'ماجستير في أصول الفقه - الجامعة الإسلامية بغزة (2005)',
-      'بكالوريوس في الشريعة والقانون - جامعة النجاح الوطنية (2002)'
-    ],
-    
-    experience: [
-      'وزير الأوقاف والشؤون الدينية (2020 - حتى الآن)',
-      'نائب وزير الأوقاف (2018 - 2020)',
-      'مدير عام الشؤون الدينية (2015 - 2018)',
-      'رئيس قسم الفتوى والإرشاد (2012 - 2015)',
-      'إمام وخطيب المسجد الكبير (2010 - 2012)'
-    ]
-  };
-
-  const schedule = [
+  const achievements = [
     {
-      id: 1,
-      day: 'الأحد',
-      time: '9:00 - 11:00',
-      activity: 'اجتماع مجلس الوزراء',
-      type: 'official',
-      location: 'مقر رئاسة الوزراء'
+      year: '2020',
+      title: 'إطلاق النظام الإلكتروني المتكامل',
+      description: 'إطلاق أول نظام إلكتروني شامل لإدارة الأوقاف في فلسطين',
+      icon: Globe
     },
     {
-      id: 2,
-      day: 'الأحد',
-      time: '14:00 - 16:00',
-      activity: 'استقبال المواطنين',
-      type: 'public',
-      location: 'مكتب الوزير'
+      year: '2021',
+      title: 'مشروع ترميم المساجد التاريخية',
+      description: 'إطلاق مشروع طموح لترميم وصيانة 50 مسجد تاريخي',
+      icon: Building
     },
     {
-      id: 3,
-      day: 'الاثنين',
-      time: '10:00 - 12:00',
-      activity: 'زيارة ميدانية للمساجد',
-      type: 'field',
-      location: 'محافظة رام الله'
+      year: '2022',
+      title: 'برنامج تأهيل الأئمة المتقدم',
+      description: 'تدريب وتأهيل أكثر من 200 إمام وخطيب على أحدث المناهج',
+      icon: BookOpen
     },
     {
-      id: 4,
-      day: 'الثلاثاء',
-      time: '9:00 - 10:30',
-      activity: 'اجتماع إدارة الأوقاف',
-      type: 'internal',
-      location: 'قاعة الاجتماعات'
-    },
-    {
-      id: 5,
-      day: 'الأربعاء',
-      time: '11:00 - 12:00',
-      activity: 'لقاء إعلامي',
-      type: 'media',
-      location: 'قاعة المؤتمرات'
-    },
-    {
-      id: 6,
-      day: 'الخميس',
-      time: '14:00 - 16:00',
-      activity: 'استقبال المواطنين',
-      type: 'public',
-      location: 'مكتب الوزير'
+      year: '2023',
+      title: 'مبادرة الأوقاف الاستثمارية',
+      description: 'إطلاق مبادرة لاستثمار الأوقاف وزيادة عوائدها بنسبة 40%',
+      icon: TrendingUp
     }
   ];
 
-  const mediaGallery = [
+  const qualifications = [
+    'دكتوراه في الشريعة الإسلامية - الجامعة الأزهر',
+    'ماجستير في إدارة الأوقاف - جامعة القدس',
+    'بكالوريوس في أصول الدين - الجامعة الإسلامية',
+    'دبلوم في الإدارة العامة - معهد الإدارة والقيادة'
+  ];
+
+  const experiences = [
     {
-      id: 1,
-      title: 'كلمة الوزير في افتتاح المؤتمر الديني',
-      type: 'video',
-      url: 'https://images.pexels.com/photos/7688336/pexels-photo-7688336.jpeg?auto=compress&cs=tinysrgb&w=800',
-      thumbnail: 'https://images.pexels.com/photos/7688336/pexels-photo-7688336.jpeg?auto=compress&cs=tinysrgb&w=400',
-      date: '2024-01-15',
-      duration: '15:30',
-      views: 12500,
-      likes: 890,
-      description: 'كلمة معالي الوزير في افتتاح المؤتمر الديني السنوي'
+      period: '2018 - الآن',
+      position: 'وزير الأوقاف والشؤون الدينية',
+      organization: 'دولة فلسطين',
+      description: 'الإشراف العام على جميع الأوقاف الإسلامية والمساجد في فلسطين'
     },
     {
-      id: 2,
-      title: 'زيارة المسجد الأقصى المبارك',
-      type: 'image',
-      url: 'https://images.pexels.com/photos/8728380/pexels-photo-8728380.jpeg?auto=compress&cs=tinysrgb&w=800',
-      date: '2024-01-10',
-      views: 8900,
-      likes: 650,
-      description: 'زيارة معالي الوزير للمسجد الأقصى المبارك'
+      period: '2015 - 2018',
+      position: 'وكيل وزارة الأوقاف',
+      organization: 'وزارة الأوقاف والشؤون الدينية',
+      description: 'مساعدة الوزير في إدارة الشؤون الإدارية والمالية'
     },
     {
-      id: 3,
-      title: 'خطبة الجمعة من المسجد الكبير',
-      type: 'audio',
-      url: 'https://images.pexels.com/photos/6686445/pexels-photo-6686445.jpeg?auto=compress&cs=tinysrgb&w=800',
-      date: '2024-01-05',
-      duration: '25:45',
-      views: 15600,
-      likes: 1200,
-      description: 'خطبة الجمعة لمعالي الوزير من المسجد الكبير'
+      period: '2010 - 2015',
+      position: 'مدير عام الأوقاف',
+      organization: 'وزارة الأوقاف والشؤون الدينية',
+      description: 'إدارة ومتابعة جميع الأوقاف الإسلامية في المحافظات'
     },
     {
-      id: 4,
-      title: 'توقيع اتفاقية تعاون دولية',
-      type: 'image',
-      url: 'https://images.pexels.com/photos/5668858/pexels-photo-5668858.jpeg?auto=compress&cs=tinysrgb&w=800',
-      date: '2024-01-03',
-      views: 6700,
-      likes: 420,
-      description: 'توقيع اتفاقية تعاون مع وزارة الأوقاف الأردنية'
-    },
-    {
-      id: 5,
-      title: 'افتتاح مسجد جديد',
-      type: 'video',
-      url: 'https://images.pexels.com/photos/8728380/pexels-photo-8728380.jpeg?auto=compress&cs=tinysrgb&w=800',
-      thumbnail: 'https://images.pexels.com/photos/8728380/pexels-photo-8728380.jpeg?auto=compress&cs=tinysrgb&w=400',
-      date: '2023-12-28',
-      duration: '12:15',
-      views: 9800,
-      likes: 750,
-      description: 'افتتاح مسجد النور الجديد في مدينة نابلس'
-    },
-    {
-      id: 6,
-      title: 'كلمة في المؤتمر الإسلامي العالمي',
-      type: 'document',
-      url: 'https://images.pexels.com/photos/4348401/pexels-photo-4348401.jpeg?auto=compress&cs=tinysrgb&w=800',
-      date: '2023-12-20',
-      views: 5400,
-      likes: 380,
-      description: 'نص كلمة معالي الوزير في المؤتمر الإسلامي العالمي'
+      period: '2005 - 2010',
+      position: 'أستاذ الشريعة الإسلامية',
+      organization: 'جامعة القدس',
+      description: 'تدريس مواد الفقه والشريعة الإسلامية والإشراف على الرسائل العلمية'
     }
   ];
 
-  const contactMethods = [
+  const futureVision = [
     {
-      id: 1,
-      title: 'المكتب الرسمي',
+      icon: Globe,
+      title: 'الرقمنة الشاملة',
+      description: 'تحويل جميع خدمات الوزارة إلى خدمات إلكترونية متطورة بحلول 2025'
+    },
+    {
       icon: Building,
-      details: 'مكتب معالي الوزير - الطابق الخامس',
-      contact: '+970 2 298 2500',
-      hours: 'الأحد - الخميس: 8:00 ص - 3:00 م',
-      type: 'office'
+      title: 'تطوير الأوقاف',
+      description: 'زيادة عوائد الأوقاف بنسبة 50% من خلال الاستثمار الذكي والمستدام'
     },
     {
-      id: 2,
-      title: 'الاستقبال العام',
       icon: Users,
-      details: 'استقبال المواطنين والمؤسسات',
-      contact: 'حجز موعد مسبق مطلوب',
-      hours: 'الثلاثاء والخميس: 2:00 - 4:00 م',
-      type: 'public'
+      title: 'تأهيل الكوادر',
+      description: 'تدريب وتأهيل 1000 إمام وخطيب على أحدث المناهج والتقنيات'
     },
     {
-      id: 3,
-      title: 'البريد الإلكتروني',
-      icon: Mail,
-      details: 'للمراسلات الرسمية والاستفسارات',
-      contact: 'minister@awqaf.gov.ps',
-      hours: 'متاح على مدار الساعة',
-      type: 'email'
+      icon: Heart,
+      title: 'الخدمات الاجتماعية',
+      description: 'توسيع برامج الدعم الاجتماعي لتشمل 10,000 أسرة محتاجة'
     },
     {
-      id: 4,
-      title: 'الخط الساخن',
-      icon: Phone,
-      details: 'للحالات العاجلة والطوارئ',
-      contact: '+970 59 123 4567',
-      hours: 'متاح 24/7',
-      type: 'emergency'
+      icon: Shield,
+      title: 'حماية التراث',
+      description: 'ترميم وحماية جميع المعالم الإسلامية التاريخية في فلسطين'
+    },
+    {
+      icon: Handshake,
+      title: 'الشراكات الدولية',
+      description: 'بناء شراكات استراتيجية مع 20 مؤسسة دولية متخصصة في الأوقاف'
     }
   ];
-
-  const getActivityTypeStyle = (type: string) => {
-    switch (type) {
-      case 'official':
-        return 'bg-blue-100 text-blue-800';
-      case 'public':
-        return 'bg-green-100 text-green-800';
-      case 'field':
-        return 'bg-purple-100 text-purple-800';
-      case 'internal':
-        return 'bg-gray-100 text-gray-800';
-      case 'media':
-        return 'bg-orange-100 text-orange-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getActivityTypeIcon = (type: string) => {
-    switch (type) {
-      case 'official':
-        return <Building className="w-4 h-4" />;
-      case 'public':
-        return <Users className="w-4 h-4" />;
-      case 'field':
-        return <MapPin className="w-4 h-4" />;
-      case 'internal':
-        return <Settings className="w-4 h-4" />;
-      case 'media':
-        return <Camera className="w-4 h-4" />;
-      default:
-        return <Calendar className="w-4 h-4" />;
-    }
-  };
-
-  const getContactTypeStyle = (type: string) => {
-    switch (type) {
-      case 'office':
-        return 'bg-blue-50 border-blue-200';
-      case 'public':
-        return 'bg-green-50 border-green-200';
-      case 'email':
-        return 'bg-purple-50 border-purple-200';
-      case 'emergency':
-        return 'bg-red-50 border-red-200';
-      default:
-        return 'bg-gray-50 border-gray-200';
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 pt-8">
       <div className="container mx-auto px-4">
         {/* Hero Section */}
-        <div className="islamic-gradient text-white rounded-2xl p-8 mb-8 islamic-pattern">
+        <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-accent-600 text-white rounded-2xl p-8 mb-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
             <div className="lg:col-span-2">
-              <h1 className="heading-1 text-white mb-4">كلمة معالي الوزير</h1>
-              <p className="body-large text-golden-200 mb-6">
-                "نسعى لتطوير الخدمات الدينية وإدارة الأوقاف بما يخدم المجتمع الفلسطيني ويحافظ على تراثنا الإسلامي العريق"
+              <h1 className="text-4xl md:text-5xl font-bold mb-4 font-arabic">معالي الوزير</h1>
+              <h2 className="text-2xl md:text-3xl mb-4 text-accent-200 font-arabic">الدكتور محمد أحمد الأحمد</h2>
+              <p className="text-xl opacity-90 font-arabic leading-relaxed">
+                وزير الأوقاف والشؤون الدينية في دولة فلسطين
               </p>
-              <div className="flex items-center space-x-4 space-x-reverse">
-                <button
-                  onClick={() => setShowScheduleModal(true)}
-                  className="btn-golden"
-                >
-                  <Calendar className="w-5 h-5 ml-2" />
-                  حجز موعد
-                </button>
-                <button
-                  onClick={() => setShowMediaModal(true)}
-                  className="btn-outline-white"
-                >
-                  <Video className="w-5 h-5 ml-2" />
-                  معرض الوسائط
-                </button>
+              <div className="flex items-center space-x-6 space-x-reverse mt-6">
+                <div className="flex items-center space-x-2 space-x-reverse">
+                  <Calendar className="w-5 h-5" />
+                  <span className="font-arabic">في المنصب منذ 2018</span>
+                </div>
+                <div className="flex items-center space-x-2 space-x-reverse">
+                  <Award className="w-5 h-5" />
+                  <span className="font-arabic">25 عام خبرة</span>
+                </div>
               </div>
             </div>
-            <div className="text-center">
-              <div className="w-48 h-48 mx-auto mb-4 rounded-full overflow-hidden shadow-2xl border-4 border-white">
-                <img
-                  src={ministerInfo.image}
-                  alt={ministerInfo.name}
-                  className="w-full h-full object-cover"
-                />
+            <div className="flex justify-center">
+              <div className="relative">
+                <div className="w-64 h-64 bg-white rounded-full shadow-2xl overflow-hidden">
+                  <img
+                    src="https://images.pexels.com/photos/5428836/pexels-photo-5428836.jpeg?auto=compress&cs=tinysrgb&w=400"
+                    alt="معالي الوزير"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="absolute -bottom-4 -right-4 w-16 h-16 bg-accent-500 rounded-full flex items-center justify-center shadow-lg">
+                  <Star className="w-8 h-8 text-white" />
+                </div>
               </div>
-              <h2 className="text-xl font-semibold text-white font-display">{ministerInfo.name}</h2>
-              <p className="text-golden-200 font-body">{ministerInfo.title}</p>
             </div>
           </div>
         </div>
 
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="card-islamic">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-sage-600 font-body">سنوات الخبرة</p>
-                <p className="text-3xl font-bold text-islamic-700 font-display">15+</p>
-              </div>
-              <Award className="w-8 h-8 text-islamic-500" />
-            </div>
-          </div>
-          
-          <div className="card-golden">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-sage-600 font-body">المشاريع المنجزة</p>
-                <p className="text-3xl font-bold text-golden-700 font-display">120+</p>
-              </div>
-              <Target className="w-8 h-8 text-golden-500" />
-            </div>
-          </div>
-          
-          <div className="card-sage">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-sage-600 font-body">المساجد المطورة</p>
-                <p className="text-3xl font-bold text-sage-700 font-display">85</p>
-              </div>
-              <Building className="w-8 h-8 text-sage-500" />
-            </div>
-          </div>
-          
-          <div className="card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-sage-600 font-body">الأسر المستفيدة</p>
-                <p className="text-3xl font-bold text-gray-700 font-display">5,200</p>
-              </div>
-              <Heart className="w-8 h-8 text-gray-500" />
-            </div>
+        {/* Navigation Tabs */}
+        <div className="bg-white rounded-lg shadow-md p-2 mb-8">
+          <div className="flex flex-wrap gap-2">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center space-x-2 space-x-reverse px-6 py-3 rounded-lg transition-all duration-300 font-arabic ${
+                  activeTab === tab.id
+                    ? 'bg-primary-600 text-white shadow-lg'
+                    : 'text-gray-600 hover:bg-primary-50 hover:text-primary-600'
+                }`}
+              >
+                <tab.icon className="w-5 h-5" />
+                <span className="font-medium">{tab.name}</span>
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Content Area */}
-          <div className="lg:col-span-2">
-            {/* Navigation Tabs */}
-            <div className="bg-white rounded-2xl shadow-elegant mb-8">
-              <div className="border-b border-sage-200">
-                <nav className="flex space-x-8 space-x-reverse px-6">
-                  {[
-                    { id: 'biography', name: 'السيرة الذاتية', icon: User },
-                    { id: 'achievements', name: 'الإنجازات', icon: Award },
-                    { id: 'education', name: 'التعليم', icon: GraduationCap },
-                    { id: 'experience', name: 'الخبرة', icon: Briefcase },
-                    { id: 'media', name: 'الوسائط', icon: Video }
-                  ].map((tab) => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setSelectedTab(tab.id)}
-                      className={`flex items-center space-x-2 space-x-reverse py-4 px-2 border-b-2 font-medium text-sm transition-colors ${
-                        selectedTab === tab.id
-                          ? 'border-islamic-600 text-islamic-600'
-                          : 'border-transparent text-sage-500 hover:text-sage-700 hover:border-sage-300'
-                      }`}
-                    >
-                      <tab.icon className="w-4 h-4" />
-                      <span className="font-body">{tab.name}</span>
-                    </button>
-                  ))}
-                </nav>
-              </div>
-
-              <div className="p-6">
-                {selectedTab === 'biography' && (
-                  <div className="space-y-6">
-                    <div>
-                      <h3 className="text-xl font-semibold text-islamic-800 mb-4 font-display">نبذة عن معالي الوزير</h3>
-                      <div className="prose prose-lg max-w-none">
-                        <p className="text-sage-700 leading-relaxed font-body">
-                          {ministerInfo.biography}
-                        </p>
+        {/* Content Sections */}
+        {activeTab === 'biography' && (
+          <div className="space-y-8">
+            {/* Personal Information */}
+            <div className="bg-white rounded-2xl shadow-lg p-8">
+              <h2 className="text-3xl font-bold text-gray-800 mb-6 font-arabic">السيرة الذاتية</h2>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-2xl font-semibold text-primary-600 mb-4 font-arabic">المعلومات الشخصية</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3 space-x-reverse">
+                      <User className="w-5 h-5 text-gray-400" />
+                      <span className="text-gray-700 font-arabic">الاسم: الدكتور محمد أحمد الأحمد</span>
+                    </div>
+                    <div className="flex items-center space-x-3 space-x-reverse">
+                      <Calendar className="w-5 h-5 text-gray-400" />
+                      <span className="text-gray-700 font-arabic">تاريخ الميلاد: 15 مارس 1970</span>
+                    </div>
+                    <div className="flex items-center space-x-3 space-x-reverse">
+                      <MapPin className="w-5 h-5 text-gray-400" />
+                      <span className="text-gray-700 font-arabic">مكان الميلاد: القدس، فلسطين</span>
+                    </div>
+                    <div className="flex items-center space-x-3 space-x-reverse">
+                      <BookOpen className="w-5 h-5 text-gray-400" />
+                      <span className="text-gray-700 font-arabic">التخصص: الشريعة الإسلامية وإدارة الأوقاف</span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-2xl font-semibold text-primary-600 mb-4 font-arabic">المؤهلات العلمية</h3>
+                  <div className="space-y-3">
+                    {qualifications.map((qualification, index) => (
+                      <div key={index} className="flex items-start space-x-3 space-x-reverse">
+                        <CheckCircle className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
+                        <span className="text-gray-700 font-arabic">{qualification}</span>
                       </div>
-                    </div>
-                    
-                    <div className="bg-islamic-50 p-6 rounded-xl">
-                      <h4 className="font-semibold text-islamic-800 mb-3 font-display">الرؤية والرسالة</h4>
-                      <blockquote className="text-islamic-700 italic font-body leading-relaxed">
-                        "نؤمن بأن الأوقاف ليست مجرد أملاك، بل هي استثمار في المستقبل وخدمة للمجتمع. نسعى لتطوير إدارة الأوقاف لتكون نموذجاً يحتذى به في العالم الإسلامي."
-                      </blockquote>
-                    </div>
+                    ))}
                   </div>
-                )}
-
-                {selectedTab === 'achievements' && (
-                  <div className="space-y-6">
-                    <h3 className="text-xl font-semibold text-islamic-800 mb-4 font-display">الإنجازات الرئيسية</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {ministerInfo.achievements.map((achievement, index) => (
-                        <div key={index} className="bg-golden-50 p-4 rounded-lg border border-golden-200">
-                          <div className="flex items-center space-x-3 space-x-reverse">
-                            <CheckCircle className="w-5 h-5 text-golden-600" />
-                            <span className="text-sage-700 font-body">{achievement}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {selectedTab === 'education' && (
-                  <div className="space-y-6">
-                    <h3 className="text-xl font-semibold text-islamic-800 mb-4 font-display">المؤهلات العلمية</h3>
-                    <div className="space-y-4">
-                      {ministerInfo.education.map((edu, index) => (
-                        <div key={index} className="bg-sage-50 p-4 rounded-lg border border-sage-200">
-                          <div className="flex items-center space-x-3 space-x-reverse">
-                            <GraduationCap className="w-5 h-5 text-sage-600" />
-                            <span className="text-sage-700 font-body">{edu}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {selectedTab === 'experience' && (
-                  <div className="space-y-6">
-                    <h3 className="text-xl font-semibold text-islamic-800 mb-4 font-display">الخبرة المهنية</h3>
-                    <div className="space-y-4">
-                      {ministerInfo.experience.map((exp, index) => (
-                        <div key={index} className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                          <div className="flex items-center space-x-3 space-x-reverse">
-                            <Briefcase className="w-5 h-5 text-blue-600" />
-                            <span className="text-sage-700 font-body">{exp}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {selectedTab === 'media' && (
-                  <div className="space-y-6">
-                    <h3 className="text-xl font-semibold text-islamic-800 mb-4 font-display">معرض الوسائط</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {mediaGallery.slice(0, 4).map((media) => (
-                        <div key={media.id} className="bg-white rounded-lg border border-sage-200 overflow-hidden hover:shadow-lg transition-shadow">
-                          <div className="relative">
-                            {media.type === 'image' ? (
-                              <img src={media.url} alt={media.title} className="w-full h-32 object-cover" />
-                            ) : media.type === 'video' ? (
-                              <div className="w-full h-32 bg-gray-100 flex items-center justify-center relative">
-                                <img src={media.thumbnail} alt={media.title} className="w-full h-full object-cover" />
-                                <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
-                                  <Video className="w-8 h-8 text-white" />
-                                </div>
-                                {media.duration && (
-                                  <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs">
-                                    {media.duration}
-                                  </div>
-                                )}
-                              </div>
-                            ) : media.type === 'audio' ? (
-                              <div className="w-full h-32 bg-gradient-to-br from-purple-100 to-blue-100 flex items-center justify-center">
-                                <Mic className="w-8 h-8 text-purple-600" />
-                                {media.duration && (
-                                  <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs">
-                                    {media.duration}
-                                  </div>
-                                )}
-                              </div>
-                            ) : (
-                              <div className="w-full h-32 bg-gray-100 flex items-center justify-center">
-                                <FileText className="w-8 h-8 text-gray-400" />
-                              </div>
-                            )}
-                          </div>
-                          <div className="p-3">
-                            <h4 className="font-semibold text-gray-800 mb-1 font-body text-sm">{media.title}</h4>
-                            <p className="text-xs text-gray-600 mb-2 font-body">{media.description}</p>
-                            <div className="flex items-center justify-between">
-                              <p className="text-xs text-sage-500 font-body">{new Date(media.date).toLocaleDateString('ar-EG')}</p>
-                              <div className="flex items-center space-x-2 space-x-reverse text-xs text-sage-500">
-                                <div className="flex items-center space-x-1 space-x-reverse">
-                                  <Eye className="w-3 h-3" />
-                                  <span>{media.views}</span>
-                                </div>
-                                <div className="flex items-center space-x-1 space-x-reverse">
-                                  <Heart className="w-3 h-3" />
-                                  <span>{media.likes}</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="text-center">
-                      <button
-                        onClick={() => setShowMediaModal(true)}
-                        className="btn-primary"
-                      >
-                        عرض جميع الوسائط
-                      </button>
-                    </div>
-                  </div>
-                )}
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Schedule */}
-            <div className="card-islamic">
-              <h3 className="text-lg font-semibold text-islamic-800 mb-4 flex items-center font-display">
-                <Calendar className="w-5 h-5 ml-2 text-islamic-600" />
-                جدول المواعيد الأسبوعي
-              </h3>
-              <div className="space-y-3">
-                {schedule.slice(0, 4).map((item) => (
-                  <div key={item.id} className="bg-white p-4 rounded-lg border border-islamic-200">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-semibold text-islamic-800 font-body">{item.day}</span>
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getActivityTypeStyle(item.type)}`}>
-                        {getActivityTypeIcon(item.type)}
+            {/* Professional Experience */}
+            <div className="bg-white rounded-2xl shadow-lg p-8">
+              <h3 className="text-2xl font-semibold text-primary-600 mb-6 font-arabic">الخبرة المهنية</h3>
+              <div className="space-y-6">
+                {experiences.map((exp, index) => (
+                  <div key={index} className="border-r-4 border-primary-500 bg-primary-50 rounded-lg p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-xl font-semibold text-gray-800 font-arabic">{exp.position}</h4>
+                      <span className="bg-primary-600 text-white px-3 py-1 rounded-full text-sm font-arabic">
+                        {exp.period}
                       </span>
                     </div>
-                    <div className="text-sm text-sage-600 space-y-1">
-                      <div className="flex items-center space-x-2 space-x-reverse">
-                        <Clock className="w-3 h-3" />
-                        <span className="font-body">{item.time}</span>
-                      </div>
-                      <div className="flex items-center space-x-2 space-x-reverse">
-                        <MapPin className="w-3 h-3" />
-                        <span className="font-body">{item.location}</span>
-                      </div>
-                    </div>
-                    <p className="text-sm font-medium text-gray-800 mt-2 font-body">{item.activity}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 text-center">
-                <button
-                  onClick={() => setShowScheduleModal(true)}
-                  className="btn-primary w-full"
-                >
-                  <Calendar className="w-5 h-5 ml-2" />
-                  عرض الجدول الكامل
-                </button>
-              </div>
-            </div>
-
-            {/* Contact Information */}
-            <div className="card-golden">
-              <h3 className="text-lg font-semibold text-golden-800 mb-4 flex items-center font-display">
-                <Phone className="w-5 h-5 ml-2 text-golden-600" />
-                طرق التواصل
-              </h3>
-              <div className="space-y-3">
-                {contactMethods.map((method) => (
-                  <div key={method.id} className={`p-4 rounded-lg border ${getContactTypeStyle(method.type)}`}>
-                    <div className="flex items-center space-x-3 space-x-reverse mb-2">
-                      <method.icon className="w-5 h-5 text-gray-600" />
-                      <h4 className="font-semibold text-gray-800 font-body">{method.title}</h4>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-1 font-body">{method.details}</p>
-                    <p className="text-sm font-medium text-gray-800 mb-1 font-body">{method.contact}</p>
-                    <p className="text-xs text-gray-500 font-body">{method.hours}</p>
+                    <p className="text-primary-700 font-semibold mb-2 font-arabic">{exp.organization}</p>
+                    <p className="text-gray-600 font-arabic leading-relaxed">{exp.description}</p>
                   </div>
                 ))}
               </div>
             </div>
+          </div>
+        )}
 
-            {/* Quick Actions */}
-            <div className="card-sage">
-              <h3 className="text-lg font-semibold text-sage-800 mb-4 font-display">إجراءات سريعة</h3>
-              <div className="space-y-2">
-                <button className="w-full flex items-center space-x-2 space-x-reverse px-4 py-3 bg-white text-sage-700 rounded-lg hover:bg-sage-50 transition-colors border border-sage-200">
-                  <Calendar className="w-4 h-4 text-blue-600" />
-                  <span className="font-body">حجز موعد</span>
-                </button>
-                <button className="w-full flex items-center space-x-2 space-x-reverse px-4 py-3 bg-white text-sage-700 rounded-lg hover:bg-sage-50 transition-colors border border-sage-200">
-                  <MessageSquare className="w-4 h-4 text-green-600" />
-                  <span className="font-body">إرسال رسالة</span>
-                </button>
-                <button className="w-full flex items-center space-x-2 space-x-reverse px-4 py-3 bg-white text-sage-700 rounded-lg hover:bg-sage-50 transition-colors border border-sage-200">
-                  <Download className="w-4 h-4 text-purple-600" />
-                  <span className="font-body">تحميل السيرة الذاتية</span>
-                </button>
-                <button className="w-full flex items-center space-x-2 space-x-reverse px-4 py-3 bg-white text-sage-700 rounded-lg hover:bg-sage-50 transition-colors border border-sage-200">
-                  <Share2 className="w-4 h-4 text-orange-600" />
-                  <span className="font-body">مشاركة الصفحة</span>
-                </button>
+        {activeTab === 'message' && (
+          <div className="bg-white rounded-2xl shadow-lg p-8">
+            <div className="text-center mb-8">
+              <Quote className="w-16 h-16 text-primary-600 mx-auto mb-4" />
+              <h2 className="text-3xl font-bold text-gray-800 font-arabic">كلمة معالي الوزير</h2>
+            </div>
+            
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-gradient-to-br from-primary-50 to-accent-50 rounded-xl p-8 mb-8">
+                <div className="text-lg text-gray-700 font-arabic leading-relaxed space-y-6">
+                  <p>
+                    بسم الله الرحمن الرحيم، والصلاة والسلام على أشرف المرسلين سيدنا محمد وعلى آله وصحبه أجمعين.
+                  </p>
+                  
+                  <p>
+                    يسعدني أن أرحب بكم في موقع وزارة الأوقاف والشؤون الدينية، هذه المؤسسة العريقة التي تحمل على عاتقها 
+                    مسؤولية عظيمة في خدمة ديننا الحنيف ومجتمعنا الفلسطيني الكريم.
+                  </p>
+                  
+                  <p>
+                    إن الأوقاف الإسلامية تمثل جزءاً لا يتجزأ من تراثنا الحضاري وهويتنا الإسلامية، وهي شاهد على عظمة 
+                    هذا الدين وسماحته. ومن هذا المنطلق، نعمل في الوزارة على المحافظة على هذا التراث العظيم وتطويره 
+                    ليواكب متطلبات العصر ويخدم أبناء شعبنا الفلسطيني.
+                  </p>
+                  
+                  <p>
+                    نسعى من خلال رؤيتنا الاستراتيجية إلى تحقيق نقلة نوعية في إدارة الأوقاف، من خلال الاستفادة من 
+                    التكنولوجيا الحديثة وأفضل الممارسات العالمية، مع الحفاظ على الطابع الإسلامي الأصيل لهذه المؤسسة.
+                  </p>
+                  
+                  <p>
+                    إننا ملتزمون بخدمة مجتمعنا الفلسطيني من خلال تقديم أفضل الخدمات الدينية والاجتماعية، والعمل على 
+                    تعزيز دور المساجد كمراكز إشعاع حضاري وثقافي في مجتمعنا.
+                  </p>
+                  
+                  <p>
+                    أدعو الله العلي القدير أن يوفقنا جميعاً لخدمة ديننا ووطننا، وأن يحفظ فلسطين وشعبها الكريم.
+                  </p>
+                </div>
+                
+                <div className="mt-8 text-center">
+                  <div className="inline-block bg-white rounded-lg p-6 shadow-lg">
+                    <p className="text-xl font-semibold text-primary-600 font-arabic">الدكتور محمد أحمد الأحمد</p>
+                    <p className="text-gray-600 font-arabic">وزير الأوقاف والشؤون الدينية</p>
+                    <p className="text-gray-500 text-sm font-arabic">دولة فلسطين</p>
+                    <div className="mt-4 w-32 h-16 bg-gray-200 rounded-lg flex items-center justify-center mx-auto">
+                      <span className="text-gray-500 text-xs font-arabic">توقيع الوزير</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'achievements' && (
+          <div className="bg-white rounded-2xl shadow-lg p-8">
+            <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center font-arabic">إنجازات معالي الوزير</h2>
+            
+            <div className="relative">
+              <div className="absolute right-8 top-0 bottom-0 w-1 bg-gradient-to-b from-primary-500 to-accent-500 rounded-full"></div>
+              <div className="space-y-8">
+                {achievements.map((achievement, index) => (
+                  <div key={index} className="relative flex items-start space-x-6 space-x-reverse">
+                    <div className="absolute right-6 w-4 h-4 bg-primary-600 rounded-full border-4 border-white shadow-lg transform -translate-x-1/2"></div>
+                    <div className="mr-16 bg-gradient-to-br from-gray-50 to-primary-50 rounded-lg p-6 hover:shadow-lg transition-all duration-300">
+                      <div className="flex items-center space-x-4 space-x-reverse mb-3">
+                        <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                          <achievement.icon className="w-6 h-6 text-primary-600" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-primary-600 font-arabic">{achievement.year}</h3>
+                          <h4 className="text-lg font-semibold text-gray-800 font-arabic">{achievement.title}</h4>
+                        </div>
+                      </div>
+                      <p className="text-gray-600 font-arabic leading-relaxed">{achievement.description}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Office Hours */}
-            <div className="card">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 font-display">ساعات المكتب</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="font-body text-sage-600">استقبال المواطنين</span>
-                  <span className="font-bold text-blue-600 font-body">الثلاثاء والخميس 2:00 - 4:00 م</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="font-body text-sage-600">المواعيد الرسمية</span>
-                  <span className="font-bold text-green-600 font-body">الأحد - الخميس 9:00 ص - 3:00 م</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="font-body text-sage-600">الطوارئ</span>
-                  <span className="font-bold text-red-600 font-body">24/7</span>
-                </div>
-              </div>
-              
-              <div className="bg-blue-50 p-4 rounded-lg mt-4">
-                <h4 className="font-semibold text-blue-800 mb-2 font-display">ملاحظة مهمة</h4>
-                <p className="text-blue-700 text-sm font-body">
-                  يُرجى حجز موعد مسبق لضمان الحصول على الخدمة في الوقت المناسب
-                </p>
+            {/* Statistics */}
+            <div className="mt-12 bg-gradient-to-br from-primary-50 to-accent-50 rounded-xl p-8">
+              <h3 className="text-2xl font-semibold text-primary-600 mb-6 text-center font-arabic">إنجازات بالأرقام</h3>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {[
+                  { number: '50+', title: 'مسجد تم ترميمه', icon: Building },
+                  { number: '200+', title: 'إمام تم تأهيله', icon: Users },
+                  { number: '40%', title: 'زيادة في العوائد', icon: TrendingUp },
+                  { number: '15', title: 'مشروع جديد', icon: Lightbulb }
+                ].map((stat, index) => (
+                  <div key={index} className="text-center bg-white rounded-lg p-6 shadow-md">
+                    <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <stat.icon className="w-8 h-8 text-white" />
+                    </div>
+                    <h4 className="text-3xl font-bold text-primary-700 mb-2">{stat.number}</h4>
+                    <p className="text-gray-600 font-arabic">{stat.title}</p>
+                  </div>
+                ))}
               </div>
             </div>
+          </div>
+        )}
 
-            {/* Additional Contact Methods */}
-            <div className="bg-white p-6 rounded-xl">
-              <h3 className="font-semibold text-sage-800 mb-4 font-display">طرق التواصل الإضافية</h3>
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3 space-x-reverse">
-                  <MessageSquare className="w-5 h-5 text-blue-600" />
-                  <span className="text-sage-700 font-body">واتساب: +970 59 123 4567</span>
+        {activeTab === 'vision' && (
+          <div className="bg-white rounded-2xl shadow-lg p-8">
+            <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center font-arabic">الرؤية المستقبلية</h2>
+            
+            <div className="mb-8 bg-gradient-to-br from-primary-50 to-accent-50 rounded-xl p-8 text-center">
+              <Target className="w-16 h-16 text-primary-600 mx-auto mb-4" />
+              <h3 className="text-2xl font-semibold text-primary-600 mb-4 font-arabic">رؤيتنا للمستقبل</h3>
+              <p className="text-lg text-gray-700 font-arabic leading-relaxed max-w-3xl mx-auto">
+                نتطلع إلى جعل وزارة الأوقاف والشؤون الدينية نموذجاً رائداً في إدارة الأوقاف الإسلامية، 
+                تجمع بين الأصالة والمعاصرة، وتساهم في بناء مجتمع فلسطيني متماسك ومزدهر.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {futureVision.map((vision, index) => (
+                <div key={index} className="bg-gradient-to-br from-gray-50 to-primary-50 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2">
+                  <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-accent-500 rounded-xl flex items-center justify-center mb-4">
+                    <vision.icon className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-800 mb-3 font-arabic">{vision.title}</h3>
+                  <p className="text-gray-600 font-arabic leading-relaxed">{vision.description}</p>
                 </div>
-                <div className="flex items-center space-x-3 space-x-reverse">
-                  <Globe className="w-5 h-5 text-green-600" />
-                  <span className="text-sage-700 font-body">تويتر: @minister_awqaf</span>
+              ))}
+            </div>
+
+            {/* Call to Action */}
+            <div className="mt-12 bg-gradient-to-br from-primary-600 to-accent-600 text-white rounded-xl p-8 text-center">
+              <h3 className="text-2xl font-bold mb-4 font-arabic">معاً نحو مستقبل أفضل</h3>
+              <p className="text-lg opacity-90 mb-6 font-arabic">
+                ندعوكم للمشاركة في رحلتنا نحو تحقيق هذه الرؤية الطموحة
+              </p>
+              <div className="flex items-center justify-center space-x-4 space-x-reverse">
+                <button className="bg-white text-primary-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors font-arabic">
+                  تواصل معنا
+                </button>
+                <button className="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors font-arabic">
+                  اعرف المزيد
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Contact Section */}
+        <div className="bg-gradient-to-br from-primary-600 to-accent-600 text-white rounded-2xl p-8 mt-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold mb-6 font-arabic">للتواصل مع مكتب الوزير</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="flex items-center justify-center space-x-3 space-x-reverse">
+                <Phone className="w-6 h-6" />
+                <div>
+                  <p className="font-semibold font-arabic">هاتف المكتب</p>
+                  <p className="opacity-90" dir="ltr">+970 2 298 2530</p>
                 </div>
-                <div className="flex items-center space-x-3 space-x-reverse">
-                  <Calendar className="w-5 h-5 text-purple-600" />
-                  <span className="text-sage-700 font-body">حجز موعد: appointments.awqaf.gov.ps</span>
+              </div>
+              <div className="flex items-center justify-center space-x-3 space-x-reverse">
+                <Mail className="w-6 h-6" />
+                <div>
+                  <p className="font-semibold font-arabic">البريد الإلكتروني</p>
+                  <p className="opacity-90" dir="ltr">minister@awqaf.gov.ps</p>
+                </div>
+              </div>
+              <div className="flex items-center justify-center space-x-3 space-x-reverse">
+                <Clock className="w-6 h-6" />
+                <div>
+                  <p className="font-semibold font-arabic">ساعات الاستقبال</p>
+                  <p className="opacity-90 font-arabic">الأحد - الخميس: 9:00 - 15:00</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Media Gallery Modal */}
-        {showMediaModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl p-8 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="heading-2 text-islamic-800">معرض الوسائط الكامل</h2>
-                <button
-                  onClick={() => setShowMediaModal(false)}
-                  className="text-sage-500 hover:text-sage-700 text-2xl"
-                >
-                  ×
-                </button>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {mediaGallery.map((media) => (
-                  <div key={media.id} className="bg-white rounded-xl border border-sage-200 overflow-hidden hover:shadow-lg transition-shadow">
-                    <div className="relative">
-                      {media.type === 'image' ? (
-                        <img src={media.url} alt={media.title} className="w-full h-48 object-cover" />
-                      ) : media.type === 'video' ? (
-                        <div className="w-full h-48 bg-gray-100 flex items-center justify-center relative">
-                          <img src={media.thumbnail} alt={media.title} className="w-full h-full object-cover" />
-                          <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
-                            <Video className="w-12 h-12 text-white" />
-                          </div>
-                          {media.duration && (
-                            <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs">
-                              {media.duration}
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="w-full h-48 bg-gray-100 flex items-center justify-center">
-                          <FileText className="w-12 h-12 text-gray-400" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-4">
-                      <h4 className="font-semibold text-gray-800 mb-2 font-body">{media.title}</h4>
-                      <p className="text-sm text-gray-600 mb-2 font-body">{media.description}</p>
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs text-sage-500 font-body">{new Date(media.date).toLocaleDateString('ar-EG')}</p>
-                        <div className="flex items-center space-x-3 space-x-reverse text-xs text-sage-500">
-                          <div className="flex items-center space-x-1 space-x-reverse">
-                            <Eye className="w-3 h-3" />
-                            <span>{media.views}</span>
-                          </div>
-                          <div className="flex items-center space-x-1 space-x-reverse">
-                            <Heart className="w-3 h-3" />
-                            <span>{media.likes}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Schedule Modal */}
-        {showScheduleModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl p-8 w-full max-w-2xl">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="heading-2 text-islamic-800">إضافة موعد جديد</h2>
-                <button
-                  onClick={() => setShowScheduleModal(false)}
-                  className="text-sage-500 hover:text-sage-700 text-2xl"
-                >
-                  ×
-                </button>
-              </div>
-              
-              <form className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-islamic-700 mb-2 font-body">عنوان الموعد</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="أدخل عنوان الموعد"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-islamic-700 mb-2 font-body">التاريخ</label>
-                    <input
-                      type="date"
-                      className="form-input"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-islamic-700 mb-2 font-body">الوقت</label>
-                    <input
-                      type="time"
-                      className="form-input"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-islamic-700 mb-2 font-body">المكان</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="مكان الموعد"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-islamic-700 mb-2 font-body">نوع الموعد</label>
-                  <select className="form-select">
-                    <option value="meeting">اجتماع</option>
-                    <option value="internal">داخلي</option>
-                    <option value="diplomatic">دبلوماسي</option>
-                    <option value="field">ميداني</option>
-                    <option value="media">إعلامي</option>
-                    <option value="religious">ديني</option>
-                    <option value="public">عام</option>
-                  </select>
-                </div>
-                
-                <div className="flex justify-end space-x-4 space-x-reverse">
-                  <button
-                    type="button"
-                    onClick={() => setShowScheduleModal(false)}
-                    className="btn-outline"
-                  >
-                    إلغاء
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn-primary"
-                  >
-                    <Save className="w-5 h-5 ml-2" />
-                    حفظ الموعد
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

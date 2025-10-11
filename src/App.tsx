@@ -84,10 +84,58 @@ function App() {
               } />
               <Route path="/login" element={<LoginPage />} />
               
+              {/* Search and Utility Pages */}
+              <Route path="/search" element={
+                <div className="min-h-screen bg-gray-50" dir="rtl">
+                  <Header />
+                  <main className="min-h-screen">
+                    <SearchPage />
+                  </main>
+                  <Footer />
+                </div>
+              } />
+              <Route path="/news/:id" element={
+                <div className="min-h-screen bg-gray-50" dir="rtl">
+                  <Header />
+                  <main className="min-h-screen">
+                    <NewsDetailPage />
+                  </main>
+                  <Footer />
+                </div>
+              } />
+              <Route path="/privacy" element={
+                <div className="min-h-screen bg-gray-50" dir="rtl">
+                  <Header />
+                  <main className="min-h-screen">
+                    <PrivacyPolicyPage />
+                  </main>
+                  <Footer />
+                </div>
+              } />
+              <Route path="/terms" element={
+                <div className="min-h-screen bg-gray-50" dir="rtl">
+                  <Header />
+                  <main className="min-h-screen">
+                    <TermsOfServicePage />
+                  </main>
+                  <Footer />
+                </div>
+              } />
+              <Route path="/sitemap" element={
+                <div className="min-h-screen bg-gray-50" dir="rtl">
+                  <Header />
+                  <main className="min-h-screen">
+                    <SitemapPage />
+                  </main>
+                  <Footer />
+                </div>
+              } />
+              
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<Dashboard />} />
                 <Route path="homepage" element={<HomePageManagement />} />
+                <Route path="website" element={<WebsiteManagement />} />
                 <Route path="national-registry" element={<NationalWaqfRegistryPage />} />
                 <Route path="cases" element={<CasesManagement />} />
                 <Route path="waqf-lands" element={<WaqfLandsManagement />} />

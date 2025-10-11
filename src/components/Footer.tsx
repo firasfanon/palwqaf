@@ -1,5 +1,6 @@
 import React from 'react';
-import { MapPin, Phone, Mail, Facebook, Twitter, Instagram, Youtube, Globe, Clock, Fan as Fax } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { MapPin, Phone, Mail, Facebook, Twitter, Instagram, Youtube, Globe, Clock, Printer as Fax } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -19,11 +20,11 @@ const Footer = () => {
 
       <div className="relative z-10">
         {/* Main Footer Content */}
-        <div className="container-spacing section-padding">
+        <div className="container mx-auto px-4 py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             
             {/* Ministry Information */}
-            <div className="content-spacing">
+            <div className="space-y-6">
               <div className="flex items-center space-x-4 space-x-reverse">
                 <div className="w-20 h-20 islamic-gradient rounded-full flex items-center justify-center shadow-xl">
                   <span className="text-white font-bold text-xl font-display">أوقاف</span>
@@ -58,134 +59,147 @@ const Footer = () => {
             </div>
 
             {/* Quick Links */}
-            <div className="content-spacing">
+            <div className="space-y-6">
               <h3 className="font-bold text-xl font-display border-b border-islamic-600 pb-3 text-golden-300">روابط سريعة</h3>
               <ul className="space-y-3 text-sm">
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center space-x-2 space-x-reverse font-body">
+                <li><Link to="/about" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center space-x-2 space-x-reverse font-body">
                   <span className="w-2 h-2 bg-islamic-500 rounded-full"></span>
                   <span>عن الوزارة</span>
-                </a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center space-x-2 space-x-reverse font-body">
+                </Link></li>
+                <li><Link to="/minister" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center space-x-2 space-x-reverse font-body">
                   <span className="w-2 h-2 bg-islamic-500 rounded-full"></span>
                   <span>كلمة الوزير</span>
-                </a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center space-x-2 space-x-reverse font-body">
+                </Link></li>
+                <li><Link to="/structure" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center space-x-2 space-x-reverse font-body">
                   <span className="w-2 h-2 bg-islamic-500 rounded-full"></span>
                   <span>الهيكل التنظيمي</span>
-                </a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center space-x-2 space-x-reverse font-body">
+                </Link></li>
+                <li><Link to="/news" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center space-x-2 space-x-reverse font-body">
                   <span className="w-2 h-2 bg-islamic-500 rounded-full"></span>
-                  <span>المديريات</span>
-                </a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center space-x-2 space-x-reverse font-body">
+                  <span>أخبار الوزارة</span>
+                </Link></li>
+                <li><Link to="/mosques" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center space-x-2 space-x-reverse font-body">
                   <span className="w-2 h-2 bg-islamic-500 rounded-full"></span>
                   <span>المساجد</span>
-                </a></li>
+                </Link></li>
               </ul>
             </div>
 
             {/* Services */}
-            <div className="content-spacing">
+            <div className="space-y-6">
               <h3 className="font-bold text-xl font-display border-b border-islamic-600 pb-3 text-golden-300">الخدمات</h3>
               <ul className="space-y-3 text-sm">
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center space-x-2 space-x-reverse font-body">
+                <li><Link to="/e-services" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center space-x-2 space-x-reverse font-body">
                   <span className="w-2 h-2 bg-golden-500 rounded-full"></span>
                   <span>الخدمات الإلكترونية</span>
-                </a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center space-x-2 space-x-reverse font-body">
+                </Link></li>
+                <li><Link to="/mosques" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center space-x-2 space-x-reverse font-body">
                   <span className="w-2 h-2 bg-golden-500 rounded-full"></span>
                   <span>إدارة المساجد</span>
-                </a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center space-x-2 space-x-reverse font-body">
+                </Link></li>
+                <li><Link to="/services" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center space-x-2 space-x-reverse font-body">
                   <span className="w-2 h-2 bg-golden-500 rounded-full"></span>
                   <span>الأوقاف الإسلامية</span>
-                </a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center space-x-2 space-x-reverse font-body">
+                </Link></li>
+                <li><Link to="/friday-sermons" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center space-x-2 space-x-reverse font-body">
                   <span className="w-2 h-2 bg-golden-500 rounded-full"></span>
                   <span>التعليم الديني</span>
-                </a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center space-x-2 space-x-reverse font-body">
+                </Link></li>
+                <li><Link to="/social-services" className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center space-x-2 space-x-reverse font-body">
                   <span className="w-2 h-2 bg-golden-500 rounded-full"></span>
                   <span>الإرشاد والتوجيه</span>
-                </a></li>
+                </Link></li>
               </ul>
             </div>
 
             {/* Contact Information */}
-            <div className="content-spacing">
+            <div className="space-y-6">
               <h3 className="font-bold text-xl font-display border-b border-islamic-600 pb-3 text-golden-300">معلومات التواصل</h3>
               <div className="space-y-4">
-                <div className="flex items-start space-x-3 space-x-reverse">
-                  <div className="w-10 h-10 bg-islamic-600 rounded-xl flex items-center justify-center flex-shrink-0 mt-1 shadow-md">
-                    <MapPin className="w-4 h-4 text-white" />
+                <div className="flex items-start space-x-4 space-x-reverse">
+                  <div className="w-14 h-14 bg-islamic-600 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                    <Phone className="w-6 h-6" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold font-display text-golden-300">العنوان:</p>
-                    <p className="text-sm text-gray-300 font-body">رام الله - فلسطين</p>
-                    <p className="text-xs text-gray-400 font-body">شارع الإرسال، بجانب المقاطعة</p>
+                    <p className="font-semibold font-display text-golden-200 mb-1">هاتف</p>
+                    <p className="opacity-90 font-body" dir="ltr">02-2411937/8/9</p>
+                    <p className="opacity-90 font-body" dir="ltr">فاكس: 02-2411934</p>
                   </div>
                 </div>
-                
-                <div className="flex items-center space-x-3 space-x-reverse">
-                  <div className="w-10 h-10 bg-islamic-600 rounded-xl flex items-center justify-center shadow-md">
-                    <Phone className="w-4 h-4 text-white" />
+                <div className="flex items-start space-x-4 space-x-reverse">
+                  <div className="w-14 h-14 bg-islamic-600 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                    <Mail className="w-6 h-6" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold font-display text-golden-300">هاتف:</p>
-                    <p className="text-sm text-gray-300" dir="ltr">+970 2 298 2532</p>
+                    <p className="font-semibold font-display text-golden-200 mb-1">البريد الإلكتروني</p>
+                    <p className="opacity-90 font-body" dir="ltr">info@awqaf.ps</p>
                   </div>
                 </div>
-                
-                <div className="flex items-center space-x-3 space-x-reverse">
-                  <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                    <Fax className="w-4 h-4 text-white" />
+                <div className="flex items-start space-x-4 space-x-reverse">
+                  <div className="w-14 h-14 bg-islamic-600 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                    <MapPin className="w-6 h-6" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium font-arabic">فاكس:</p>
-                    <p className="text-sm text-gray-300" dir="ltr">+970 2 298 2533</p>
+                    <p className="font-semibold font-display text-golden-200 mb-1">العنوان</p>
+                    <p className="opacity-90 font-body">القدس - مدينة البيرة - حي الجنان - شارع النور</p>
                   </div>
                 </div>
-                
-                <div className="flex items-center space-x-3 space-x-reverse">
-                  <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                    <Mail className="w-4 h-4 text-white" />
+                <div className="flex items-start space-x-4 space-x-reverse">
+                  <div className="w-14 h-14 bg-islamic-600 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                    <Clock className="w-6 h-6" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium font-arabic">البريد الإلكتروني:</p>
-                    <p className="text-sm text-gray-300" dir="ltr">info@awqaf.gov.ps</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-3 space-x-reverse">
-                  <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                    <Clock className="w-4 h-4 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium font-arabic">ساعات العمل:</p>
-                    <p className="text-sm text-gray-300 font-arabic">الأحد - الخميس</p>
-                    <p className="text-xs text-gray-400 font-arabic">8:00 ص - 3:00 م</p>
+                    <p className="font-semibold font-display text-golden-200 mb-1">ساعات العمل</p>
+                    <p className="opacity-90 font-body">من الأحد إلى الخميس</p>
+                    <p className="opacity-90 font-body">8:00 صباحاً - 3:00 مساءً</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-      
+          {/* Partners Section */}
+          <div className="mt-12 pt-8 border-t border-gray-700">
+            <h3 className="font-bold text-xl font-display text-golden-300 mb-6 text-center">شركاؤنا</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {[
+                'وزارة المالية',
+                'وزارة التربية',
+                'وزارة الأوقاف الأردنية',
+                'صندوق الزكاة',
+                'رابطة العالم الإسلامي',
+                'الأوقاف المصرية'
+              ].map((partner, index) => (
+                <div key={index} className="bg-white rounded-lg p-4 text-center shadow-md hover:shadow-lg transition-shadow">
+                  <span className="text-islamic-600 font-bold text-sm font-body">{partner}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
 
         {/* Bottom Footer */}
         <div className="border-t border-gray-700 bg-gray-900/50">
           <div className="container mx-auto px-4 py-6">
             <div className="flex flex-col md:flex-row items-center justify-between">
               <div className="flex items-center space-x-4 space-x-reverse mb-4 md:mb-0">
-                <p className="text-gray-400 text-sm font-arabic">
+                <p className="text-gray-400 text-sm font-body">
                   © 2024 وزارة الأوقاف والشؤون الدينية - دولة فلسطين. جميع الحقوق محفوظة.
                 </p>
               </div>
               <div className="flex items-center space-x-4 space-x-reverse">
+                <Link to="/privacy" className="text-gray-400 hover:text-white text-sm font-body transition-colors">
+                  سياسة الخصوصية
+                </Link>
+                <Link to="/terms" className="text-gray-400 hover:text-white text-sm font-body transition-colors">
+                  شروط الاستخدام
+                </Link>
+                <Link to="/sitemap" className="text-gray-400 hover:text-white text-sm font-body transition-colors">
+                  خريطة الموقع
+                </Link>
                 <div className="flex items-center space-x-2 space-x-reverse">
                   <Globe className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-400 text-sm font-arabic">تم التطوير بواسطة فريق تقنية المعلومات</span>
+                  <span className="text-gray-400 text-sm font-body">تم التطوير بواسطة فريق تقنية المعلومات</span>
                 </div>
               </div>
             </div>

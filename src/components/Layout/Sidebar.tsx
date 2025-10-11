@@ -15,7 +15,8 @@ import {
   FolderOpen,
   Clock,
   Bell,
-  Key
+  Key,
+  Globe
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -40,6 +41,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       icon: Settings, 
       path: '/admin/homepage',
       color: 'text-islamic-600'
+    },
+    { 
+      id: 'website', 
+      name: 'إدارة الموقع الإلكتروني', 
+      icon: Globe, 
+      path: '/admin/website',
+      color: 'text-blue-600'
     },
     { 
       id: 'national-registry', 

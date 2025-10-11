@@ -1,7 +1,0 @@
-User-agent: *
-Allow: /
-
-Disallow: /admin/
-Disallow: /login
-
-Sitemap: https://awqaf.gov.ps/sitemap.xml

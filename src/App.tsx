@@ -21,6 +21,7 @@ import ReportsStatistics from './pages/admin/ReportsStatistics';
 import NationalWaqfRegistryPage from './pages/admin/NationalWaqfRegistry';
 import GeneralSettings from './pages/admin/GeneralSettings';
 import HomePageManagement from './pages/admin/HomePageManagement';
+import WebsiteManagement from './pages/admin/WebsiteManagement';
 import AboutPage from './pages/AboutPage';
 import MinisterPage from './pages/MinisterPage';
 import VisionMissionPage from './pages/VisionMissionPage';

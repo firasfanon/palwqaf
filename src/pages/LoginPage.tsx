@@ -24,7 +24,9 @@ const LoginPage = () => {
           id: 1, 
           email: 'admin@awqaf.gov.ps', 
           name: 'مدير النظام',
-          role: 'admin'
+          role: 'admin',
+          department: 'الإدارة العامة',
+          permissions: ['all']
         });
         navigate('/admin');
       } else {

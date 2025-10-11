@@ -1,259 +1,229 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
+  Users, 
   Plus, 
   Search, 
   Filter, 
   Edit, 
   Eye, 
   Trash2, 
-  User, 
-  Shield, 
-  MapPin,
-  Building,
+  Download, 
+  Upload,
+  User,
+  Shield,
+  Key,
+  Lock,
+  Unlock,
   CheckCircle,
   XCircle,
-  Settings,
-  Users,
-  Crown,
-  Briefcase,
-  UserCheck,
   AlertTriangle,
-  Lock,
-  Unlock
+  Clock,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Activity,
+  Settings,
+  BarChart3,
+  TrendingUp,
+  RefreshCw,
+  Save,
+  Copy,
+  Share2,
+  Bookmark,
+  Star,
+  Award,
+  Target,
+  Flag,
+  Crown,
+  Gem,
+  Zap,
+  Sparkles,
+  Globe,
+  Building,
+  FileText,
+  Database,
+  Archive,
+  Layers,
+  Grid,
+  List,
+  SortAsc,
+  SortDesc,
+  MoreVertical,
+  UserPlus,
+  UserMinus,
+  UserCheck,
+  UserX,
+  Briefcase,
+  GraduationCap,
+  Home as HomeIcon,
+  School,
+  Heart,
+  BookOpen
 } from 'lucide-react';
+import { useToast } from '../../hooks/useToast';
 import { usePermissions } from '../../contexts/PermissionsContext';
-import { ExtendedUser, UserRole, Governorate, SystemModule } from '../../types/permissions';
 
 const UsersManagement: React.FC = () => {
-  const { getUsersByRole, getUsersByGovernorate, hasPermission, updateUserPermissions } = usePermissions();
+  const { success, info, error: showError } = useToast();
+  const { userPermissions, hasPermission } = usePermissions();
+  
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedRole, setSelectedRole] = useState<string>('all');
-  const [selectedGovernorate, setSelectedGovernorate] = useState<string>('all');
-  const [selectedUser, setSelectedUser] = useState<ExtendedUser | null>(null);
+  const [selectedRole, setSelectedRole] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [selectedGovernorate, setSelectedGovernorate] = useState('all');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [sortBy, setSortBy] = useState('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [showModal, setShowModal] = useState(false);
-  const [showPermissionsModal, setShowPermissionsModal] = useState(false);
+  const [modalType, setModalType] = useState<'add' | 'edit' | 'permissions' | 'details'>('add');
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [showBulkActions, setShowBulkActions] = useState(false);
 
-  // بيانات المستخدمين (من السياق)
-  const allUsers: ExtendedUser[] = [
+  // بيانات تجريبية للمستخدمين
+  const users = [
     {
       id: 1,
-      email: 'admin@awqaf.gov.ps',
-      name: 'مدير النظام العام',
+      name: 'أحمد محمد الأحمد',
+      email: 'ahmed.ahmad@awqaf.gov.ps',
       role: 'admin',
       department: 'الإدارة العامة',
       governorate: 'jerusalem',
-      permissions: {
-        userId: 1,
-        role: 'super_admin',
-        governorates: ['jerusalem', 'ramallah', 'nablus', 'hebron', 'gaza', 'jenin'],
-        modules: {
-          cases_management: {
-            module: 'cases_management',
-            permissions: ['create', 'read', 'update', 'delete', 'assign', 'close'],
-            governorateRestricted: false
-          },
-          waqf_lands: {
-            module: 'waqf_lands',
-            permissions: ['create', 'read', 'update', 'delete', 'manage'],
-            governorateRestricted: false
-          },
-          documents: {
-            module: 'documents',
-            permissions: ['upload', 'read', 'update', 'delete', 'archive'],
-            governorateRestricted: false
-          },
-          users: {
-            module: 'users',
-            permissions: ['create', 'read', 'update', 'delete', 'manage_permissions'],
-            governorateRestricted: false
-          }
-        },
-        isActive: true,
-        createdAt: '2024-01-01',
-        updatedAt: '2024-01-15'
-      }
+      phone: '+970 2 298 2534',
+      avatar: 'https://images.pexels.com/photos/5428836/pexels-photo-5428836.jpeg?auto=compress&cs=tinysrgb&w=150',
+      isActive: true,
+      lastLogin: '2024-01-15T10:30:00',
+      createdAt: '2024-01-01',
+      permissions: ['all'],
+      loginCount: 245,
+      documentsUploaded: 45,
+      casesManaged: 23,
+      lastActivity: '2024-01-15T10:30:00',
+      twoFactorEnabled: true,
+      passwordLastChanged: '2024-01-10',
+      failedLoginAttempts: 0
     },
     {
       id: 2,
-      email: 'cases.manager.jerusalem@awqaf.gov.ps',
-      name: 'مدير القضايا - القدس',
-      role: 'manager',
-      department: 'إدارة القضايا',
-      governorate: 'jerusalem',
-      permissions: {
-        userId: 2,
-        role: 'cases_manager',
-        governorates: ['jerusalem'],
-        modules: {
-          cases_management: {
-            module: 'cases_management',
-            permissions: ['create', 'read', 'update', 'assign'],
-            governorateRestricted: true,
-            allowedGovernorates: ['jerusalem']
-          },
-          documents: {
-            module: 'documents',
-            permissions: ['upload', 'read', 'update'],
-            governorateRestricted: true,
-            allowedGovernorates: ['jerusalem']
-          }
-        },
-        isActive: true,
-        createdAt: '2024-01-01',
-        updatedAt: '2024-01-15'
-      }
-    },
-    {
-      id: 3,
-      email: 'lands.manager.ramallah@awqaf.gov.ps',
-      name: 'مدير الأراضي الوقفية - رام الله',
+      name: 'فاطمة خالد يوسف',
+      email: 'fatima.khalid@awqaf.gov.ps',
       role: 'manager',
       department: 'إدارة الأراضي الوقفية',
       governorate: 'ramallah',
-      permissions: {
-        userId: 3,
-        role: 'lands_manager',
-        governorates: ['ramallah'],
-        modules: {
-          waqf_lands: {
-            module: 'waqf_lands',
-            permissions: ['create', 'read', 'update', 'manage'],
-            governorateRestricted: true,
-            allowedGovernorates: ['ramallah']
-          },
-          documents: {
-            module: 'documents',
-            permissions: ['upload', 'read', 'update'],
-            governorateRestricted: true,
-            allowedGovernorates: ['ramallah']
-          },
-          gis: {
-            module: 'gis',
-            permissions: ['read', 'update'],
-            governorateRestricted: true,
-            allowedGovernorates: ['ramallah']
-          }
-        },
-        isActive: true,
-        createdAt: '2024-01-01',
-        updatedAt: '2024-01-15'
-      }
+      phone: '+970 2 295 3456',
+      avatar: 'https://images.pexels.com/photos/5428836/pexels-photo-5428836.jpeg?auto=compress&cs=tinysrgb&w=150',
+      isActive: true,
+      lastLogin: '2024-01-15T09:15:00',
+      createdAt: '2024-01-02',
+      permissions: ['waqf_lands', 'documents', 'gis'],
+      loginCount: 189,
+      documentsUploaded: 67,
+      casesManaged: 12,
+      lastActivity: '2024-01-15T09:45:00',
+      twoFactorEnabled: true,
+      passwordLastChanged: '2024-01-08',
+      failedLoginAttempts: 0
+    },
+    {
+      id: 3,
+      name: 'محمد علي حسن',
+      email: 'mohammed.ali@awqaf.gov.ps',
+      role: 'manager',
+      department: 'إدارة القضايا',
+      governorate: 'nablus',
+      phone: '+970 9 238 7890',
+      avatar: 'https://images.pexels.com/photos/5428836/pexels-photo-5428836.jpeg?auto=compress&cs=tinysrgb&w=150',
+      isActive: true,
+      lastLogin: '2024-01-15T08:20:00',
+      createdAt: '2024-01-03',
+      permissions: ['cases_management', 'documents'],
+      loginCount: 156,
+      documentsUploaded: 34,
+      casesManaged: 45,
+      lastActivity: '2024-01-15T08:50:00',
+      twoFactorEnabled: false,
+      passwordLastChanged: '2024-01-05',
+      failedLoginAttempts: 1
     },
     {
       id: 4,
-      email: 'documents.manager@awqaf.gov.ps',
-      name: 'مدير الوثائق والأرشيف',
-      role: 'manager',
+      name: 'سارة أحمد محمود',
+      email: 'sara.ahmed@awqaf.gov.ps',
+      role: 'employee',
       department: 'إدارة الوثائق',
-      governorate: 'jerusalem',
-      permissions: {
-        userId: 4,
-        role: 'documents_manager',
-        governorates: ['jerusalem', 'ramallah', 'nablus'],
-        modules: {
-          documents: {
-            module: 'documents',
-            permissions: ['upload', 'read', 'update', 'delete', 'archive'],
-            governorateRestricted: true,
-            allowedGovernorates: ['jerusalem', 'ramallah', 'nablus']
-          },
-          archive: {
-            module: 'archive',
-            permissions: ['create', 'read', 'update', 'manage'],
-            governorateRestricted: true,
-            allowedGovernorates: ['jerusalem', 'ramallah', 'nablus']
-          }
-        },
-        isActive: true,
-        createdAt: '2024-01-01',
-        updatedAt: '2024-01-15'
-      }
+      governorate: 'hebron',
+      phone: '+970 2 222 4567',
+      avatar: 'https://images.pexels.com/photos/5428836/pexels-photo-5428836.jpeg?auto=compress&cs=tinysrgb&w=150',
+      isActive: true,
+      lastLogin: '2024-01-15T07:45:00',
+      createdAt: '2024-01-04',
+      permissions: ['documents', 'archive'],
+      loginCount: 98,
+      documentsUploaded: 123,
+      casesManaged: 0,
+      lastActivity: '2024-01-15T08:15:00',
+      twoFactorEnabled: true,
+      passwordLastChanged: '2024-01-12',
+      failedLoginAttempts: 0
     },
     {
       id: 5,
-      email: 'employee.nablus@awqaf.gov.ps',
-      name: 'موظف - نابلس',
+      name: 'خالد يوسف إبراهيم',
+      email: 'khalid.youssef@awqaf.gov.ps',
       role: 'employee',
       department: 'المكتب الإقليمي',
-      governorate: 'nablus',
-      permissions: {
-        userId: 5,
-        role: 'employee',
-        governorates: ['nablus'],
-        modules: {
-          cases_management: {
-            module: 'cases_management',
-            permissions: ['read', 'update'],
-            governorateRestricted: true,
-            allowedGovernorates: ['nablus']
-          },
-          waqf_lands: {
-            module: 'waqf_lands',
-            permissions: ['read'],
-            governorateRestricted: true,
-            allowedGovernorates: ['nablus']
-          },
-          documents: {
-            module: 'documents',
-            permissions: ['upload', 'read'],
-            governorateRestricted: true,
-            allowedGovernorates: ['nablus']
-          }
-        },
-        isActive: true,
-        createdAt: '2024-01-01',
-        updatedAt: '2024-01-15'
-      }
+      governorate: 'gaza',
+      phone: '+970 8 282 8901',
+      avatar: 'https://images.pexels.com/photos/5428836/pexels-photo-5428836.jpeg?auto=compress&cs=tinysrgb&w=150',
+      isActive: false,
+      lastLogin: '2024-01-10T16:30:00',
+      createdAt: '2024-01-05',
+      permissions: ['waqf_lands'],
+      loginCount: 67,
+      documentsUploaded: 12,
+      casesManaged: 8,
+      lastActivity: '2024-01-10T16:45:00',
+      twoFactorEnabled: false,
+      passwordLastChanged: '2024-01-01',
+      failedLoginAttempts: 3
     },
     {
       id: 6,
-      email: 'regional.manager.gaza@awqaf.gov.ps',
-      name: 'المدير الإقليمي - غزة',
-      role: 'manager',
-      department: 'الإدارة الإقليمية',
-      governorate: 'gaza',
-      permissions: {
-        userId: 6,
-        role: 'regional_manager',
-        governorates: ['gaza', 'rafah', 'khan_younis'],
-        modules: {
-          cases_management: {
-            module: 'cases_management',
-            permissions: ['create', 'read', 'update', 'assign'],
-            governorateRestricted: true,
-            allowedGovernorates: ['gaza', 'rafah', 'khan_younis']
-          },
-          waqf_lands: {
-            module: 'waqf_lands',
-            permissions: ['create', 'read', 'update'],
-            governorateRestricted: true,
-            allowedGovernorates: ['gaza', 'rafah', 'khan_younis']
-          },
-          documents: {
-            module: 'documents',
-            permissions: ['upload', 'read', 'update'],
-            governorateRestricted: true,
-            allowedGovernorates: ['gaza', 'rafah', 'khan_younis']
-          }
-        },
-        isActive: true,
-        createdAt: '2024-01-01',
-        updatedAt: '2024-01-15'
-      }
+      name: 'نور الدين محمد',
+      email: 'noureddine.mohammed@awqaf.gov.ps',
+      role: 'viewer',
+      department: 'الشؤون القانونية',
+      governorate: 'jenin',
+      phone: '+970 4 250 2345',
+      avatar: 'https://images.pexels.com/photos/5428836/pexels-photo-5428836.jpeg?auto=compress&cs=tinysrgb&w=150',
+      isActive: true,
+      lastLogin: '2024-01-14T14:20:00',
+      createdAt: '2024-01-06',
+      permissions: ['documents'],
+      loginCount: 34,
+      documentsUploaded: 5,
+      casesManaged: 0,
+      lastActivity: '2024-01-14T15:10:00',
+      twoFactorEnabled: false,
+      passwordLastChanged: '2024-01-06',
+      failedLoginAttempts: 0
     }
   ];
 
   const roleOptions = [
-    { value: 'all', label: 'جميع الأدوار', icon: Users },
-    { value: 'super_admin', label: 'مدير النظام العام', icon: Crown },
-    { value: 'system_admin', label: 'مدير النظام', icon: Shield },
-    { value: 'cases_manager', label: 'مدير القضايا', icon: Briefcase },
-    { value: 'lands_manager', label: 'مدير الأراضي الوقفية', icon: Building },
-    { value: 'documents_manager', label: 'مدير الوثائق', icon: Settings },
-    { value: 'archive_manager', label: 'مدير الأرشيف', icon: Settings },
-    { value: 'regional_manager', label: 'مدير إقليمي', icon: MapPin },
-    { value: 'employee', label: 'موظف', icon: User },
-    { value: 'viewer', label: 'مشاهد', icon: Eye }
+    { value: 'all', label: 'جميع الأدوار', icon: Users, color: 'text-gray-600' },
+    { value: 'admin', label: 'مدير نظام', icon: Crown, color: 'text-red-600' },
+    { value: 'manager', label: 'مدير', icon: Briefcase, color: 'text-blue-600' },
+    { value: 'employee', label: 'موظف', icon: User, color: 'text-green-600' },
+    { value: 'viewer', label: 'مشاهد', icon: Eye, color: 'text-purple-600' }
+  ];
+
+  const statusOptions = [
+    { value: 'all', label: 'جميع الحالات' },
+    { value: 'active', label: 'نشط' },
+    { value: 'inactive', label: 'غير نشط' },
+    { value: 'suspended', label: 'معلق' }
   ];
 
   const governorateOptions = [
@@ -263,148 +233,482 @@ const UsersManagement: React.FC = () => {
     { value: 'nablus', label: 'نابلس' },
     { value: 'hebron', label: 'الخليل' },
     { value: 'gaza', label: 'غزة' },
-    { value: 'jenin', label: 'جنين' },
-    { value: 'tulkarm', label: 'طولكرم' },
-    { value: 'qalqilya', label: 'قلقيلية' },
-    { value: 'salfit', label: 'سلفيت' },
-    { value: 'bethlehem', label: 'بيت لحم' },
-    { value: 'jericho', label: 'أريحا' },
-    { value: 'tubas', label: 'طوباس' },
-    { value: 'rafah', label: 'رفح' },
-    { value: 'khan_younis', label: 'خان يونس' }
+    { value: 'jenin', label: 'جنين' }
   ];
 
-  const moduleOptions = [
-    { id: 'cases_management', name: 'إدارة القضايا', icon: Briefcase },
-    { id: 'waqf_lands', name: 'الأراضي الوقفية', icon: Building },
-    { id: 'documents', name: 'إدارة الوثائق', icon: Settings },
-    { id: 'archive', name: 'الأرشيف الإلكتروني', icon: Settings },
-    { id: 'gis', name: 'نظام المعلومات الجغرافية', icon: MapPin },
-    { id: 'users', name: 'إدارة المستخدمين', icon: Users },
-    { id: 'reports', name: 'التقارير والإحصائيات', icon: Settings },
-    { id: 'settings', name: 'الإعدادات العامة', icon: Settings }
+  const departmentOptions = [
+    'الإدارة العامة',
+    'إدارة الأراضي الوقفية',
+    'إدارة القضايا',
+    'إدارة الوثائق',
+    'المكتب الإقليمي',
+    'الشؤون القانونية',
+    'الشؤون المالية',
+    'الموارد البشرية'
   ];
 
-  const getRoleIcon = (role: UserRole) => {
+  const permissionModules = [
+    { id: 'cases_management', name: 'إدارة القضايا', icon: FileText, color: 'text-red-600' },
+    { id: 'waqf_lands', name: 'الأراضي الوقفية', icon: Building, color: 'text-green-600' },
+    { id: 'documents', name: 'إدارة الوثائق', icon: Archive, color: 'text-blue-600' },
+    { id: 'archive', name: 'الأرشيف الإلكتروني', icon: Database, color: 'text-purple-600' },
+    { id: 'gis', name: 'نظام GIS', icon: MapPin, color: 'text-orange-600' },
+    { id: 'users', name: 'إدارة المستخدمين', icon: Users, color: 'text-pink-600' },
+    { id: 'reports', name: 'التقارير', icon: BarChart3, color: 'text-teal-600' },
+    { id: 'settings', name: 'الإعدادات', icon: Settings, color: 'text-indigo-600' }
+  ];
+
+  const getRoleIcon = (role: string) => {
     const roleOption = roleOptions.find(r => r.value === role);
     return roleOption ? roleOption.icon : User;
   };
 
-  const getRoleBadge = (role: UserRole) => {
-    switch (role) {
-      case 'super_admin':
-        return 'bg-red-100 text-red-800';
-      case 'system_admin':
-        return 'bg-purple-100 text-purple-800';
-      case 'cases_manager':
-      case 'lands_manager':
-      case 'documents_manager':
-      case 'archive_manager':
-        return 'bg-blue-100 text-blue-800';
-      case 'regional_manager':
-        return 'bg-green-100 text-green-800';
-      case 'employee':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'viewer':
-        return 'bg-gray-100 text-gray-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
+  const getRoleColor = (role: string) => {
+    const roleOption = roleOptions.find(r => r.value === role);
+    return roleOption ? roleOption.color : 'text-gray-600';
   };
 
-  const filteredUsers = allUsers.filter(user => {
+  const getStatusBadge = (isActive: boolean, failedAttempts: number) => {
+    if (!isActive) return 'status-error';
+    if (failedAttempts > 2) return 'status-pending';
+    return 'status-active';
+  };
+
+  const getStatusText = (isActive: boolean, failedAttempts: number) => {
+    if (!isActive) return 'غير نشط';
+    if (failedAttempts > 2) return 'محظور مؤقتاً';
+    return 'نشط';
+  };
+
+  const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.department.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = selectedRole === 'all' || user.permissions.role === selectedRole;
+    const matchesRole = selectedRole === 'all' || user.role === selectedRole;
+    const matchesStatus = selectedStatus === 'all' || 
+                         (selectedStatus === 'active' && user.isActive) ||
+                         (selectedStatus === 'inactive' && !user.isActive);
     const matchesGovernorate = selectedGovernorate === 'all' || user.governorate === selectedGovernorate;
-    return matchesSearch && matchesRole && matchesGovernorate;
+    return matchesSearch && matchesRole && matchesStatus && matchesGovernorate;
   });
+
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
+    let aValue, bValue;
+    switch (sortBy) {
+      case 'name':
+        aValue = a.name;
+        bValue = b.name;
+        break;
+      case 'email':
+        aValue = a.email;
+        bValue = b.email;
+        break;
+      case 'role':
+        aValue = a.role;
+        bValue = b.role;
+        break;
+      case 'department':
+        aValue = a.department;
+        bValue = b.department;
+        break;
+      case 'lastLogin':
+        aValue = new Date(a.lastLogin);
+        bValue = new Date(b.lastLogin);
+        break;
+      default:
+        aValue = a.name;
+        bValue = b.name;
+    }
+    
+    if (sortOrder === 'asc') {
+      return aValue > bValue ? 1 : -1;
+    } else {
+      return aValue < bValue ? 1 : -1;
+    }
+  });
+
+  // حساب الإحصائيات
+  const totalUsers = users.length;
+  const activeUsers = users.filter(u => u.isActive).length;
+  const adminUsers = users.filter(u => u.role === 'admin').length;
+  const onlineUsers = users.filter(u => {
+    const lastLogin = new Date(u.lastLogin);
+    const now = new Date();
+    const diffInHours = (now.getTime() - lastLogin.getTime()) / (1000 * 60 * 60);
+    return diffInHours < 24;
+  }).length;
+
+  const handleBulkAction = (action: string) => {
+    if (selectedUsers.length === 0) {
+      showError('لم يتم تحديد مستخدمين', 'يرجى تحديد مستخدم واحد على الأقل');
+      return;
+    }
+
+    switch (action) {
+      case 'activate':
+        success('تم تفعيل المستخدمين', `تم تفعيل ${selectedUsers.length} مستخدم`);
+        break;
+      case 'deactivate':
+        success('تم إلغاء تفعيل المستخدمين', `تم إلغاء تفعيل ${selectedUsers.length} مستخدم`);
+        break;
+      case 'delete':
+        if (window.confirm(`هل أنت متأكد من حذف ${selectedUsers.length} مستخدم؟`)) {
+          success('تم حذف المستخدمين', `تم حذف ${selectedUsers.length} مستخدم`);
+        }
+        break;
+      case 'export':
+        success('تم تصدير البيانات', `تم تصدير بيانات ${selectedUsers.length} مستخدم`);
+        break;
+    }
+    setSelectedUsers([]);
+  };
+
+  const handleUserAction = (action: string, user: any) => {
+    switch (action) {
+      case 'view':
+        setSelectedUser(user);
+        setModalType('details');
+        setShowModal(true);
+        break;
+      case 'edit':
+        setSelectedUser(user);
+        setModalType('edit');
+        setShowModal(true);
+        break;
+      case 'permissions':
+        setSelectedUser(user);
+        setModalType('permissions');
+        setShowModal(true);
+        break;
+      case 'reset_password':
+        success('تم إرسال رابط إعادة تعيين كلمة المرور', `تم إرسال رابط إلى ${user.email}`);
+        break;
+      case 'toggle_2fa':
+        success(
+          user.twoFactorEnabled ? 'تم إلغاء المصادقة الثنائية' : 'تم تفعيل المصادقة الثنائية',
+          `تم ${user.twoFactorEnabled ? 'إلغاء' : 'تفعيل'} المصادقة الثنائية للمستخدم ${user.name}`
+        );
+        break;
+    }
+  };
+
+  const renderUserCard = (user: any) => {
+    const RoleIcon = getRoleIcon(user.role);
+    return (
+      <div key={user.id} className="card-islamic hover-lift">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3 space-x-reverse">
+            <div className="relative">
+              <img
+                src={user.avatar}
+                alt={user.name}
+                className="w-12 h-12 rounded-full object-cover"
+              />
+              <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${
+                user.isActive ? 'bg-green-500' : 'bg-gray-400'
+              }`}></div>
+            </div>
+            <div>
+              <h3 className="font-semibold text-islamic-800 font-body">{user.name}</h3>
+              <p className="text-sm text-sage-600 font-body">{user.email}</p>
+            </div>
+          </div>
+          <input
+            type="checkbox"
+            checked={selectedUsers.includes(user.id)}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setSelectedUsers(prev => [...prev, user.id]);
+              } else {
+                setSelectedUsers(prev => prev.filter(id => id !== user.id));
+              }
+            }}
+            className="rounded border-islamic-300 text-islamic-600 focus:ring-islamic-500"
+          />
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-center space-x-2 space-x-reverse">
+            <RoleIcon className={`w-4 h-4 ${getRoleColor(user.role)}`} />
+            <span className="text-sm text-sage-700 font-body">{roleOptions.find(r => r.value === user.role)?.label}</span>
+          </div>
+          
+          <div className="flex items-center space-x-2 space-x-reverse">
+            <Building className="w-4 h-4 text-sage-400" />
+            <span className="text-sm text-sage-700 font-body">{user.department}</span>
+          </div>
+          
+          <div className="flex items-center space-x-2 space-x-reverse">
+            <MapPin className="w-4 h-4 text-sage-400" />
+            <span className="text-sm text-sage-700 font-body">{governorateOptions.find(g => g.value === user.governorate)?.label}</span>
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(user.isActive, user.failedLoginAttempts)}`}>
+              {getStatusText(user.isActive, user.failedLoginAttempts)}
+            </span>
+            <div className="flex items-center space-x-1 space-x-reverse">
+              {user.twoFactorEnabled && <Shield className="w-4 h-4 text-green-500" />}
+              <span className="text-xs text-sage-500 font-body">
+                آخر دخول: {new Date(user.lastLogin).toLocaleDateString('ar-EG')}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-4 border-t border-sage-200 mt-4">
+          <button 
+            onClick={() => handleUserAction('view', user)}
+            className="text-blue-600 hover:text-blue-700 font-medium text-sm font-body"
+          >
+            عرض التفاصيل
+          </button>
+          <div className="flex items-center space-x-2 space-x-reverse">
+            <button 
+              onClick={() => handleUserAction('edit', user)}
+              className="text-green-600 hover:text-green-700"
+            >
+              <Edit className="w-4 h-4" />
+            </button>
+            <button 
+              onClick={() => handleUserAction('permissions', user)}
+              className="text-purple-600 hover:text-purple-700"
+            >
+              <Key className="w-4 h-4" />
+            </button>
+            <button className="text-gray-600 hover:text-gray-700">
+              <MoreVertical className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderUsersList = () => (
+    <div className="bg-white rounded-2xl shadow-elegant overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-islamic-50">
+            <tr>
+              <th className="px-6 py-3 text-right">
+                <input
+                  type="checkbox"
+                  checked={selectedUsers.length === sortedUsers.length && sortedUsers.length > 0}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedUsers(sortedUsers.map(u => u.id));
+                    } else {
+                      setSelectedUsers([]);
+                    }
+                  }}
+                  className="rounded border-islamic-300 text-islamic-600 focus:ring-islamic-500"
+                />
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-islamic-700 uppercase tracking-wider font-body">
+                المستخدم
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-islamic-700 uppercase tracking-wider font-body">
+                الدور
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-islamic-700 uppercase tracking-wider font-body">
+                القسم
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-islamic-700 uppercase tracking-wider font-body">
+                المحافظة
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-islamic-700 uppercase tracking-wider font-body">
+                الحالة
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-islamic-700 uppercase tracking-wider font-body">
+                آخر دخول
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-islamic-700 uppercase tracking-wider font-body">
+                الإجراءات
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-sage-200">
+            {sortedUsers.map((user) => {
+              const RoleIcon = getRoleIcon(user.role);
+              return (
+                <tr key={user.id} className="hover:bg-islamic-50">
+                  <td className="px-6 py-4">
+                    <input
+                      type="checkbox"
+                      checked={selectedUsers.includes(user.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedUsers(prev => [...prev, user.id]);
+                        } else {
+                          setSelectedUsers(prev => prev.filter(id => id !== user.id));
+                        }
+                      }}
+                      className="rounded border-islamic-300 text-islamic-600 focus:ring-islamic-500"
+                    />
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center space-x-3 space-x-reverse">
+                      <div className="relative">
+                        <img
+                          src={user.avatar}
+                          alt={user.name}
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
+                        <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${
+                          user.isActive ? 'bg-green-500' : 'bg-gray-400'
+                        }`}></div>
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-islamic-800 font-body">{user.name}</div>
+                        <div className="text-sm text-sage-600 font-body">{user.email}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center space-x-2 space-x-reverse">
+                      <RoleIcon className={`w-4 h-4 ${getRoleColor(user.role)}`} />
+                      <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                        {roleOptions.find(r => r.value === user.role)?.label}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-islamic-800 font-body">
+                    {user.department}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-islamic-800 font-body">
+                    {governorateOptions.find(g => g.value === user.governorate)?.label}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center space-x-2 space-x-reverse">
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(user.isActive, user.failedLoginAttempts)}`}>
+                        {getStatusText(user.isActive, user.failedLoginAttempts)}
+                      </span>
+                      {user.twoFactorEnabled && <Shield className="w-4 h-4 text-green-500" />}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-sage-600 font-body">
+                    {new Date(user.lastLogin).toLocaleDateString('ar-EG')}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex items-center space-x-2 space-x-reverse">
+                      <button 
+                        onClick={() => handleUserAction('view', user)}
+                        className="text-blue-600 hover:text-blue-700"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => handleUserAction('edit', user)}
+                        className="text-green-600 hover:text-green-700"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => handleUserAction('permissions', user)}
+                        className="text-purple-600 hover:text-purple-700"
+                      >
+                        <Key className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">إدارة المستخدمين والصلاحيات</h1>
-          <p className="text-gray-600 mt-1">إدارة المستخدمين وصلاحياتهم حسب الأنظمة والمحافظات</p>
+          <h1 className="heading-1 text-islamic-800">إدارة المستخدمين</h1>
+          <p className="body-text text-sage-600 mt-2">إدارة شاملة للمستخدمين والصلاحيات مع أدوات متقدمة</p>
         </div>
-        <button 
-          onClick={() => setShowModal(true)}
-          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center"
-        >
-          <Plus className="w-5 h-5 ml-2" />
-          إضافة مستخدم جديد
-        </button>
+        <div className="flex items-center space-x-4 space-x-reverse">
+          <button className="btn-secondary">
+            <Download className="w-5 h-5 ml-2" />
+            تصدير البيانات
+          </button>
+          <button 
+            onClick={() => {
+              setSelectedUser(null);
+              setModalType('add');
+              setShowModal(true);
+            }}
+            className="btn-primary"
+          >
+            <Plus className="w-5 h-5 ml-2" />
+            إضافة مستخدم
+          </button>
+        </div>
       </div>
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow-md p-6 border-r-4 border-blue-500">
+        <div className="card-islamic">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">إجمالي المستخدمين</p>
-              <p className="text-3xl font-bold text-gray-800">{allUsers.length}</p>
+              <p className="text-sm font-medium text-sage-600 font-body">إجمالي المستخدمين</p>
+              <p className="text-3xl font-bold text-islamic-700 font-display">{totalUsers}</p>
             </div>
-            <Users className="w-8 h-8 text-blue-500" />
+            <Users className="w-8 h-8 text-islamic-500" />
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow-md p-6 border-r-4 border-green-500">
+        <div className="card-golden">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">المستخدمون النشطون</p>
-              <p className="text-3xl font-bold text-gray-800">
-                {allUsers.filter(u => u.permissions.isActive).length}
-              </p>
+              <p className="text-sm font-medium text-sage-600 font-body">مستخدمون نشطون</p>
+              <p className="text-3xl font-bold text-golden-700 font-display">{activeUsers}</p>
             </div>
-            <UserCheck className="w-8 h-8 text-green-500" />
+            <UserCheck className="w-8 h-8 text-golden-500" />
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow-md p-6 border-r-4 border-purple-500">
+        <div className="card-sage">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">المديرون</p>
-              <p className="text-3xl font-bold text-gray-800">
-                {allUsers.filter(u => u.permissions.role.includes('manager') || u.permissions.role.includes('admin')).length}
-              </p>
+              <p className="text-sm font-medium text-sage-600 font-body">مديرو النظام</p>
+              <p className="text-3xl font-bold text-sage-700 font-display">{adminUsers}</p>
             </div>
-            <Crown className="w-8 h-8 text-purple-500" />
+            <Crown className="w-8 h-8 text-sage-500" />
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow-md p-6 border-r-4 border-orange-500">
+        <div className="card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">المحافظات المغطاة</p>
-              <p className="text-3xl font-bold text-gray-800">
-                {new Set(allUsers.map(u => u.governorate)).size}
-              </p>
+              <p className="text-sm font-medium text-sage-600 font-body">متصلون اليوم</p>
+              <p className="text-3xl font-bold text-gray-700 font-display">{onlineUsers}</p>
             </div>
-            <MapPin className="w-8 h-8 text-orange-500" />
+            <Activity className="w-8 h-8 text-gray-500" />
           </div>
         </div>
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="bg-white rounded-2xl shadow-elegant p-6">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-4">
           <div className="relative">
-            <Search className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
+            <Search className="absolute right-3 top-3 h-5 w-5 text-sage-400" />
             <input
               type="text"
               placeholder="البحث في المستخدمين..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pr-10 pl-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="form-input pr-10"
             />
           </div>
           
           <select
             value={selectedRole}
             onChange={(e) => setSelectedRole(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="form-select"
           >
             {roleOptions.map(option => (
               <option key={option.value} value={option.value}>{option.label}</option>
@@ -412,469 +716,429 @@ const UsersManagement: React.FC = () => {
           </select>
           
           <select
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value)}
+            className="form-select"
+          >
+            {statusOptions.map(option => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+          
+          <select
             value={selectedGovernorate}
             onChange={(e) => setSelectedGovernorate(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="form-select"
           >
             {governorateOptions.map(option => (
               <option key={option.value} value={option.value}>{option.label}</option>
             ))}
           </select>
           
-          <button className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-            <Filter className="w-5 h-5 ml-2" />
-            فلاتر متقدمة
-          </button>
+          <div className="flex items-center space-x-2 space-x-reverse">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="form-select"
+            >
+              <option value="name">الاسم</option>
+              <option value="email">البريد الإلكتروني</option>
+              <option value="role">الدور</option>
+              <option value="department">القسم</option>
+              <option value="lastLogin">آخر دخول</option>
+            </select>
+            <button
+              onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+              className="p-2 border border-sage-300 rounded-lg hover:bg-sage-50"
+            >
+              {sortOrder === 'asc' ? <SortAsc className="w-5 h-5" /> : <SortDesc className="w-5 h-5" />}
+            </button>
+          </div>
+          
+          <div className="flex items-center space-x-2 space-x-reverse">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-2 rounded-lg ${viewMode === 'grid' ? 'bg-islamic-600 text-white' : 'bg-gray-200 text-gray-600'}`}
+            >
+              <Grid className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-2 rounded-lg ${viewMode === 'list' ? 'bg-islamic-600 text-white' : 'bg-gray-200 text-gray-600'}`}
+            >
+              <List className="w-5 h-5" />
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* Users List */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  المستخدم
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  الدور
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  المحافظة
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  الأنظمة المتاحة
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  الحالة
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  الإجراءات
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredUsers.map((user) => {
-                const RoleIcon = getRoleIcon(user.permissions.role);
-                return (
-                  <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center space-x-3 space-x-reverse">
-                        <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                          <User className="w-5 h-5 text-gray-600" />
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                          <div className="text-sm text-gray-500">{user.email}</div>
-                          <div className="text-xs text-gray-400">{user.department}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center space-x-2 space-x-reverse">
-                        <RoleIcon className="w-4 h-4 text-gray-600" />
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getRoleBadge(user.permissions.role)}`}>
-                          {roleOptions.find(r => r.value === user.permissions.role)?.label}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center space-x-2 space-x-reverse">
-                        <MapPin className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-gray-900">
-                          {governorateOptions.find(g => g.value === user.governorate)?.label}
-                        </span>
-                      </div>
-                      {user.permissions.governorates.length > 1 && (
-                        <div className="text-xs text-gray-500 mt-1">
-                          +{user.permissions.governorates.length - 1} محافظة أخرى
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-wrap gap-1">
-                        {Object.keys(user.permissions.modules).slice(0, 3).map((moduleKey) => (
-                          <span key={moduleKey} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                            {moduleOptions.find(m => m.id === moduleKey)?.name}
-                          </span>
-                        ))}
-                        {Object.keys(user.permissions.modules).length > 3 && (
-                          <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
-                            +{Object.keys(user.permissions.modules).length - 3}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center space-x-2 space-x-reverse">
-                        {user.permissions.isActive ? (
-                          <>
-                            <CheckCircle className="w-4 h-4 text-green-500" />
-                            <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                              نشط
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <XCircle className="w-4 h-4 text-red-500" />
-                            <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
-                              غير نشط
-                            </span>
-                          </>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center space-x-2 space-x-reverse">
-                        <button 
-                          onClick={() => setSelectedUser(user)}
-                          className="text-blue-600 hover:text-blue-700"
-                          title="عرض التفاصيل"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button 
-                          onClick={() => {
-                            setSelectedUser(user);
-                            setShowPermissionsModal(true);
-                          }}
-                          className="text-purple-600 hover:text-purple-700"
-                          title="إدارة الصلاحيات"
-                        >
-                          <Shield className="w-4 h-4" />
-                        </button>
-                        <button 
-                          className="text-green-600 hover:text-green-700"
-                          title="تعديل"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button 
-                          className="text-red-600 hover:text-red-700"
-                          title="حذف"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* User Details Modal */}
-      {selectedUser && !showPermissionsModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-800">تفاصيل المستخدم</h2>
-              <button
-                onClick={() => setSelectedUser(null)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                ×
-              </button>
-            </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="font-semibold text-gray-800 mb-3">المعلومات الأساسية</h3>
-                  <div className="space-y-2">
-                    <p><span className="text-gray-500">الاسم:</span> {selectedUser.name}</p>
-                    <p><span className="text-gray-500">البريد الإلكتروني:</span> {selectedUser.email}</p>
-                    <p><span className="text-gray-500">القسم:</span> {selectedUser.department}</p>
-                    <p><span className="text-gray-500">المحافظة الرئيسية:</span> {governorateOptions.find(g => g.value === selectedUser.governorate)?.label}</p>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="font-semibold text-gray-800 mb-3">الدور والصلاحيات</h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-500">الدور:</span>
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getRoleBadge(selectedUser.permissions.role)}`}>
-                        {roleOptions.find(r => r.value === selectedUser.permissions.role)?.label}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-500">الحالة:</span>
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${selectedUser.permissions.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                        {selectedUser.permissions.isActive ? 'نشط' : 'غير نشط'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="font-semibold text-gray-800 mb-3">المحافظات المتاحة</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedUser.permissions.governorates.map((gov) => (
-                      <span key={gov} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                        {governorateOptions.find(g => g.value === gov)?.label}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="font-semibold text-gray-800 mb-3">الأنظمة والصلاحيات</h3>
-                  <div className="space-y-2">
-                    {Object.entries(selectedUser.permissions.modules).map(([moduleKey, modulePermission]) => (
-                      <div key={moduleKey} className="border border-gray-200 rounded-lg p-3">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-medium text-gray-800">
-                            {moduleOptions.find(m => m.id === moduleKey)?.name}
-                          </span>
-                          {modulePermission.governorateRestricted ? (
-                            <Lock className="w-4 h-4 text-orange-500" />
-                          ) : (
-                            <Unlock className="w-4 h-4 text-green-500" />
-                          )}
-                        </div>
-                        <div className="flex flex-wrap gap-1">
-                          {modulePermission.permissions.map((permission) => (
-                            <span key={permission} className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-                              {permission}
-                            </span>
-                          ))}
-                        </div>
-                        {modulePermission.governorateRestricted && modulePermission.allowedGovernorates && (
-                          <div className="mt-2">
-                            <span className="text-xs text-gray-500">المحافظات المسموحة:</span>
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              {modulePermission.allowedGovernorates.map((gov) => (
-                                <span key={gov} className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">
-                                  {governorateOptions.find(g => g.value === gov)?.label}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
+        {/* Bulk Actions */}
+        {selectedUsers.length > 0 && (
+          <div className="bg-islamic-50 border border-islamic-200 rounded-xl p-4 mb-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-islamic-800 font-body">
+                تم تحديد {selectedUsers.length} مستخدم
+              </span>
+              <div className="flex items-center space-x-2 space-x-reverse">
+                <button 
+                  onClick={() => handleBulkAction('activate')}
+                  className="btn-primary text-sm px-3 py-1"
+                >
+                  تفعيل
+                </button>
+                <button 
+                  onClick={() => handleBulkAction('deactivate')}
+                  className="btn-secondary text-sm px-3 py-1"
+                >
+                  إلغاء تفعيل
+                </button>
+                <button 
+                  onClick={() => handleBulkAction('export')}
+                  className="btn-outline text-sm px-3 py-1"
+                >
+                  تصدير
+                </button>
+                <button 
+                  onClick={() => handleBulkAction('delete')}
+                  className="bg-red-600 text-white text-sm px-3 py-1 rounded-lg hover:bg-red-700"
+                >
+                  حذف
+                </button>
               </div>
             </div>
           </div>
+        )}
+      </div>
+
+      {/* Users Display */}
+      {viewMode === 'grid' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {sortedUsers.map(renderUserCard)}
         </div>
+      ) : (
+        renderUsersList()
       )}
 
-      {/* Permissions Management Modal */}
-      {showPermissionsModal && selectedUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-800">إدارة صلاحيات المستخدم</h2>
-              <button
-                onClick={() => {
-                  setShowPermissionsModal(false);
-                  setSelectedUser(null);
-                }}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                ×
-              </button>
-            </div>
-            
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">{selectedUser.name}</h3>
-              <p className="text-gray-600">{selectedUser.email}</p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-gray-800 mb-3">الدور الأساسي</h4>
-                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                    {roleOptions.slice(1).map(option => (
-                      <option key={option.value} value={option.value} selected={selectedUser.permissions.role === option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-gray-800 mb-3">المحافظات المتاحة</h4>
-                  <div className="space-y-2 max-h-40 overflow-y-auto">
-                    {governorateOptions.slice(1).map(option => (
-                      <label key={option.value} className="flex items-center space-x-2 space-x-reverse">
-                        <input 
-                          type="checkbox" 
-                          className="rounded border-gray-300 text-green-600 focus:ring-green-500"
-                          defaultChecked={selectedUser.permissions.governorates.includes(option.value as Governorate)}
-                        />
-                        <span className="text-sm">{option.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-gray-800 mb-3">صلاحيات الأنظمة</h4>
-                  <div className="space-y-3 max-h-96 overflow-y-auto">
-                    {moduleOptions.map(module => (
-                      <div key={module.id} className="border border-gray-200 rounded-lg p-3">
-                        <div className="flex items-center justify-between mb-2">
-                          <label className="flex items-center space-x-2 space-x-reverse">
-                            <input 
-                              type="checkbox" 
-                              className="rounded border-gray-300 text-green-600 focus:ring-green-500"
-                              defaultChecked={!!selectedUser.permissions.modules[module.id as SystemModule]}
-                            />
-                            <span className="font-medium">{module.name}</span>
-                          </label>
-                        </div>
-                        
-                        {selectedUser.permissions.modules[module.id as SystemModule] && (
-                          <div className="mt-2 space-y-2">
-                            <div className="flex flex-wrap gap-2">
-                              {['create', 'read', 'update', 'delete', 'manage'].map(action => (
-                                <label key={action} className="flex items-center space-x-1 space-x-reverse">
-                                  <input 
-                                    type="checkbox" 
-                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                    defaultChecked={selectedUser.permissions.modules[module.id as SystemModule]?.permissions.includes(action)}
-                                  />
-                                  <span className="text-xs">{action}</span>
-                                </label>
-                              ))}
-                            </div>
-                            
-                            <label className="flex items-center space-x-2 space-x-reverse">
-                              <input 
-                                type="checkbox" 
-                                className="rounded border-gray-300 text-orange-600 focus:ring-orange-500"
-                                defaultChecked={selectedUser.permissions.modules[module.id as SystemModule]?.governorateRestricted}
-                              />
-                              <span className="text-sm">مقيد بالمحافظة</span>
-                            </label>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end space-x-4 space-x-reverse mt-6">
-              <button
-                onClick={() => {
-                  setShowPermissionsModal(false);
-                  setSelectedUser(null);
-                }}
-                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
-              >
-                إلغاء
-              </button>
-              <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                حفظ الصلاحيات
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Add User Modal */}
+      {/* User Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-800">إضافة مستخدم جديد</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-8 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="heading-2 text-islamic-800">
+                {modalType === 'add' ? 'إضافة مستخدم جديد' :
+                 modalType === 'edit' ? 'تعديل المستخدم' :
+                 modalType === 'permissions' ? 'إدارة الصلاحيات' :
+                 'تفاصيل المستخدم'}
+              </h2>
               <button
                 onClick={() => setShowModal(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-sage-500 hover:text-sage-700 text-2xl"
               >
                 ×
               </button>
             </div>
             
-            <form className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">الاسم الكامل</label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                    placeholder="أدخل الاسم الكامل"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">البريد الإلكتروني</label>
-                  <input
-                    type="email"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                    placeholder="user@awqaf.gov.ps"
-                  />
-                </div>
-              </div>
+            {modalType === 'details' && selectedUser ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <img
+                      src={selectedUser.avatar}
+                      alt={selectedUser.name}
+                      className="w-24 h-24 rounded-full object-cover mx-auto mb-4"
+                    />
+                    <h3 className="text-xl font-semibold text-islamic-800 font-display">{selectedUser.name}</h3>
+                    <p className="text-sage-600 font-body">{selectedUser.email}</p>
+                  </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">الدور</label>
-                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                    {roleOptions.slice(1).map(option => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">المحافظة الرئيسية</label>
-                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                    {governorateOptions.slice(1).map(option => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+                  <div className="bg-islamic-50 p-6 rounded-xl">
+                    <h4 className="font-semibold text-islamic-800 mb-3 font-display">المعلومات الأساسية</h4>
+                    <div className="space-y-2">
+                      <p><span className="text-sage-500 font-body">الدور:</span> {roleOptions.find(r => r.value === selectedUser.role)?.label}</p>
+                      <p><span className="text-sage-500 font-body">القسم:</span> {selectedUser.department}</p>
+                      <p><span className="text-sage-500 font-body">المحافظة:</span> {governorateOptions.find(g => g.value === selectedUser.governorate)?.label}</p>
+                      <p><span className="text-sage-500 font-body">الهاتف:</span> {selectedUser.phone}</p>
+                    </div>
+                  </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">القسم</label>
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="أدخل اسم القسم"
-                />
-              </div>
+                  <div className="bg-golden-50 p-6 rounded-xl">
+                    <h4 className="font-semibold text-golden-800 mb-3 font-display">إحصائيات النشاط</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-golden-700 font-display">{selectedUser.loginCount}</p>
+                        <p className="text-sm text-golden-600 font-body">مرة دخول</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-blue-700 font-display">{selectedUser.documentsUploaded}</p>
+                        <p className="text-sm text-blue-600 font-body">وثيقة مرفوعة</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-green-700 font-display">{selectedUser.casesManaged}</p>
+                        <p className="text-sm text-green-600 font-body">قضية مدارة</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-purple-700 font-display">{selectedUser.permissions.length}</p>
+                        <p className="text-sm text-purple-600 font-body">صلاحية</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">كلمة المرور</label>
-                <input
-                  type="password"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="كلمة مرور قوية"
-                />
+                <div className="space-y-6">
+                  <div className="bg-sage-50 p-6 rounded-xl">
+                    <h4 className="font-semibold text-sage-800 mb-3 font-display">الأمان والحماية</h4>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sage-600 font-body">المصادقة الثنائية:</span>
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                          selectedUser.twoFactorEnabled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {selectedUser.twoFactorEnabled ? 'مفعلة' : 'غير مفعلة'}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sage-600 font-body">آخر تغيير كلمة المرور:</span>
+                        <span className="font-medium font-body">{new Date(selectedUser.passwordLastChanged).toLocaleDateString('ar-EG')}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sage-600 font-body">محاولات دخول فاشلة:</span>
+                        <span className={`font-medium ${selectedUser.failedLoginAttempts > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                          {selectedUser.failedLoginAttempts}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-blue-50 p-6 rounded-xl">
+                    <h4 className="font-semibold text-blue-800 mb-3 font-display">الصلاحيات</h4>
+                    <div className="space-y-2">
+                      {selectedUser.permissions.map((permission: string, index: number) => (
+                        <div key={index} className="flex items-center space-x-2 space-x-reverse">
+                          <CheckCircle className="w-4 h-4 text-blue-600" />
+                          <span className="text-sage-700 font-body">{permission}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <button 
+                      onClick={() => handleUserAction('edit', selectedUser)}
+                      className="w-full btn-primary"
+                    >
+                      <Edit className="w-5 h-5 ml-2" />
+                      تعديل المستخدم
+                    </button>
+                    <button 
+                      onClick={() => handleUserAction('permissions', selectedUser)}
+                      className="w-full btn-secondary"
+                    >
+                      <Key className="w-5 h-5 ml-2" />
+                      إدارة الصلاحيات
+                    </button>
+                    <button 
+                      onClick={() => handleUserAction('reset_password', selectedUser)}
+                      className="w-full btn-outline"
+                    >
+                      <Lock className="w-5 h-5 ml-2" />
+                      إعادة تعيين كلمة المرور
+                    </button>
+                  </div>
+                </div>
               </div>
-              
-              <div className="flex justify-end space-x-4 space-x-reverse pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
-                >
-                  إلغاء
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                >
-                  إضافة المستخدم
-                </button>
+            ) : modalType === 'permissions' && selectedUser ? (
+              <div className="space-y-6">
+                <div className="text-center">
+                  <h3 className="text-xl font-semibold text-islamic-800 mb-2 font-display">
+                    إدارة صلاحيات {selectedUser.name}
+                  </h3>
+                  <p className="text-sage-600 font-body">{selectedUser.email}</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {permissionModules.map((module) => (
+                    <div key={module.id} className="bg-islamic-50 p-4 rounded-xl">
+                      <div className="flex items-center space-x-3 space-x-reverse mb-3">
+                        <module.icon className={`w-6 h-6 ${module.color}`} />
+                        <h4 className="font-semibold text-islamic-800 font-body">{module.name}</h4>
+                      </div>
+                      <div className="space-y-2">
+                        {['read', 'create', 'update', 'delete'].map((action) => (
+                          <label key={action} className="flex items-center space-x-2 space-x-reverse">
+                            <input
+                              type="checkbox"
+                              defaultChecked={selectedUser.permissions.includes(module.id)}
+                              className="rounded border-islamic-300 text-islamic-600 focus:ring-islamic-500"
+                            />
+                            <span className="text-sm font-body">
+                              {action === 'read' ? 'قراءة' :
+                               action === 'create' ? 'إنشاء' :
+                               action === 'update' ? 'تعديل' : 'حذف'}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex justify-end space-x-4 space-x-reverse">
+                  <button
+                    onClick={() => setShowModal(false)}
+                    className="btn-outline"
+                  >
+                    إلغاء
+                  </button>
+                  <button className="btn-primary">
+                    <Save className="w-5 h-5 ml-2" />
+                    حفظ الصلاحيات
+                  </button>
+                </div>
               </div>
-            </form>
+            ) : (
+              // Add/Edit User Form
+              <form className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-islamic-700 mb-2 font-body">الاسم الكامل</label>
+                    <input
+                      type="text"
+                      defaultValue={selectedUser?.name || ''}
+                      className="form-input"
+                      placeholder="أدخل الاسم الكامل"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-islamic-700 mb-2 font-body">البريد الإلكتروني</label>
+                    <input
+                      type="email"
+                      defaultValue={selectedUser?.email || ''}
+                      className="form-input"
+                      placeholder="user@awqaf.gov.ps"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-islamic-700 mb-2 font-body">الدور</label>
+                    <select 
+                      defaultValue={selectedUser?.role || 'employee'}
+                      className="form-select"
+                    >
+                      {roleOptions.slice(1).map(option => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-islamic-700 mb-2 font-body">القسم</label>
+                    <select 
+                      defaultValue={selectedUser?.department || ''}
+                      className="form-select"
+                    >
+                      {departmentOptions.map((dept, index) => (
+                        <option key={index} value={dept}>{dept}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-islamic-700 mb-2 font-body">المحافظة</label>
+                    <select 
+                      defaultValue={selectedUser?.governorate || ''}
+                      className="form-select"
+                    >
+                      {governorateOptions.slice(1).map(option => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-islamic-700 mb-2 font-body">رقم الهاتف</label>
+                    <input
+                      type="tel"
+                      defaultValue={selectedUser?.phone || ''}
+                      className="form-input"
+                      placeholder="+970 X XXX XXXX"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-islamic-700 mb-2 font-body">رابط الصورة الشخصية</label>
+                    <input
+                      type="url"
+                      defaultValue={selectedUser?.avatar || ''}
+                      className="form-input"
+                      placeholder="https://example.com/avatar.jpg"
+                    />
+                  </div>
+                </div>
+
+                {modalType === 'add' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-islamic-700 mb-2 font-body">كلمة المرور</label>
+                      <input
+                        type="password"
+                        className="form-input"
+                        placeholder="كلمة مرور قوية"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-islamic-700 mb-2 font-body">تأكيد كلمة المرور</label>
+                      <input
+                        type="password"
+                        className="form-input"
+                        placeholder="تأكيد كلمة المرور"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-3">
+                  <label className="flex items-center space-x-2 space-x-reverse">
+                    <input
+                      type="checkbox"
+                      defaultChecked={selectedUser?.isActive ?? true}
+                      className="rounded border-islamic-300 text-islamic-600 focus:ring-islamic-500"
+                    />
+                    <span className="text-sm font-medium text-islamic-700 font-body">حساب نشط</span>
+                  </label>
+                  
+                  <label className="flex items-center space-x-2 space-x-reverse">
+                    <input
+                      type="checkbox"
+                      defaultChecked={selectedUser?.twoFactorEnabled ?? false}
+                      className="rounded border-islamic-300 text-islamic-600 focus:ring-islamic-500"
+                    />
+                    <span className="text-sm font-medium text-islamic-700 font-body">تفعيل المصادقة الثنائية</span>
+                  </label>
+                </div>
+
+                <div className="flex justify-end space-x-4 space-x-reverse">
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="btn-outline"
+                  >
+                    إلغاء
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn-primary"
+                  >
+                    <Save className="w-5 h-5 ml-2" />
+                    {modalType === 'add' ? 'إضافة المستخدم' : 'حفظ التغييرات'}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}

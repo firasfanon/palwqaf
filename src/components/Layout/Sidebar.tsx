@@ -15,7 +15,8 @@ import {
   FolderOpen,
   Clock,
   Bell,
-  Key
+  Key,
+  Globe
 } from 'lucide-react';
 
 interface SidebarProps {

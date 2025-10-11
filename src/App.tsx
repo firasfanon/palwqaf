@@ -43,24 +43,27 @@ import SitemapPage from './pages/SitemapPage';
 import { AuthProvider } from './contexts/AuthContext';
 import { DataProvider } from './contexts/DataContext';
 import { PermissionsProvider } from './contexts/PermissionsContext';
+import { ToastContainer } from './components/UI';
+import { useToast } from './hooks/useToast';
 
-function App() {
+const AppContent = () => {
+  const { toasts, removeToast } = useToast();
+  
   return (
-    <AuthProvider>
-      <PermissionsProvider>
-        <DataProvider>
-          <Router>
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <HomePage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
+    <>
+      <Router>
+        <Routes>
+          {/* جميع المسارات الموجودة */}
+          <Route path="/" element={
+            <div className="min-h-screen bg-gray-50" dir="rtl">
+              <Header />
+              <main className="min-h-screen">
+                <HomePage />
+              </main>
+              <Footer />
+            </div>
+          } />
+          {/* باقي المسارات... */}
               <Route path="/news" element={
                 <div className="min-h-screen bg-gray-50" dir="rtl">
                   <Header />
@@ -140,6 +143,7 @@ function App() {
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<Dashboard />} />
+                <Route path="dashboard" element={<Dashboard />} />
                 <Route path="homepage" element={<HomePageManagement />} />
                 <Route path="website" element={<WebsiteManagement />} />
                 <Route path="national-registry" element={<NationalWaqfRegistryPage />} />
@@ -274,8 +278,19 @@ function App() {
                   <Footer />
                 </div>
               } />
-            </Routes>
-          </Router>
+        </Routes>
+      </Router>
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
+    </>
+  );
+};
+
+function App() {
+  return (
+    <AuthProvider>
+      <PermissionsProvider>
+        <DataProvider>
+          <AppContent />
         </DataProvider>
       </PermissionsProvider>
     </AuthProvider>

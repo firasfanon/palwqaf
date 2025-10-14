@@ -86,18 +86,104 @@ const HomePageManagement: React.FC = () => {
   const [editMode, setEditMode] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('homepage');
+
+  const tabs = [
+    { id: 'homepage', name: 'الصفحة الرئيسية', icon: Home },
+    { id: 'pages', name: 'إدارة الصفحات', icon: FileText },
+    { id: 'services', name: 'إدارة الخدمات', icon: Settings },
+    { id: 'navigation', name: 'القوائم والتنقل', icon: Navigation }
+  ];
 
   const sections = [
     { id: 'hero', name: 'القسم الرئيسي', icon: Crown, color: 'text-islamic-600' },
     { id: 'minister', name: 'كلمة الوزير', icon: Users, color: 'text-blue-600' },
     { id: 'statistics', name: 'الإحصائيات', icon: BarChart3, color: 'text-green-600' },
-    { id: 'news', name: 'الأخبار', icon: Newspaper, color: 'text-purple-600' },
+    { id: 'news', name: 'الأخبار', icon: Newspaper, color: 'text-green-600' },
     { id: 'announcements', name: 'الإعلانات', icon: Megaphone, color: 'text-orange-600' },
     { id: 'services', name: 'الخدمات', icon: Settings, color: 'text-teal-600' },
-    { id: 'events', name: 'الفعاليات', icon: Calendar, color: 'text-pink-600' },
-    { id: 'media', name: 'معرض الوسائط', icon: ImageIcon, color: 'text-indigo-600' },
+    { id: 'events', name: 'الفعاليات', icon: Calendar, color: 'text-red-600' },
+    { id: 'media', name: 'معرض الوسائط', icon: ImageIcon, color: 'text-blue-600' },
     { id: 'social', name: 'وسائل التواصل', icon: Globe, color: 'text-cyan-600' },
     { id: 'contact', name: 'معلومات التواصل', icon: Phone, color: 'text-red-600' }
+  ];
+
+  const pages = [
+    { id: 'about', name: 'من نحن', icon: Info, route: '/about', enabled: true },
+    { id: 'minister', name: 'كلمة الوزير', icon: Users, route: '/minister', enabled: true },
+    { id: 'vision', name: 'الرؤية والرسالة', icon: Target, route: '/vision-mission', enabled: true },
+    { id: 'structure', name: 'الهيكل التنظيمي', icon: Building, route: '/organizational-structure', enabled: true },
+    { id: 'former-ministers', name: 'الوزراء السابقون', icon: Crown, route: '/former-ministers', enabled: true },
+    { id: 'news', name: 'الأخبار', icon: Newspaper, route: '/news', enabled: true },
+    { id: 'announcements', name: 'الإعلانات', icon: Megaphone, route: '/announcements', enabled: true },
+    { id: 'projects', name: 'المشاريع', icon: Layers, route: '/projects', enabled: true },
+    { id: 'activities', name: 'الأنشطة', icon: Activity, route: '/activities', enabled: true },
+    { id: 'friday-sermons', name: 'خطب الجمعة', icon: BookOpen, route: '/friday-sermons', enabled: true },
+    { id: 'mosques', name: 'المساجد', icon: Building, route: '/mosques', enabled: true },
+    { id: 'media-gallery', name: 'معرض الوسائط', icon: ImageIcon, route: '/media-gallery', enabled: true },
+    { id: 'contact', name: 'اتصل بنا', icon: Phone, route: '/contact', enabled: true },
+    { id: 'services', name: 'الخدمات الإلكترونية', icon: Settings, route: '/e-services', enabled: true },
+    { id: 'social-services', name: 'الخدمات الاجتماعية', icon: HandHeart, route: '/social-services', enabled: true }
+  ];
+
+  const serviceCategories = [
+    {
+      id: 'zakat',
+      name: 'خدمات الزكاة',
+      icon: Calculator,
+      color: 'text-green-600',
+      services: [
+        { id: 'zakat-calc', name: 'حاسبة الزكاة', description: 'احسب زكاة أموالك بدقة', enabled: true },
+        { id: 'zakat-payment', name: 'دفع الزكاة', description: 'ادفع زكاتك إلكترونياً', enabled: true },
+        { id: 'zakat-inquiry', name: 'استعلام عن الزكاة', description: 'استفسر عن أحكام الزكاة', enabled: true }
+      ]
+    },
+    {
+      id: 'mosques',
+      name: 'شؤون المساجد',
+      icon: Building,
+      color: 'text-islamic-600',
+      services: [
+        { id: 'mosque-directory', name: 'دليل المساجد', description: 'ابحث عن المساجد القريبة منك', enabled: true },
+        { id: 'prayer-times', name: 'مواقيت الصلاة', description: 'مواقيت الصلاة في فلسطين', enabled: true },
+        { id: 'mosque-registration', name: 'تسجيل مسجد', description: 'سجل مسجداً جديداً', enabled: true },
+        { id: 'imam-services', name: 'خدمات الأئمة', description: 'خدمات خاصة بالأئمة والخطباء', enabled: true }
+      ]
+    },
+    {
+      id: 'endowments',
+      name: 'خدمات الأوقاف',
+      icon: Star,
+      color: 'text-golden-600',
+      services: [
+        { id: 'waqf-registry', name: 'سجل الأوقاف الوطني', description: 'الاطلاع على سجل الأوقاف', enabled: true },
+        { id: 'waqf-donation', name: 'التبرع للأوقاف', description: 'ساهم في دعم الأوقاف', enabled: true },
+        { id: 'waqf-inquiry', name: 'استعلام عن الأوقاف', description: 'استعلم عن أملاك الأوقاف', enabled: true }
+      ]
+    },
+    {
+      id: 'religious',
+      name: 'الشؤون الدينية',
+      icon: BookOpen,
+      color: 'text-sage-600',
+      services: [
+        { id: 'fatwa-inquiry', name: 'الاستفتاء الشرعي', description: 'اطرح استفساراتك الشرعية', enabled: true },
+        { id: 'marriage-service', name: 'خدمات الزواج', description: 'خدمات عقد القران', enabled: true },
+        { id: 'hajj-services', name: 'خدمات الحج', description: 'خدمات ومعلومات الحج', enabled: true },
+        { id: 'religious-courses', name: 'الدورات الشرعية', description: 'التسجيل في الدورات الدينية', enabled: true }
+      ]
+    },
+    {
+      id: 'social',
+      name: 'الخدمات الاجتماعية',
+      icon: HandHeart,
+      color: 'text-red-600',
+      services: [
+        { id: 'social-aid', name: 'المساعدات الاجتماعية', description: 'تقديم طلب للمساعدة الاجتماعية', enabled: true },
+        { id: 'orphan-sponsorship', name: 'كفالة الأيتام', description: 'ساهم في كفالة يتيم', enabled: true },
+        { id: 'family-counseling', name: 'الإرشاد الأسري', description: 'خدمات الإرشاد والاستشارات الأسرية', enabled: true }
+      ]
+    }
   ];
 
   const [homePageContent, setHomePageContent] = useState({
@@ -1847,13 +1933,303 @@ const HomePageManagement: React.FC = () => {
     }
   };
 
+  const renderPagesManagement = () => (
+    <div className="space-y-6">
+      <div className="card-islamic">
+        <h3 className="text-lg font-semibold text-islamic-800 mb-4 font-display">إدارة صفحات الموقع</h3>
+        <p className="text-sage-600 mb-6 font-body">إدارة جميع صفحات الموقع وتفعيلها أو إخفاؤها</p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {pages.map((page) => (
+            <div key={page.id} className="bg-white border border-sage-200 rounded-xl p-4 hover:shadow-md transition-all">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center space-x-3 space-x-reverse">
+                  <div className="p-2 bg-islamic-100 rounded-lg">
+                    <page.icon className="w-5 h-5 text-islamic-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-islamic-800 font-display">{page.name}</h4>
+                    <p className="text-xs text-sage-600 font-body">{page.route}</p>
+                  </div>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    defaultChecked={page.enabled}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                </label>
+              </div>
+
+              <div className="flex space-x-2 space-x-reverse">
+                <button className="flex-1 btn-outline text-xs py-2">
+                  <Edit className="w-3 h-3 ml-1" />
+                  تعديل
+                </button>
+                <button className="flex-1 btn-outline text-xs py-2">
+                  <Eye className="w-3 h-3 ml-1" />
+                  معاينة
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="card-sage">
+          <h3 className="text-lg font-semibold text-sage-800 mb-4 font-display">إضافة صفحة جديدة</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-sage-700 mb-2 font-body">اسم الصفحة</label>
+              <input type="text" className="form-input" placeholder="أدخل اسم الصفحة" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-sage-700 mb-2 font-body">المسار</label>
+              <input type="text" className="form-input" placeholder="/page-route" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-sage-700 mb-2 font-body">القالب</label>
+              <select className="form-select">
+                <option>صفحة عامة</option>
+                <option>صفحة مع صور</option>
+                <option>صفحة مع نموذج</option>
+              </select>
+            </div>
+            <button className="w-full btn-primary">
+              <Plus className="w-5 h-5 ml-2" />
+              إضافة الصفحة
+            </button>
+          </div>
+        </div>
+
+        <div className="card-golden">
+          <h3 className="text-lg font-semibold text-golden-800 mb-4 font-display">إحصائيات الصفحات</h3>
+          <div className="space-y-4">
+            <div className="bg-white rounded-lg p-4 border border-golden-200">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-sage-700 font-body">عدد الصفحات النشطة</span>
+                <span className="text-2xl font-bold text-islamic-600 font-display">{pages.filter(p => p.enabled).length}</span>
+              </div>
+            </div>
+            <div className="bg-white rounded-lg p-4 border border-golden-200">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-sage-700 font-body">إجمالي الصفحات</span>
+                <span className="text-2xl font-bold text-sage-600 font-display">{pages.length}</span>
+              </div>
+            </div>
+            <div className="bg-white rounded-lg p-4 border border-golden-200">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-sage-700 font-body">آخر تحديث</span>
+                <span className="text-sm text-sage-600 font-body">منذ ساعتين</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderServicesManagement = () => (
+    <div className="space-y-6">
+      {serviceCategories.map((category) => (
+        <div key={category.id} className="card-islamic">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3 space-x-reverse">
+              <div className="p-3 bg-islamic-100 rounded-xl">
+                <category.icon className={`w-6 h-6 ${category.color}`} />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-islamic-800 font-display">{category.name}</h3>
+                <p className="text-sm text-sage-600 font-body">{category.services.length} خدمة متاحة</p>
+              </div>
+            </div>
+            <button className="btn-primary text-sm">
+              <Plus className="w-4 h-4 ml-2" />
+              إضافة خدمة
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {category.services.map((service) => (
+              <div key={service.id} className="bg-white border border-sage-200 rounded-xl p-4 hover:shadow-md transition-all">
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <h4 className="font-semibold text-islamic-800 mb-1 font-display">{service.name}</h4>
+                    <p className="text-sm text-sage-600 font-body">{service.description}</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      defaultChecked={service.enabled}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                  </label>
+                </div>
+
+                <div className="flex space-x-2 space-x-reverse mt-3 pt-3 border-t border-sage-100">
+                  <button className="flex-1 btn-outline text-xs py-2">
+                    <Edit className="w-3 h-3 ml-1" />
+                    تعديل
+                  </button>
+                  <button className="flex-1 btn-outline text-xs py-2">
+                    <BarChart3 className="w-3 h-3 ml-1" />
+                    إحصائيات
+                  </button>
+                  <button className="btn-outline text-xs py-2 px-3">
+                    <Trash2 className="w-3 h-3 text-red-600" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      <div className="card-golden">
+        <h3 className="text-lg font-semibold text-golden-800 mb-4 font-display">إحصائيات الخدمات</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-white rounded-lg p-4 border border-golden-200 text-center">
+            <div className="text-3xl font-bold text-islamic-600 mb-1 font-display">
+              {serviceCategories.reduce((acc, cat) => acc + cat.services.length, 0)}
+            </div>
+            <div className="text-sm text-sage-600 font-body">إجمالي الخدمات</div>
+          </div>
+          <div className="bg-white rounded-lg p-4 border border-golden-200 text-center">
+            <div className="text-3xl font-bold text-green-600 mb-1 font-display">
+              {serviceCategories.reduce((acc, cat) => acc + cat.services.filter(s => s.enabled).length, 0)}
+            </div>
+            <div className="text-sm text-sage-600 font-body">الخدمات النشطة</div>
+          </div>
+          <div className="bg-white rounded-lg p-4 border border-golden-200 text-center">
+            <div className="text-3xl font-bold text-golden-600 mb-1 font-display">{serviceCategories.length}</div>
+            <div className="text-sm text-sage-600 font-body">فئات الخدمات</div>
+          </div>
+          <div className="bg-white rounded-lg p-4 border border-golden-200 text-center">
+            <div className="text-3xl font-bold text-blue-600 mb-1 font-display">342</div>
+            <div className="text-sm text-sage-600 font-body">طلب اليوم</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderNavigationManagement = () => (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="card-islamic">
+          <h3 className="text-lg font-semibold text-islamic-800 mb-4 font-display">القائمة الرئيسية</h3>
+          <p className="text-sm text-sage-600 mb-4 font-body">إدارة عناصر القائمة الرئيسية في الموقع</p>
+
+          <div className="space-y-3">
+            {[
+              { label: 'الرئيسية', route: '/', icon: Home },
+              { label: 'من نحن', route: '/about', icon: Info },
+              { label: 'الخدمات', route: '/services', icon: Settings },
+              { label: 'الأخبار', route: '/news', icon: Newspaper },
+              { label: 'اتصل بنا', route: '/contact', icon: Phone }
+            ].map((item, index) => (
+              <div key={index} className="flex items-center justify-between p-3 bg-white border border-sage-200 rounded-lg hover:shadow-md transition-all">
+                <div className="flex items-center space-x-3 space-x-reverse">
+                  <div className="cursor-move">
+                    <Move className="w-4 h-4 text-sage-400" />
+                  </div>
+                  <item.icon className="w-4 h-4 text-islamic-600" />
+                  <span className="font-medium text-islamic-800 font-body">{item.label}</span>
+                  <span className="text-xs text-sage-500 font-body">{item.route}</span>
+                </div>
+                <div className="flex items-center space-x-2 space-x-reverse">
+                  <button className="p-1 hover:bg-sage-100 rounded">
+                    <Edit className="w-4 h-4 text-sage-600" />
+                  </button>
+                  <button className="p-1 hover:bg-red-100 rounded">
+                    <Trash2 className="w-4 h-4 text-red-600" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <button className="w-full btn-outline mt-4">
+            <Plus className="w-4 h-4 ml-2" />
+            إضافة عنصر جديد
+          </button>
+        </div>
+
+        <div className="card-sage">
+          <h3 className="text-lg font-semibold text-sage-800 mb-4 font-display">القوائم الفرعية</h3>
+          <p className="text-sm text-sage-600 mb-4 font-body">إدارة القوائم المنسدلة والفرعية</p>
+
+          <div className="space-y-4">
+            <div className="bg-white border border-sage-200 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="font-semibold text-sage-800 font-display">من نحن</h4>
+                <button className="text-sm text-islamic-600 hover:text-islamic-700 font-body">
+                  تعديل
+                </button>
+              </div>
+              <div className="space-y-2 mr-4">
+                {['الرؤية والرسالة', 'الهيكل التنظيمي', 'الوزراء السابقون'].map((item, index) => (
+                  <div key={index} className="flex items-center space-x-2 space-x-reverse text-sm text-sage-600 font-body">
+                    <div className="w-1 h-1 rounded-full bg-sage-400"></div>
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white border border-sage-200 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="font-semibold text-sage-800 font-display">الخدمات</h4>
+                <button className="text-sm text-islamic-600 hover:text-islamic-700 font-body">
+                  تعديل
+                </button>
+              </div>
+              <div className="space-y-2 mr-4">
+                {['خدمات الزكاة', 'شؤون المساجد', 'خدمات الأوقاف', 'الشؤون الدينية'].map((item, index) => (
+                  <div key={index} className="flex items-center space-x-2 space-x-reverse text-sm text-sage-600 font-body">
+                    <div className="w-1 h-1 rounded-full bg-sage-400"></div>
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="card-golden">
+        <h3 className="text-lg font-semibold text-golden-800 mb-4 font-display">الروابط السريعة</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { name: 'حاسبة الزكاة', icon: Calculator },
+            { name: 'دليل المساجد', icon: Building },
+            { name: 'الاستفتاء الشرعي', icon: BookOpen },
+            { name: 'خطب الجمعة', icon: Megaphone },
+            { name: 'مواقيت الصلاة', icon: Clock },
+            { name: 'الإعلانات', icon: Bell },
+            { name: 'الفعاليات', icon: Calendar },
+            { name: 'التواصل', icon: Phone }
+          ].map((item, index) => (
+            <div key={index} className="bg-white border border-golden-200 rounded-lg p-4 text-center hover:shadow-md transition-all cursor-pointer">
+              <item.icon className="w-8 h-8 text-golden-600 mx-auto mb-2" />
+              <span className="text-sm text-sage-800 font-body">{item.name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="heading-1 text-islamic-800">إدارة الصفحة الرئيسية المتقدمة</h1>
-          <p className="body-text text-sage-600 mt-2">تخصيص شامل لجميع أقسام ومحتويات الصفحة الرئيسية</p>
+          <h1 className="heading-1 text-islamic-800">إدارة الموقع المتقدمة</h1>
+          <p className="body-text text-sage-600 mt-2">إدارة شاملة لجميع صفحات وخدمات ومحتويات الموقع</p>
         </div>
         <div className="flex items-center space-x-4 space-x-reverse">
           <div className="flex items-center space-x-2 space-x-reverse">
@@ -1915,28 +2291,53 @@ const HomePageManagement: React.FC = () => {
         </div>
       )}
 
-      {/* Section Navigation */}
-      <div className="bg-white rounded-2xl shadow-elegant p-4">
-        <div className="flex flex-wrap gap-2">
-          {sections.map((section) => (
+      {/* Main Tabs */}
+      <div className="bg-white rounded-2xl shadow-elegant p-2">
+        <div className="flex space-x-2 space-x-reverse">
+          {tabs.map((tab) => (
             <button
-              key={section.id}
-              onClick={() => setActiveSection(section.id)}
-              className={`flex items-center space-x-2 space-x-reverse px-4 py-3 rounded-xl transition-all duration-300 font-body ${
-                activeSection === section.id
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center space-x-2 space-x-reverse px-6 py-3 rounded-xl transition-all duration-300 font-body ${
+                activeTab === tab.id
                   ? 'bg-islamic-600 text-white shadow-islamic'
-                  : 'text-sage-700 hover:bg-islamic-50 hover:text-islamic-700'
+                  : 'text-sage-700 hover:bg-sage-50'
               }`}
             >
-              <section.icon className={`w-5 h-5 ${activeSection === section.id ? 'text-white' : section.color}`} />
-              <span className="font-medium">{section.name}</span>
+              <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? 'text-white' : 'text-sage-600'}`} />
+              <span className="font-medium">{tab.name}</span>
             </button>
           ))}
         </div>
       </div>
 
+      {/* Section Navigation - Only for Homepage Tab */}
+      {activeTab === 'homepage' && (
+        <div className="bg-white rounded-2xl shadow-elegant p-4">
+          <div className="flex flex-wrap gap-2">
+            {sections.map((section) => (
+              <button
+                key={section.id}
+                onClick={() => setActiveSection(section.id)}
+                className={`flex items-center space-x-2 space-x-reverse px-4 py-3 rounded-xl transition-all duration-300 font-body ${
+                  activeSection === section.id
+                    ? 'bg-islamic-600 text-white shadow-islamic'
+                    : 'text-sage-700 hover:bg-islamic-50 hover:text-islamic-700'
+                }`}
+              >
+                <section.icon className={`w-5 h-5 ${activeSection === section.id ? 'text-white' : section.color}`} />
+                <span className="font-medium">{section.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Content */}
-      {renderContent()}
+      {activeTab === 'homepage' && renderContent()}
+      {activeTab === 'pages' && renderPagesManagement()}
+      {activeTab === 'services' && renderServicesManagement()}
+      {activeTab === 'navigation' && renderNavigationManagement()}
 
       {/* Quick Actions */}
       <div className="card-sage">

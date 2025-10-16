@@ -92,8 +92,62 @@ const HomePageManagement: React.FC = () => {
     { id: 'homepage', name: 'الصفحة الرئيسية', icon: Home },
     { id: 'pages', name: 'إدارة الصفحات', icon: FileText },
     { id: 'services', name: 'إدارة الخدمات', icon: Settings },
-    { id: 'navigation', name: 'القوائم والتنقل', icon: Navigation }
+    { id: 'navigation', name: 'القوائم والتنقل', icon: Navigation },
+    { id: 'footer', name: 'إدارة التذييل', icon: Layers }
   ];
+
+  const [footerData, setFooterData] = useState({
+    ministry: {
+      logo: 'أوقاف',
+      name: 'وزارة الأوقاف',
+      subtitle: 'دولة فلسطين',
+      description: 'وزارة الأوقاف والشؤون الدينية تعمل على خدمة المجتمع الفلسطيني وتعزيز القيم الدينية والتراث الإسلامي.',
+      enabled: true
+    },
+    socialMedia: [
+      { platform: 'facebook', label: 'فيسبوك', url: 'https://facebook.com/awqaf', enabled: true },
+      { platform: 'twitter', label: 'تويتر', url: 'https://twitter.com/awqaf', enabled: true },
+      { platform: 'instagram', label: 'إنستغرام', url: 'https://instagram.com/awqaf', enabled: true },
+      { platform: 'youtube', label: 'يوتيوب', url: 'https://youtube.com/awqaf', enabled: true }
+    ],
+    contact: {
+      phone: '02-2411937/8/9',
+      fax: '02-2411934',
+      email: 'info@awqaf.ps',
+      address: 'القدس - مدينة البيرة - حي الجنان - شارع النور',
+      workingDays: 'من الأحد إلى الخميس',
+      workingHours: '8:00 صباحاً - 3:00 مساءً',
+      showPhone: true,
+      showEmail: true,
+      showAddress: true,
+      showWorkingHours: true
+    },
+    quickLinks: [
+      { label: 'عن الوزارة', route: '/about', enabled: true },
+      { label: 'كلمة الوزير', route: '/minister', enabled: true },
+      { label: 'الهيكل التنظيمي', route: '/structure', enabled: true },
+      { label: 'الأخبار', route: '/news', enabled: true }
+    ],
+    services: [
+      { label: 'الخدمات الإلكترونية', route: '/e-services', enabled: true },
+      { label: 'المساجد', route: '/mosques', enabled: true },
+      { label: 'الأوقاف', route: '/services', enabled: true }
+    ],
+    partners: [
+      { name: 'وزارة المالية', enabled: true },
+      { name: 'وزارة التربية', enabled: true },
+      { name: 'وزارة الأوقاف الأردنية', enabled: true }
+    ],
+    showPartners: true,
+    copyright: '© 2024 وزارة الأوقاف والشؤون الدينية - دولة فلسطين. جميع الحقوق محفوظة.',
+    bottomLinks: [
+      { label: 'سياسة الخصوصية', route: '/privacy', enabled: true },
+      { label: 'شروط الاستخدام', route: '/terms', enabled: true },
+      { label: 'خريطة الموقع', route: '/sitemap', enabled: true }
+    ],
+    developerCredit: 'تم التطوير بواسطة فريق تقنية المعلومات',
+    showDeveloperCredit: true
+  });
 
   const sections = [
     { id: 'hero', name: 'القسم الرئيسي', icon: Crown, color: 'text-islamic-600' },
@@ -2223,6 +2277,477 @@ const HomePageManagement: React.FC = () => {
     </div>
   );
 
+  const renderFooterManagement = () => (
+    <div className="space-y-6">
+      <div className="card-islamic">
+        <h3 className="text-lg font-semibold text-islamic-800 mb-4 font-display flex items-center">
+          <Building className="w-5 h-5 ml-2" />
+          معلومات الوزارة في التذييل
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <label className="flex items-center space-x-2 space-x-reverse">
+              <input
+                type="checkbox"
+                checked={footerData.ministry.enabled}
+                onChange={(e) => {
+                  setFooterData(prev => ({
+                    ...prev,
+                    ministry: { ...prev.ministry, enabled: e.target.checked }
+                  }));
+                  setHasUnsavedChanges(true);
+                }}
+                className="rounded border-islamic-300 text-islamic-600"
+              />
+              <span className="text-sm font-medium text-islamic-700 font-body">عرض معلومات الوزارة</span>
+            </label>
+            <div>
+              <label className="block text-sm font-medium text-islamic-700 mb-2">اسم الوزارة</label>
+              <input
+                type="text"
+                value={footerData.ministry.name}
+                onChange={(e) => {
+                  setFooterData(prev => ({
+                    ...prev,
+                    ministry: { ...prev.ministry, name: e.target.value }
+                  }));
+                  setHasUnsavedChanges(true);
+                }}
+                className="form-input"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-islamic-700 mb-2">العنوان الفرعي</label>
+              <input
+                type="text"
+                value={footerData.ministry.subtitle}
+                onChange={(e) => {
+                  setFooterData(prev => ({
+                    ...prev,
+                    ministry: { ...prev.ministry, subtitle: e.target.value }
+                  }));
+                  setHasUnsavedChanges(true);
+                }}
+                className="form-input"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-islamic-700 mb-2">الوصف</label>
+            <textarea
+              value={footerData.ministry.description}
+              onChange={(e) => {
+                setFooterData(prev => ({
+                  ...prev,
+                  ministry: { ...prev.ministry, description: e.target.value }
+                }));
+                setHasUnsavedChanges(true);
+              }}
+              rows={8}
+              className="form-textarea"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="card-sage">
+          <h3 className="text-lg font-semibold text-sage-800 mb-4 font-display flex items-center">
+            <Globe className="w-5 h-5 ml-2" />
+            وسائل التواصل الاجتماعي
+          </h3>
+          <div className="space-y-3">
+            {footerData.socialMedia.map((social, index) => (
+              <div key={index} className="bg-white border border-sage-200 rounded-lg p-3">
+                <label className="flex items-center space-x-2 space-x-reverse mb-2">
+                  <input
+                    type="checkbox"
+                    checked={social.enabled}
+                    onChange={(e) => {
+                      const newSocial = [...footerData.socialMedia];
+                      newSocial[index].enabled = e.target.checked;
+                      setFooterData(prev => ({ ...prev, socialMedia: newSocial }));
+                      setHasUnsavedChanges(true);
+                    }}
+                    className="rounded border-sage-300 text-sage-600"
+                  />
+                  <span className="text-sm font-semibold text-sage-800 font-body">{social.label}</span>
+                </label>
+                <input
+                  type="url"
+                  value={social.url}
+                  onChange={(e) => {
+                    const newSocial = [...footerData.socialMedia];
+                    newSocial[index].url = e.target.value;
+                    setFooterData(prev => ({ ...prev, socialMedia: newSocial }));
+                    setHasUnsavedChanges(true);
+                  }}
+                  className="form-input text-sm"
+                  placeholder="رابط الحساب"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="card-golden">
+          <h3 className="text-lg font-semibold text-golden-800 mb-4 font-display flex items-center">
+            <Phone className="w-5 h-5 ml-2" />
+            معلومات التواصل
+          </h3>
+          <div className="space-y-3">
+            <div>
+              <label className="flex items-center space-x-2 space-x-reverse mb-1">
+                <input
+                  type="checkbox"
+                  checked={footerData.contact.showPhone}
+                  onChange={(e) => {
+                    setFooterData(prev => ({
+                      ...prev,
+                      contact: { ...prev.contact, showPhone: e.target.checked }
+                    }));
+                    setHasUnsavedChanges(true);
+                  }}
+                  className="rounded border-golden-300 text-golden-600"
+                />
+                <span className="text-sm font-medium text-golden-700">الهاتف</span>
+              </label>
+              <input
+                type="text"
+                value={footerData.contact.phone}
+                onChange={(e) => {
+                  setFooterData(prev => ({
+                    ...prev,
+                    contact: { ...prev.contact, phone: e.target.value }
+                  }));
+                  setHasUnsavedChanges(true);
+                }}
+                className="form-input text-sm"
+              />
+            </div>
+            <div>
+              <label className="flex items-center space-x-2 space-x-reverse mb-1">
+                <input
+                  type="checkbox"
+                  checked={footerData.contact.showEmail}
+                  onChange={(e) => {
+                    setFooterData(prev => ({
+                      ...prev,
+                      contact: { ...prev.contact, showEmail: e.target.checked }
+                    }));
+                    setHasUnsavedChanges(true);
+                  }}
+                  className="rounded border-golden-300 text-golden-600"
+                />
+                <span className="text-sm font-medium text-golden-700">البريد</span>
+              </label>
+              <input
+                type="email"
+                value={footerData.contact.email}
+                onChange={(e) => {
+                  setFooterData(prev => ({
+                    ...prev,
+                    contact: { ...prev.contact, email: e.target.value }
+                  }));
+                  setHasUnsavedChanges(true);
+                }}
+                className="form-input text-sm"
+              />
+            </div>
+            <div>
+              <label className="flex items-center space-x-2 space-x-reverse mb-1">
+                <input
+                  type="checkbox"
+                  checked={footerData.contact.showAddress}
+                  onChange={(e) => {
+                    setFooterData(prev => ({
+                      ...prev,
+                      contact: { ...prev.contact, showAddress: e.target.checked }
+                    }));
+                    setHasUnsavedChanges(true);
+                  }}
+                  className="rounded border-golden-300 text-golden-600"
+                />
+                <span className="text-sm font-medium text-golden-700">العنوان</span>
+              </label>
+              <textarea
+                value={footerData.contact.address}
+                onChange={(e) => {
+                  setFooterData(prev => ({
+                    ...prev,
+                    contact: { ...prev.contact, address: e.target.value }
+                  }));
+                  setHasUnsavedChanges(true);
+                }}
+                rows={2}
+                className="form-textarea text-sm"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="card-islamic">
+          <h3 className="text-lg font-semibold text-islamic-800 mb-4 font-display flex items-center">
+            <Link className="w-5 h-5 ml-2" />
+            الروابط السريعة
+          </h3>
+          <div className="space-y-2">
+            {footerData.quickLinks.map((link, index) => (
+              <div key={index} className="bg-white border border-islamic-200 rounded-lg p-3 flex items-center gap-2">
+                <input
+                  type="text"
+                  value={link.label}
+                  onChange={(e) => {
+                    const newLinks = [...footerData.quickLinks];
+                    newLinks[index].label = e.target.value;
+                    setFooterData(prev => ({ ...prev, quickLinks: newLinks }));
+                    setHasUnsavedChanges(true);
+                  }}
+                  className="form-input text-sm flex-1"
+                  placeholder="نص الرابط"
+                />
+                <input
+                  type="text"
+                  value={link.route}
+                  onChange={(e) => {
+                    const newLinks = [...footerData.quickLinks];
+                    newLinks[index].route = e.target.value;
+                    setFooterData(prev => ({ ...prev, quickLinks: newLinks }));
+                    setHasUnsavedChanges(true);
+                  }}
+                  className="form-input text-sm flex-1"
+                  placeholder="المسار"
+                />
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={link.enabled}
+                    onChange={(e) => {
+                      const newLinks = [...footerData.quickLinks];
+                      newLinks[index].enabled = e.target.checked;
+                      setFooterData(prev => ({ ...prev, quickLinks: newLinks }));
+                      setHasUnsavedChanges(true);
+                    }}
+                    className="sr-only peer"
+                  />
+                  <div className="w-9 h-5 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"></div>
+                </label>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => {
+              setFooterData(prev => ({
+                ...prev,
+                quickLinks: [...prev.quickLinks, { label: '', route: '', enabled: true }]
+              }));
+              setHasUnsavedChanges(true);
+            }}
+            className="w-full btn-outline mt-3 text-sm"
+          >
+            <Plus className="w-4 h-4 ml-2" />
+            إضافة رابط
+          </button>
+        </div>
+
+        <div className="card-sage">
+          <h3 className="text-lg font-semibold text-sage-800 mb-4 font-display flex items-center">
+            <Settings className="w-5 h-5 ml-2" />
+            روابط الخدمات
+          </h3>
+          <div className="space-y-2">
+            {footerData.services.map((service, index) => (
+              <div key={index} className="bg-white border border-sage-200 rounded-lg p-3 flex items-center gap-2">
+                <input
+                  type="text"
+                  value={service.label}
+                  onChange={(e) => {
+                    const newServices = [...footerData.services];
+                    newServices[index].label = e.target.value;
+                    setFooterData(prev => ({ ...prev, services: newServices }));
+                    setHasUnsavedChanges(true);
+                  }}
+                  className="form-input text-sm flex-1"
+                />
+                <input
+                  type="text"
+                  value={service.route}
+                  onChange={(e) => {
+                    const newServices = [...footerData.services];
+                    newServices[index].route = e.target.value;
+                    setFooterData(prev => ({ ...prev, services: newServices }));
+                    setHasUnsavedChanges(true);
+                  }}
+                  className="form-input text-sm flex-1"
+                />
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={service.enabled}
+                    onChange={(e) => {
+                      const newServices = [...footerData.services];
+                      newServices[index].enabled = e.target.checked;
+                      setFooterData(prev => ({ ...prev, services: newServices }));
+                      setHasUnsavedChanges(true);
+                    }}
+                    className="sr-only peer"
+                  />
+                  <div className="w-9 h-5 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"></div>
+                </label>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => {
+              setFooterData(prev => ({
+                ...prev,
+                services: [...prev.services, { label: '', route: '', enabled: true }]
+              }));
+              setHasUnsavedChanges(true);
+            }}
+            className="w-full btn-outline mt-3 text-sm"
+          >
+            <Plus className="w-4 h-4 ml-2" />
+            إضافة خدمة
+          </button>
+        </div>
+      </div>
+
+      <div className="card-golden">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-golden-800 font-display flex items-center">
+            <Award className="w-5 h-5 ml-2" />
+            الشركاء
+          </h3>
+          <label className="flex items-center space-x-2 space-x-reverse">
+            <input
+              type="checkbox"
+              checked={footerData.showPartners}
+              onChange={(e) => {
+                setFooterData(prev => ({ ...prev, showPartners: e.target.checked }));
+                setHasUnsavedChanges(true);
+              }}
+              className="rounded border-golden-300 text-golden-600"
+            />
+            <span className="text-sm font-medium text-golden-700">عرض قسم الشركاء</span>
+          </label>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {footerData.partners.map((partner, index) => (
+            <div key={index} className="bg-white border border-golden-200 rounded-lg p-3 flex items-center justify-between">
+              <input
+                type="text"
+                value={partner.name}
+                onChange={(e) => {
+                  const newPartners = [...footerData.partners];
+                  newPartners[index].name = e.target.value;
+                  setFooterData(prev => ({ ...prev, partners: newPartners }));
+                  setHasUnsavedChanges(true);
+                }}
+                className="form-input text-sm flex-1 mr-2"
+              />
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={partner.enabled}
+                  onChange={(e) => {
+                    const newPartners = [...footerData.partners];
+                    newPartners[index].enabled = e.target.checked;
+                    setFooterData(prev => ({ ...prev, partners: newPartners }));
+                    setHasUnsavedChanges(true);
+                  }}
+                  className="sr-only peer"
+                />
+                <div className="w-9 h-5 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"></div>
+              </label>
+            </div>
+          ))}
+        </div>
+        <button
+          onClick={() => {
+            setFooterData(prev => ({
+              ...prev,
+              partners: [...prev.partners, { name: '', enabled: true }]
+            }));
+            setHasUnsavedChanges(true);
+          }}
+          className="w-full btn-outline mt-4 text-sm"
+        >
+          <Plus className="w-4 h-4 ml-2" />
+          إضافة شريك
+        </button>
+      </div>
+
+      <div className="card-sage">
+        <h3 className="text-lg font-semibold text-sage-800 mb-4 font-display flex items-center">
+          <Info className="w-5 h-5 ml-2" />
+          حقوق النشر والروابط السفلية
+        </h3>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-sage-700 mb-2">نص حقوق النشر</label>
+            <input
+              type="text"
+              value={footerData.copyright}
+              onChange={(e) => {
+                setFooterData(prev => ({ ...prev, copyright: e.target.value }));
+                setHasUnsavedChanges(true);
+              }}
+              className="form-input"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-sage-700 mb-2">الروابط السفلية</label>
+            <div className="space-y-2">
+              {footerData.bottomLinks.map((link, index) => (
+                <div key={index} className="bg-white border border-sage-200 rounded-lg p-2 flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={link.label}
+                    onChange={(e) => {
+                      const newLinks = [...footerData.bottomLinks];
+                      newLinks[index].label = e.target.value;
+                      setFooterData(prev => ({ ...prev, bottomLinks: newLinks }));
+                      setHasUnsavedChanges(true);
+                    }}
+                    className="form-input text-sm flex-1"
+                  />
+                  <input
+                    type="text"
+                    value={link.route}
+                    onChange={(e) => {
+                      const newLinks = [...footerData.bottomLinks];
+                      newLinks[index].route = e.target.value;
+                      setFooterData(prev => ({ ...prev, bottomLinks: newLinks }));
+                      setHasUnsavedChanges(true);
+                    }}
+                    className="form-input text-sm flex-1"
+                  />
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={link.enabled}
+                      onChange={(e) => {
+                        const newLinks = [...footerData.bottomLinks];
+                        newLinks[index].enabled = e.target.checked;
+                        setFooterData(prev => ({ ...prev, bottomLinks: newLinks }));
+                        setHasUnsavedChanges(true);
+                      }}
+                      className="sr-only peer"
+                    />
+                    <div className="w-9 h-5 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"></div>
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -2338,6 +2863,7 @@ const HomePageManagement: React.FC = () => {
       {activeTab === 'pages' && renderPagesManagement()}
       {activeTab === 'services' && renderServicesManagement()}
       {activeTab === 'navigation' && renderNavigationManagement()}
+      {activeTab === 'footer' && renderFooterManagement()}
 
       {/* Quick Actions */}
       <div className="card-sage">

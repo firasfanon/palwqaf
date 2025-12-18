@@ -24,6 +24,20 @@ export const useSettings = () => {
       return dataType === 'boolean' ? false : '';
     }
 
+    if (dataType === 'boolean') {
+      if (typeof value === 'boolean') return value;
+      if (typeof value === 'string') {
+        if (value === 'true') return true;
+        if (value === 'false') return false;
+        try {
+          return JSON.parse(value) === true;
+        } catch {
+          return false;
+        }
+      }
+      return Boolean(value);
+    }
+
     try {
       if (typeof value === 'string') {
         const parsed = JSON.parse(value);

@@ -178,30 +178,30 @@ const SettingCard: React.FC<SettingCardProps> = ({ setting, onUpdate, showPasswo
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg hover:border-green-300 transition-all duration-200">
-      <div className="flex items-start justify-between mb-3">
+    <div className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow hover:border-green-300 transition-all">
+      <div className="flex items-start justify-between mb-2">
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <label className="text-base font-semibold text-gray-800">
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <label className="text-sm font-semibold text-gray-800">
               {setting.label_ar}
             </label>
             {!setting.is_editable && (
-              <span className="px-2 py-0.5 text-xs bg-gray-100 text-gray-600 rounded-full">
-                للقراءة فقط
+              <span className="px-1.5 py-0.5 text-xs bg-gray-100 text-gray-600 rounded">
+                قراءة
               </span>
             )}
           </div>
           {setting.description_ar && (
-            <p className="text-sm text-gray-600 mb-3">{setting.description_ar}</p>
+            <p className="text-xs text-gray-600 mb-2">{setting.description_ar}</p>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {setting.is_public && (
-            <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-md font-medium">
+            <span className="px-1.5 py-0.5 text-xs bg-blue-100 text-blue-700 rounded">
               عام
             </span>
           )}
-          <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-md font-medium">
+          <span className="px-1.5 py-0.5 text-xs bg-gray-100 text-gray-700 rounded">
             {setting.data_type}
           </span>
         </div>
@@ -209,9 +209,9 @@ const SettingCard: React.FC<SettingCardProps> = ({ setting, onUpdate, showPasswo
 
       {renderInput()}
 
-      <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
-        <span>آخر تحديث: {new Date(setting.updated_at).toLocaleString('ar-EG')}</span>
-        <span className="text-gray-400">Key: {setting.key}</span>
+      <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
+        <span className="text-xs">تحديث: {new Date(setting.updated_at).toLocaleTimeString('ar-EG')}</span>
+        <span className="text-xs text-gray-400">{setting.key}</span>
       </div>
     </div>
   );
@@ -435,15 +435,15 @@ const GeneralSettings: React.FC = () => {
   const currentSettings = filteredSettings();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="bg-white rounded-2xl shadow-lg p-6">
-          <div className="flex items-center justify-between mb-6">
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="max-w-7xl mx-auto space-y-4">
+        <div className="bg-white rounded-lg shadow p-4">
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-4xl font-bold text-gray-800 mb-2">الإعدادات العامة المتقدمة</h1>
-              <p className="text-gray-600">إدارة شاملة لجميع إعدادات وخيارات النظام</p>
+              <h1 className="text-2xl font-bold text-gray-800 mb-1">الإعدادات العامة</h1>
+              <p className="text-sm text-gray-600">إدارة إعدادات وخيارات النظام</p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <input
                 type="file"
                 accept=".json"
@@ -453,90 +453,90 @@ const GeneralSettings: React.FC = () => {
               />
               <label
                 htmlFor="import-settings"
-                className="flex items-center gap-2 px-4 py-2 text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition cursor-pointer"
+                className="flex items-center gap-1 px-3 py-2 text-xs text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition cursor-pointer"
               >
-                <Upload className="w-5 h-5" />
+                <Upload className="w-4 h-4" />
                 استيراد
               </label>
               <button
                 onClick={handleExport}
-                className="flex items-center gap-2 px-4 py-2 text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition"
+                className="flex items-center gap-1 px-3 py-2 text-xs text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition"
               >
-                <Download className="w-5 h-5" />
+                <Download className="w-4 h-4" />
                 تصدير
               </button>
               <button
                 onClick={handleReset}
                 disabled={!hasChanges}
-                className="flex items-center gap-2 px-4 py-2 text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-1 px-3 py-2 text-xs text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <RefreshCw className="w-5 h-5" />
-                إعادة تحميل
+                <RefreshCw className="w-4 h-4" />
+                إعادة
               </button>
               <button
                 onClick={handleSave}
                 disabled={!hasChanges || saving}
-                className="flex items-center gap-2 px-6 py-2 text-white bg-gradient-to-r from-green-600 to-green-700 rounded-lg hover:from-green-700 hover:to-green-800 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                className="flex items-center gap-1 px-4 py-2 text-xs text-white bg-green-600 rounded hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? (
                   <>
-                    <Loader className="w-5 h-5 animate-spin" />
-                    جاري الحفظ...
+                    <Loader className="w-4 h-4 animate-spin" />
+                    حفظ...
                   </>
                 ) : (
                   <>
-                    <Save className="w-5 h-5" />
-                    حفظ التغييرات
+                    <Save className="w-4 h-4" />
+                    حفظ
                   </>
                 )}
               </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-blue-700 font-medium mb-1">إجمالي الإعدادات</p>
-                  <p className="text-3xl font-bold text-blue-900">{stats.total}</p>
+                  <p className="text-xs text-blue-700 font-medium mb-0.5">الإجمالي</p>
+                  <p className="text-xl font-bold text-blue-900">{stats.total}</p>
                 </div>
-                <Settings className="w-12 h-12 text-blue-600 opacity-50" />
+                <Settings className="w-8 h-8 text-blue-600 opacity-50" />
               </div>
             </div>
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
+            <div className="bg-green-50 rounded-lg p-3 border border-green-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-green-700 font-medium mb-1">الإعدادات العامة</p>
-                  <p className="text-3xl font-bold text-green-900">{stats.public}</p>
+                  <p className="text-xs text-green-700 font-medium mb-0.5">العامة</p>
+                  <p className="text-xl font-bold text-green-900">{stats.public}</p>
                 </div>
-                <Globe className="w-12 h-12 text-green-600 opacity-50" />
+                <Globe className="w-8 h-8 text-green-600 opacity-50" />
               </div>
             </div>
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
+            <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-purple-700 font-medium mb-1">قابلة للتعديل</p>
-                  <p className="text-3xl font-bold text-purple-900">{stats.editable}</p>
+                  <p className="text-xs text-purple-700 font-medium mb-0.5">للتعديل</p>
+                  <p className="text-xl font-bold text-purple-900">{stats.editable}</p>
                 </div>
-                <Key className="w-12 h-12 text-purple-600 opacity-50" />
+                <Key className="w-8 h-8 text-purple-600 opacity-50" />
               </div>
             </div>
           </div>
 
           {hasChanges && (
-            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-xl p-4 flex items-start mb-6">
-              <AlertCircle className="w-6 h-6 text-amber-600 ml-3 mt-0.5 flex-shrink-0" />
+            <div className="bg-amber-50 border border-amber-300 rounded-lg p-3 flex items-start mb-4">
+              <AlertCircle className="w-5 h-5 text-amber-600 ml-2 mt-0.5 flex-shrink-0" />
               <div>
-                <p className="font-bold text-amber-900 text-lg">لديك تغييرات غير محفوظة!</p>
-                <p className="text-sm text-amber-800 mt-1">
-                  تأكد من حفظ التغييرات قبل مغادرة الصفحة أو تبديل الأقسام
+                <p className="font-semibold text-amber-900 text-sm">تغييرات غير محفوظة!</p>
+                <p className="text-xs text-amber-800 mt-0.5">
+                  احفظ التغييرات قبل مغادرة الصفحة
                 </p>
               </div>
             </div>
           )}
         </div>
 
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="border-b border-gray-200">
             <div className="overflow-x-auto">
               <nav className="flex -mb-px min-w-max">
@@ -547,15 +547,15 @@ const GeneralSettings: React.FC = () => {
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
-                      className={`flex items-center gap-2 px-6 py-4 text-sm font-medium whitespace-nowrap border-b-3 transition-all ${
+                      className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 transition-all ${
                         activeTab === tab.id
                           ? `border-green-600 ${tab.color} ${tab.bgColor}`
                           : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                       }`}
                     >
-                      <Icon className={`w-5 h-5 ${activeTab === tab.id ? tab.color : ''}`} />
-                      <span>{tab.name}</span>
-                      <span className={`px-2 py-0.5 text-xs rounded-full ${
+                      <Icon className={`w-4 h-4 ${activeTab === tab.id ? tab.color : ''}`} />
+                      <span className="text-xs">{tab.name}</span>
+                      <span className={`px-1.5 py-0.5 text-xs rounded-full ${
                         activeTab === tab.id
                           ? 'bg-green-100 text-green-700'
                           : 'bg-gray-100 text-gray-600'
@@ -569,30 +569,30 @@ const GeneralSettings: React.FC = () => {
             </div>
           </div>
 
-          <div className="p-6">
+          <div className="p-4">
             {currentTab && (
-              <div className="mb-6">
-                <div className={`${currentTab.bgColor} rounded-xl p-6 border-2 ${currentTab.color.replace('text', 'border')}`}>
+              <div className="mb-4">
+                <div className={`${currentTab.bgColor} rounded-lg p-4 border ${currentTab.color.replace('text', 'border')}`}>
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`p-3 ${currentTab.bgColor} rounded-xl border-2 ${currentTab.color.replace('text', 'border')}`}>
-                        <currentTab.icon className={`w-8 h-8 ${currentTab.color}`} />
+                    <div className="flex items-center gap-2">
+                      <div className={`p-2 ${currentTab.bgColor} rounded-lg border ${currentTab.color.replace('text', 'border')}`}>
+                        <currentTab.icon className={`w-5 h-5 ${currentTab.color}`} />
                       </div>
                       <div>
-                        <h2 className="text-2xl font-bold text-gray-800">{currentTab.name}</h2>
-                        <p className="text-sm text-gray-600 mt-1">
-                          إدارة وتخصيص إعدادات {currentTab.name.toLowerCase()}
+                        <h2 className="text-base font-bold text-gray-800">{currentTab.name}</h2>
+                        <p className="text-xs text-gray-600">
+                          إدارة إعدادات {currentTab.name.toLowerCase()}
                         </p>
                       </div>
                     </div>
                     <div className="relative">
-                      <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                      <Search className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                       <input
                         type="text"
-                        placeholder="بحث في الإعدادات..."
+                        placeholder="بحث..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pr-10 pl-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-64"
+                        className="pr-9 pl-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500 w-48"
                       />
                     </div>
                   </div>
@@ -601,17 +601,17 @@ const GeneralSettings: React.FC = () => {
             )}
 
             {currentSettings.length === 0 ? (
-              <div className="text-center py-16 bg-gray-50 rounded-xl">
-                <Database className="w-20 h-20 mx-auto mb-4 text-gray-300" />
-                <p className="text-xl font-medium text-gray-500 mb-2">
+              <div className="text-center py-12 bg-gray-50 rounded-lg">
+                <Database className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                <p className="text-sm font-medium text-gray-500 mb-1">
                   {searchQuery ? 'لا توجد نتائج للبحث' : 'لا توجد إعدادات في هذه الفئة'}
                 </p>
-                <p className="text-sm text-gray-400">
-                  {searchQuery ? 'جرب كلمات بحث أخرى' : 'لم يتم إضافة أي إعدادات لهذا القسم بعد'}
+                <p className="text-xs text-gray-400">
+                  {searchQuery ? 'جرب كلمات بحث أخرى' : 'لم يتم إضافة أي إعدادات بعد'}
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {currentSettings.map((setting) => (
                   <SettingCard
                     key={setting.id}
@@ -626,23 +626,23 @@ const GeneralSettings: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-lg p-6">
+        <div className="bg-white rounded-lg shadow p-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Info className="w-6 h-6 text-blue-600" />
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4 text-blue-600" />
               <div>
-                <p className="font-medium text-gray-800">معلومات النظام</p>
-                <p className="text-sm text-gray-600">آخر تحديث: {new Date().toLocaleString('ar-EG')}</p>
+                <p className="text-xs font-medium text-gray-800">معلومات النظام</p>
+                <p className="text-xs text-gray-600">آخر تحديث: {new Date().toLocaleString('ar-EG', { hour: '2-digit', minute: '2-digit' })}</p>
               </div>
             </div>
-            <div className="flex items-center gap-4 text-sm text-gray-600">
-              <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4" />
-                <span>النظام يعمل</span>
+            <div className="flex items-center gap-3 text-xs text-gray-600">
+              <div className="flex items-center gap-1">
+                <Activity className="w-3 h-3" />
+                <span>نشط</span>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-600" />
-                <span>قاعدة البيانات متصلة</span>
+              <div className="flex items-center gap-1">
+                <CheckCircle className="w-3 h-3 text-green-600" />
+                <span>متصل</span>
               </div>
             </div>
           </div>

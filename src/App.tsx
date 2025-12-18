@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import AdminLayout from './components/Layout/AdminLayout';
+import PublicLayout from './components/Layout/PublicLayout';
 import HomePage from './pages/HomePage';
 import NewsPage from './pages/NewsPage';
 import AnnouncementsPage from './pages/AnnouncementsPage';
@@ -56,93 +57,58 @@ const AppContent = () => {
     <>
       <Router>
         <Routes>
-          {/* جميع المسارات الموجودة */}
+          {/* الصفحة الرئيسية */}
           <Route path="/" element={
-            <div className="min-h-screen bg-gray-50" dir="rtl">
-              <Header />
-              <main className="min-h-screen">
-                <HomePage />
-              </main>
-              <Footer />
-            </div>
+            <PublicLayout>
+              <HomePage />
+            </PublicLayout>
           } />
-          {/* باقي المسارات... */}
-              <Route path="/news" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <NewsPage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
-              <Route path="/announcements" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <AnnouncementsPage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
-              <Route path="/services" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <ServicesPage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
+
+          {/* صفحات الأخبار */}
+          <Route path="/news" element={
+            <PublicLayout>
+              <NewsPage />
+            </PublicLayout>
+          } />
+          <Route path="/announcements" element={
+            <PublicLayout>
+              <AnnouncementsPage />
+            </PublicLayout>
+          } />
+          <Route path="/services" element={
+            <PublicLayout>
+              <ServicesPage />
+            </PublicLayout>
+          } />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
 
               {/* Search and Utility Pages */}
-              <Route path="/search" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <SearchPage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
-              <Route path="/news/:id" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <NewsDetailPage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
-              <Route path="/privacy" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <PrivacyPolicyPage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
-              <Route path="/terms" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <TermsOfServicePage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
-              <Route path="/sitemap" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <SitemapPage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
+          <Route path="/search" element={
+            <PublicLayout>
+              <SearchPage />
+            </PublicLayout>
+          } />
+          <Route path="/news/:id" element={
+            <PublicLayout>
+              <NewsDetailPage />
+            </PublicLayout>
+          } />
+          <Route path="/privacy" element={
+            <PublicLayout>
+              <PrivacyPolicyPage />
+            </PublicLayout>
+          } />
+          <Route path="/terms" element={
+            <PublicLayout>
+              <TermsOfServicePage />
+            </PublicLayout>
+          } />
+          <Route path="/sitemap" element={
+            <PublicLayout>
+              <SitemapPage />
+            </PublicLayout>
+          } />
               
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminLayout />}>
@@ -167,114 +133,71 @@ const AppContent = () => {
               </Route>
               
               {/* Additional Pages */}
-              <Route path="/about" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <AboutPage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
-              <Route path="/minister" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <MinisterPage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
-              <Route path="/vision" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <VisionMissionPage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
-              <Route path="/structure" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <OrganizationalStructurePage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
-              <Route path="/former-ministers" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <FormerMinistersPage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
-              <Route path="/e-services" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <EServicesPage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
-              <Route path="/e-services" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <EServicesPage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
-              <Route path="/mosques" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <MosquesPage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
-              <Route path="/projects" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <ProjectsPage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
-              <Route path="/contact" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <ContactPage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
-              <Route path="/activities" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <ActivitiesPage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
-              <Route path="/social-services" element={
-                <div className="min-h-screen bg-gray-50" dir="rtl">
-                  <Header />
-                  <main className="min-h-screen">
-                    <SocialServicesPage />
-                  </main>
-                  <Footer />
-                </div>
-              } />
+          <Route path="/about" element={
+            <PublicLayout>
+              <AboutPage />
+            </PublicLayout>
+          } />
+          <Route path="/minister" element={
+            <PublicLayout>
+              <MinisterPage />
+            </PublicLayout>
+          } />
+          <Route path="/vision" element={
+            <PublicLayout>
+              <VisionMissionPage />
+            </PublicLayout>
+          } />
+          <Route path="/structure" element={
+            <PublicLayout>
+              <OrganizationalStructurePage />
+            </PublicLayout>
+          } />
+          <Route path="/former-ministers" element={
+            <PublicLayout>
+              <FormerMinistersPage />
+            </PublicLayout>
+          } />
+          <Route path="/e-services" element={
+            <PublicLayout>
+              <EServicesPage />
+            </PublicLayout>
+          } />
+          <Route path="/mosques" element={
+            <PublicLayout>
+              <MosquesPage />
+            </PublicLayout>
+          } />
+          <Route path="/projects" element={
+            <PublicLayout>
+              <ProjectsPage />
+            </PublicLayout>
+          } />
+          <Route path="/contact" element={
+            <PublicLayout>
+              <ContactPage />
+            </PublicLayout>
+          } />
+          <Route path="/activities" element={
+            <PublicLayout>
+              <ActivitiesPage />
+            </PublicLayout>
+          } />
+          <Route path="/social-services" element={
+            <PublicLayout>
+              <SocialServicesPage />
+            </PublicLayout>
+          } />
+          <Route path="/friday-sermons" element={
+            <PublicLayout>
+              <FridaySermonsPage />
+            </PublicLayout>
+          } />
+          <Route path="/notifications" element={
+            <PublicLayout>
+              <NotificationsPage />
+            </PublicLayout>
+          } />
               <Route path="/friday-sermons" element={
                 <div className="min-h-screen bg-gray-50" dir="rtl">
                   <Header />

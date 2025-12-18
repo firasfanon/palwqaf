@@ -297,15 +297,23 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Button Variants */
 .btn-primary {
-  @apply bg-islamic-600 text-white px-8 py-4 rounded-xl font-semibold hover:bg-islamic-700 transition-all duration-300 transform hover:scale-105 shadow-islamic focus-ring font-body;
+  @apply bg-islamic-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-islamic-700 transition-all duration-300 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-islamic-500 flex items-center justify-center font-body disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
 .btn-secondary {
-  @apply bg-white text-islamic-600 border-2 border-islamic-600 px-8 py-4 rounded-xl font-semibold hover:bg-islamic-50 transition-all duration-300 transform hover:scale-105 focus-ring font-body;
+  @apply bg-white text-islamic-600 border-2 border-islamic-600 px-4 py-2 rounded-lg font-semibold hover:bg-islamic-50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-islamic-500 flex items-center justify-center font-body disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
 .btn-outline {
-  @apply border-2 border-sage-300 text-sage-700 px-8 py-4 rounded-xl font-semibold hover:border-islamic-600 hover:text-islamic-600 transition-all duration-300 focus-ring font-body;
+  @apply border-2 border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:border-islamic-600 hover:text-islamic-600 hover:bg-islamic-50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-islamic-500 flex items-center justify-center font-body disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-large {
+  @apply px-8 py-4 text-lg;
+}
+
+.btn-small {
+  @apply px-3 py-1.5 text-sm;
 }
 
 .btn-golden {

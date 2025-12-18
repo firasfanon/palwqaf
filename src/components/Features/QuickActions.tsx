@@ -18,65 +18,65 @@ import {
 const QuickActions: React.FC = () => {
   const actions = [
     {
-      id: 'add-news',
-      title: 'إضافة خبر جديد',
-      description: 'نشر خبر جديد على الموقع',
-      icon: Plus,
+      id: 'waqf-lands',
+      title: 'الأراضي الوقفية',
+      description: 'إدارة الأراضي الوقفية',
+      icon: Building,
+      color: 'from-green-500 to-green-600',
+      href: '/admin/waqf-lands'
+    },
+    {
+      id: 'cases',
+      title: 'إدارة القضايا',
+      description: 'متابعة القضايا الوقفية',
+      icon: FileText,
+      color: 'from-red-500 to-red-600',
+      href: '/admin/cases'
+    },
+    {
+      id: 'documents',
+      title: 'إدارة المستندات',
+      description: 'تنظيم وأرشفة الوثائق',
+      icon: FileText,
       color: 'from-blue-500 to-blue-600',
-      href: '/admin/news/new'
+      href: '/admin/documents'
     },
     {
       id: 'search',
       title: 'البحث المتقدم',
-      description: 'البحث في جميع أنظمة الوزارة',
+      description: 'البحث في جميع الأنظمة',
       icon: Search,
-      color: 'from-green-500 to-green-600',
+      color: 'from-purple-500 to-purple-600',
       href: '/admin/search'
     },
     {
-      id: 'add-land',
-      title: 'تسجيل أرض وقفية',
-      description: 'إضافة أرض وقفية جديدة',
-      icon: Building,
-      color: 'from-purple-500 to-purple-600',
-      href: '/admin/waqf-lands/new'
-    },
-    {
-      id: 'add-case',
-      title: 'إنشاء قضية',
-      description: 'إنشاء قضية جديدة',
-      icon: FileText,
-      color: 'from-red-500 to-red-600',
-      href: '/admin/cases/new'
-    },
-    {
-      id: 'schedule-appointment',
-      title: 'جدولة موعد',
-      description: 'إضافة موعد جديد للتقويم',
+      id: 'appointments',
+      title: 'جدولة المواعيد',
+      description: 'إدارة المواعيد والاجتماعات',
       icon: Calendar,
       color: 'from-orange-500 to-orange-600',
-      href: '/admin/appointments/new'
+      href: '/admin/appointments'
     },
     {
-      id: 'upload-document',
-      title: 'رفع وثيقة',
-      description: 'رفع وثيقة جديدة للأرشيف',
-      icon: Upload,
+      id: 'archive',
+      title: 'الأرشيف الإلكتروني',
+      description: 'الأرشيف الرقمي الشامل',
+      icon: Download,
       color: 'from-teal-500 to-teal-600',
-      href: '/admin/documents/upload'
+      href: '/admin/archive'
     },
     {
-      id: 'view-reports',
-      title: 'التقارير',
-      description: 'عرض التقارير والإحصائيات',
+      id: 'reports',
+      title: 'التقارير المتقدمة',
+      description: 'تقارير وإحصائيات تفصيلية',
       icon: BarChart3,
       color: 'from-indigo-500 to-indigo-600',
-      href: '/admin/reports'
+      href: '/admin/reports-advanced'
     },
     {
-      id: 'gis-system',
+      id: 'gis',
       title: 'نظام GIS',
-      description: 'عرض الأراضي على الخريطة',
+      description: 'خرائط الأراضي الجغرافية',
       icon: MapPin,
       color: 'from-pink-500 to-pink-600',
       href: '/admin/gis'

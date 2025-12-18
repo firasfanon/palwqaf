@@ -23,6 +23,7 @@ import GeneralSettings from './pages/admin/GeneralSettings';
 import HomePageManagement from './pages/admin/HomePageManagement';
 import WebsiteManagement from './pages/admin/WebsiteManagement';
 import TasksManagement from './pages/admin/TasksManagement';
+import ButtonTest from './pages/admin/ButtonTest';
 import AboutPage from './pages/AboutPage';
 import MinisterPage from './pages/MinisterPage';
 import VisionMissionPage from './pages/VisionMissionPage';
@@ -160,6 +161,7 @@ const AppContent = () => {
                 <Route path="reports" element={<ReportsStatistics />} />
                 <Route path="notifications" element={<NotificationsPage />} />
                 <Route path="settings" element={<GeneralSettings />} />
+                <Route path="button-test" element={<ButtonTest />} />
               </Route>
               
               {/* Additional Pages */}

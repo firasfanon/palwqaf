@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  Home, 
-  FileText, 
-  MapPin, 
-  Calendar, 
-  Users, 
-  Settings, 
+import {
+  Home,
+  FileText,
+  MapPin,
+  Calendar,
+  Users,
+  Settings,
   BarChart3,
   Archive,
   Search,
@@ -16,7 +16,8 @@ import {
   Clock,
   Bell,
   Key,
-  Globe
+  Globe,
+  ListTodo
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -85,18 +86,25 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       path: '/admin/documents',
       color: 'text-orange-600'
     },
-       { 
-      id: 'appointments', 
-      name: 'المواعيد والتقويم', 
-      icon: Calendar, 
+       {
+      id: 'appointments',
+      name: 'المواعيد والتقويم',
+      icon: Calendar,
       path: '/admin/appointments',
       color: 'text-pink-600'
     },
-   
-    { 
-      id: 'archive', 
-      name: 'الأرشيف الإلكتروني', 
-      icon: Archive, 
+    {
+      id: 'tasks',
+      name: 'إدارة المهام',
+      icon: ListTodo,
+      path: '/admin/tasks',
+      color: 'text-blue-600'
+    },
+
+    {
+      id: 'archive',
+      name: 'الأرشيف الإلكتروني',
+      icon: Archive,
       path: '/admin/archive',
       color: 'text-indigo-600'
     },

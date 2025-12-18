@@ -135,9 +135,19 @@ const HomePageManagement: React.FC = () => {
   const handleSave = async () => {
     try {
       setSaving(true);
+      console.log('بدء عملية الحفظ...', sections);
+
+      let successCount = 0;
+      let errorCount = 0;
 
       for (const section of sections) {
-        const { error } = await supabase
+        console.log(`حفظ القسم: ${section.section_name}`, {
+          is_active: section.enabled,
+          display_order: section.order,
+          settings: section.settings
+        });
+
+        const { data, error } = await supabase
           .from('homepage_sections')
           .update({
             is_active: section.enabled,
@@ -145,17 +155,28 @@ const HomePageManagement: React.FC = () => {
             settings: section.settings,
             updated_at: new Date().toISOString()
           })
-          .eq('section_name', section.section_name);
+          .eq('section_name', section.section_name)
+          .select();
 
-        if (error) throw error;
+        if (error) {
+          console.error(`خطأ في حفظ القسم ${section.section_name}:`, error);
+          errorCount++;
+        } else {
+          console.log(`تم حفظ القسم ${section.section_name} بنجاح:`, data);
+          successCount++;
+        }
       }
 
-      success('تم الحفظ', 'تم حفظ التغييرات بنجاح');
-      setHasChanges(false);
-      await fetchSections();
-    } catch (err) {
-      showError('خطأ', 'فشل حفظ التغييرات');
-      console.error('Error saving:', err);
+      if (errorCount === 0) {
+        success('تم الحفظ', `تم حفظ ${successCount} قسم بنجاح`);
+        setHasChanges(false);
+        await fetchSections();
+      } else {
+        showError('تحذير', `تم حفظ ${successCount} قسم، فشل ${errorCount} قسم`);
+      }
+    } catch (err: any) {
+      showError('خطأ', err.message || 'فشل حفظ التغييرات');
+      console.error('خطأ عام في الحفظ:', err);
     } finally {
       setSaving(false);
     }

@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { 
-  Plus, 
-  Search, 
-  Filter, 
-  Edit, 
-  Eye, 
-  Trash2, 
-  MapPin, 
-  FileText, 
+import React, { useState, useMemo } from 'react';
+import {
+  Plus,
+  Search,
+  Filter,
+  Edit,
+  Eye,
+  Trash2,
+  MapPin,
+  FileText,
   DollarSign,
   TrendingUp,
   TrendingDown,
@@ -20,8 +20,28 @@ import {
   Map,
   Download,
   Upload,
-  MoreVertical
+  MoreVertical,
+  RefreshCw
 } from 'lucide-react';
+import { useWaqfLands } from '../../hooks/useDatabase';
+import { useToast } from '../../hooks/useToast';
+
+interface WaqfLandForm {
+  name: string;
+  description: string;
+  area: number;
+  type: string;
+  status: string;
+  estimated_value: number;
+  monthly_income: number;
+  monthly_expenses: number;
+  manager_name: string;
+  address: string;
+  city: string;
+  governorate: string;
+  latitude: number;
+  longitude: number;
+}
 
 const WaqfLandsManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -31,9 +51,29 @@ const WaqfLandsManagement: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedLand, setSelectedLand] = useState<any>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [formData, setFormData] = useState<WaqfLandForm>({
+    name: '',
+    description: '',
+    area: 0,
+    type: 'mosque',
+    status: 'active',
+    estimated_value: 0,
+    monthly_income: 0,
+    monthly_expenses: 0,
+    manager_name: '',
+    address: '',
+    city: 'القدس',
+    governorate: 'القدس',
+    latitude: 31.7767,
+    longitude: 35.2345
+  });
 
-  // بيانات تجريبية للأراضي الوقفية
-  const waqfLands = [
+  const { data: waqfLands, loading, error, refetch, create, update, remove } = useWaqfLands();
+  const { success, error: showError, info } = useToast();
+
+  // بيانات تجريبية للأراضي الوقفية (احتياطية في حال فشل التحميل)
+  const fallbackWaqfLands = [
     {
       id: 1,
       name: 'أرض المسجد الكبير',
@@ -237,21 +277,125 @@ const WaqfLandsManagement: React.FC = () => {
     return typeOption ? typeOption.icon : Building;
   };
 
-  const filteredLands = waqfLands.filter(land => {
-    const matchesSearch = land.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         land.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         land.location.address.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = selectedType === 'all' || land.type === selectedType;
-    const matchesStatus = selectedStatus === 'all' || land.status === selectedStatus;
-    const matchesCity = selectedCity === 'all' || land.location.city === selectedCity;
-    return matchesSearch && matchesType && matchesStatus && matchesCity;
-  });
+  // استخدام البيانات الحقيقية أو الاحتياطية
+  const displayedLands = useMemo(() => {
+    return (waqfLands && waqfLands.length > 0) ? waqfLands : fallbackWaqfLands;
+  }, [waqfLands]);
+
+  const filteredLands = useMemo(() => {
+    return displayedLands.filter(land => {
+      const matchesSearch = land.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           land.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           land.address?.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesType = selectedType === 'all' || land.type === selectedType;
+      const matchesStatus = selectedStatus === 'all' || land.status === selectedStatus;
+      const matchesCity = selectedCity === 'all' || land.city === selectedCity || land.location?.city === selectedCity;
+      return matchesSearch && matchesType && matchesStatus && matchesCity;
+    });
+  }, [displayedLands, searchTerm, selectedType, selectedStatus, selectedCity]);
 
   // حساب الإحصائيات
-  const totalValue = waqfLands.reduce((sum, land) => sum + land.value, 0);
-  const totalIncome = waqfLands.reduce((sum, land) => sum + land.monthlyIncome, 0);
-  const totalExpenses = waqfLands.reduce((sum, land) => sum + land.monthlyExpenses, 0);
+  const totalValue = useMemo(() =>
+    displayedLands.reduce((sum, land) => sum + (land.estimated_value || land.value || 0), 0),
+    [displayedLands]
+  );
+  const totalIncome = useMemo(() =>
+    displayedLands.reduce((sum, land) => sum + (land.monthly_income || land.monthlyIncome || 0), 0),
+    [displayedLands]
+  );
+  const totalExpenses = useMemo(() =>
+    displayedLands.reduce((sum, land) => sum + (land.monthly_expenses || land.monthlyExpenses || 0), 0),
+    [displayedLands]
+  );
   const netIncome = totalIncome - totalExpenses;
+
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (isEditMode && selectedLand) {
+        await update(selectedLand.id, formData);
+        success('تم تحديث الأرض الوقفية بنجاح', 'تم حفظ التغييرات');
+      } else {
+        await create(formData);
+        success('تم إضافة الأرض الوقفية بنجاح', 'تمت الإضافة بنجاح');
+      }
+      setShowModal(false);
+      resetForm();
+      await refetch();
+    } catch (err) {
+      showError('حدث خطأ', err instanceof Error ? err.message : 'تعذرت العملية');
+    }
+  };
+
+  // Handle delete
+  const handleDelete = async (id: number) => {
+    if (window.confirm('هل أنت متأكد من حذف هذه الأرض الوقفية؟')) {
+      try {
+        await remove(id);
+        success('تم الحذف بنجاح', 'تم حذف الأرض الوقفية');
+        await refetch();
+      } catch (err) {
+        showError('حدث خطأ', 'تعذر حذف الأرض الوقفية');
+      }
+    }
+  };
+
+  // Handle edit
+  const handleEdit = (land: any) => {
+    setIsEditMode(true);
+    setSelectedLand(land);
+    setFormData({
+      name: land.name || '',
+      description: land.description || '',
+      area: land.area || 0,
+      type: land.type || 'mosque',
+      status: land.status || 'active',
+      estimated_value: land.estimated_value || land.value || 0,
+      monthly_income: land.monthly_income || land.monthlyIncome || 0,
+      monthly_expenses: land.monthly_expenses || land.monthlyExpenses || 0,
+      manager_name: land.manager_name || land.manager || '',
+      address: land.address || land.location?.address || '',
+      city: land.city || land.location?.city || 'القدس',
+      governorate: land.governorate || land.location?.district || 'القدس',
+      latitude: land.latitude || land.location?.lat || 31.7767,
+      longitude: land.longitude || land.location?.lng || 35.2345
+    });
+    setShowModal(true);
+  };
+
+  // Reset form
+  const resetForm = () => {
+    setIsEditMode(false);
+    setSelectedLand(null);
+    setFormData({
+      name: '',
+      description: '',
+      area: 0,
+      type: 'mosque',
+      status: 'active',
+      estimated_value: 0,
+      monthly_income: 0,
+      monthly_expenses: 0,
+      manager_name: '',
+      address: '',
+      city: 'القدس',
+      governorate: 'القدس',
+      latitude: 31.7767,
+      longitude: 35.2345
+    });
+  };
+
+  // Handle form input change
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: ['area', 'estimated_value', 'monthly_income', 'monthly_expenses', 'latitude', 'longitude'].includes(name)
+        ? parseFloat(value) || 0
+        : value
+    }));
+  };
 
   return (
     <div className="space-y-6">
@@ -260,14 +404,27 @@ const WaqfLandsManagement: React.FC = () => {
         <div>
           <h1 className="text-3xl font-bold text-gray-800">إدارة الأراضي الوقفية</h1>
           <p className="text-gray-600 mt-1">إدارة ومتابعة جميع الأراضي والممتلكات الوقفية</p>
+          {loading && <p className="text-sm text-blue-600 mt-1">جاري تحميل البيانات...</p>}
+          {error && <p className="text-sm text-red-600 mt-1">خطأ: {error}</p>}
         </div>
         <div className="flex items-center space-x-4 space-x-reverse">
+          <button
+            onClick={() => refetch()}
+            className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors flex items-center"
+            disabled={loading}
+          >
+            <RefreshCw className={`w-5 h-5 ml-2 ${loading ? 'animate-spin' : ''}`} />
+            تحديث
+          </button>
           <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center">
             <Download className="w-5 h-5 ml-2" />
             تصدير البيانات
           </button>
-          <button 
-            onClick={() => setShowModal(true)}
+          <button
+            onClick={() => {
+              resetForm();
+              setShowModal(true);
+            }}
             className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center"
           >
             <Plus className="w-5 h-5 ml-2" />
@@ -439,18 +596,29 @@ const WaqfLandsManagement: React.FC = () => {
                   </div>
                   
                   <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                    <button 
+                    <button
                       onClick={() => setSelectedLand(land)}
                       className="text-blue-600 hover:text-blue-700 font-medium text-sm"
                     >
                       عرض التفاصيل
                     </button>
                     <div className="flex items-center space-x-2 space-x-reverse">
-                      <button className="text-green-600 hover:text-green-700">
+                      <button
+                        onClick={() => handleEdit(land)}
+                        className="text-green-600 hover:text-green-700"
+                        title="تعديل"
+                      >
                         <Edit className="w-4 h-4" />
                       </button>
-                      <button className="text-purple-600 hover:text-purple-700">
+                      <button className="text-purple-600 hover:text-purple-700" title="عرض على الخريطة">
                         <Map className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(land.id)}
+                        className="text-red-600 hover:text-red-700"
+                        title="حذف"
+                      >
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -534,26 +702,28 @@ const WaqfLandsManagement: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-2 space-x-reverse">
-                          <button 
+                          <button
                             onClick={() => setSelectedLand(land)}
                             className="text-blue-600 hover:text-blue-700"
                             title="عرض التفاصيل"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
-                          <button 
+                          <button
+                            onClick={() => handleEdit(land)}
                             className="text-green-600 hover:text-green-700"
                             title="تعديل"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
-                          <button 
+                          <button
                             className="text-purple-600 hover:text-purple-700"
                             title="عرض على الخريطة"
                           >
                             <Map className="w-4 h-4" />
                           </button>
-                          <button 
+                          <button
+                            onClick={() => handleDelete(land.id)}
                             className="text-red-600 hover:text-red-700"
                             title="حذف"
                           >
@@ -695,21 +865,26 @@ const WaqfLandsManagement: React.FC = () => {
         </div>
       )}
 
-      {/* Add Land Modal */}
+      {/* Add/Edit Land Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-800">إضافة أرض وقفية جديدة</h2>
+              <h2 className="text-xl font-bold text-gray-800">
+                {isEditMode ? 'تعديل الأرض الوقفية' : 'إضافة أرض وقفية جديدة'}
+              </h2>
               <button
-                onClick={() => setShowModal(false)}
+                onClick={() => {
+                  setShowModal(false);
+                  resetForm();
+                }}
                 className="text-gray-500 hover:text-gray-700"
               >
                 <XCircle className="w-6 h-6" />
               </button>
             </div>
-            
-            <form className="space-y-6">
+
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">اسم الأرض الوقفية</label>

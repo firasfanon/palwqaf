@@ -458,25 +458,59 @@ const HomePageManagement: React.FC = () => {
 
         <div className="space-y-4">
           <div className="card">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">معاينة سريعة</h3>
-            <div className={`bg-gray-100 rounded-lg p-4 ${
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-800">معاينة سريعة</h3>
+              <Eye className="w-5 h-5 text-islamic-600" />
+            </div>
+            <div className={`bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border border-gray-200 ${
               previewMode === 'mobile' ? 'max-w-[375px]' :
               previewMode === 'tablet' ? 'max-w-[768px]' : 'w-full'
-            } mx-auto transition-all`}>
-              <div className="space-y-3">
-                {sections
-                  .filter(s => s.enabled)
-                  .sort((a, b) => a.order - b.order)
-                  .map((section) => {
-                    const Icon = section.icon;
-                    return (
-                      <div key={section.id} className="bg-white rounded p-3 text-center">
-                        <Icon className="w-8 h-8 mx-auto mb-2 text-islamic-600" />
-                        <p className="text-sm font-medium text-gray-700">{section.name}</p>
-                      </div>
-                    );
-                  })}
+            } mx-auto transition-all duration-300`}>
+              <div className="space-y-2">
+                {sections.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <Eye className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                    <p className="text-sm">لا توجد أقسام لعرضها</p>
+                  </div>
+                ) : (
+                  sections
+                    .filter(s => s.enabled)
+                    .sort((a, b) => a.order - b.order)
+                    .map((section, index) => {
+                      const Icon = section.icon;
+                      return (
+                        <div key={section.id} className="bg-white rounded-lg p-3 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+                          <div className="flex items-center space-x-3 space-x-reverse">
+                            <div className="flex-shrink-0 w-10 h-10 bg-islamic-50 rounded-lg flex items-center justify-center">
+                              <Icon className="w-5 h-5 text-islamic-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-800 truncate">{section.name}</p>
+                              <p className="text-xs text-gray-500">الترتيب: {index + 1}</p>
+                            </div>
+                            <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                          </div>
+                        </div>
+                      );
+                    })
+                )}
               </div>
+
+              {sections.filter(s => s.enabled).length === 0 && sections.length > 0 && (
+                <div className="mt-4 text-center">
+                  <p className="text-xs text-amber-600 bg-amber-50 rounded-lg p-3">
+                    قم بتفعيل قسم واحد على الأقل لرؤية المعاينة
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-4 flex items-center justify-center space-x-2 space-x-reverse text-xs text-gray-500">
+              <span>المعاينة حسب:</span>
+              <span className="font-medium text-islamic-600">
+                {previewMode === 'mobile' ? 'موبايل (375px)' :
+                 previewMode === 'tablet' ? 'تابلت (768px)' : 'سطح المكتب'}
+              </span>
             </div>
           </div>
 

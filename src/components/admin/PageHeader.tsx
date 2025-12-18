@@ -1,10 +1,20 @@
 import React from 'react';
 import { LucideIcon, ArrowRight } from 'lucide-react';
 
+interface ActionButton {
+  label: string;
+  icon?: LucideIcon;
+  onClick: () => void;
+  disabled?: boolean;
+  variant?: 'primary' | 'secondary' | 'outline';
+}
+
 interface PageHeaderProps {
   title: string;
   subtitle?: string;
+  description?: string;
   icon?: LucideIcon;
+  action?: ActionButton;
   actions?: React.ReactNode;
   breadcrumbs?: { label: string; href?: string }[];
   onBack?: () => void;
@@ -13,7 +23,9 @@ interface PageHeaderProps {
 const PageHeader: React.FC<PageHeaderProps> = ({
   title,
   subtitle,
+  description,
   icon: Icon,
+  action,
   actions,
   breadcrumbs,
   onBack
@@ -64,11 +76,28 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             {subtitle && (
               <p className="text-xs text-sage-600 mt-0.5">{subtitle}</p>
             )}
+            {description && (
+              <p className="text-sm text-sage-600 mt-1">{description}</p>
+            )}
           </div>
         </div>
 
-        {actions && (
+        {(action || actions) && (
           <div className="flex items-center space-x-2 space-x-reverse">
+            {action && (
+              <button
+                onClick={action.onClick}
+                disabled={action.disabled}
+                className={`${
+                  action.variant === 'secondary' ? 'btn-secondary' :
+                  action.variant === 'outline' ? 'btn-outline' :
+                  'btn-primary'
+                } ${action.icon ? 'animate-pulse' : ''}`}
+              >
+                {action.icon && <action.icon className={`w-5 h-5 ml-2 ${action.disabled ? '' : 'animate-none'}`} />}
+                {action.label}
+              </button>
+            )}
             {actions}
           </div>
         )}

@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Key, 
-  Search, 
-  Filter, 
-  Plus, 
-  Edit, 
-  Eye, 
-  Trash2, 
-  Download, 
+import {
+  Key,
+  Search,
+  Filter,
+  Plus,
+  Edit,
+  Eye,
+  Trash2,
+  Download,
   Upload,
-  MapPin, 
-  Building, 
-  Calendar, 
-  User, 
-  FileText, 
+  MapPin,
+  Building,
+  Calendar,
+  User,
+  FileText,
   Shield,
   CheckCircle,
   AlertTriangle,
@@ -52,6 +52,7 @@ import {
   Compass,
   Navigation
 } from 'lucide-react';
+import { LocationsManager } from '../../components/admin';
 
 const NationalWaqfRegistry: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -62,6 +63,7 @@ const NationalWaqfRegistry: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedRegistry, setSelectedRegistry] = useState<any>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showLocationsManager, setShowLocationsManager] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
 
@@ -366,12 +368,19 @@ const NationalWaqfRegistry: React.FC = () => {
           <h1 className="heading-1 text-islamic-800">المفتاح الوطني للأوقاف الفلسطينية</h1>
           <p className="body-text text-sage-600 mt-2">السجل الوطني الشامل لجميع الأوقاف الإسلامية في فلسطين</p>
         </div>
-        <div className="flex items-center space-x-4 space-x-reverse">
+        <div className="flex items-center space-x-3 space-x-reverse">
+          <button
+            onClick={() => setShowLocationsManager(true)}
+            className="btn-outline"
+          >
+            <Settings className="w-5 h-5 ml-2" />
+            إدارة المواقع
+          </button>
           <button className="btn-secondary">
             <Download className="w-5 h-5 ml-2" />
             تصدير السجل
           </button>
-          <button 
+          <button
             onClick={() => setShowModal(true)}
             className="btn-primary"
           >
@@ -857,6 +866,11 @@ const NationalWaqfRegistry: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Locations Manager Modal */}
+      {showLocationsManager && (
+        <LocationsManager onClose={() => setShowLocationsManager(false)} />
       )}
 
       {/* Add Registry Modal */}

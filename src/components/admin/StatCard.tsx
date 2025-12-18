@@ -65,28 +65,28 @@ const StatCard: React.FC<StatCardProps> = ({
 
   return (
     <div
-      className={`card-islamic hover-lift ${onClick ? 'cursor-pointer' : ''} group transition-all duration-300`}
+      className={`card-islamic hover-lift ${onClick ? 'cursor-pointer' : ''} group transition-all duration-300 p-3`}
       onClick={onClick}
     >
-      <div className="flex items-center justify-between mb-4">
-        <div className={`w-12 h-12 ${colors.bg} rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
-          <Icon className="w-6 h-6 text-white" />
+      <div className="flex items-center justify-between mb-2">
+        <div className={`w-10 h-10 ${colors.bg} rounded-lg flex items-center justify-center shadow group-hover:scale-110 transition-transform`}>
+          <Icon className="w-5 h-5 text-white" />
         </div>
         {trend && trendValue && (
-          <div className={`flex items-center space-x-1 space-x-reverse text-sm font-medium ${
+          <div className={`flex items-center space-x-1 space-x-reverse text-xs font-medium ${
             trend === 'up' ? 'text-green-600' : 'text-red-600'
           }`}>
-            {trend === 'up' ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+            {trend === 'up' ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
             <span>{trendValue}</span>
           </div>
         )}
       </div>
 
-      <div className="space-y-1">
-        <p className="text-sm font-medium text-sage-600 font-body">{title}</p>
-        <p className="text-3xl font-bold text-islamic-700 font-display">{value}</p>
+      <div className="space-y-0.5">
+        <p className="text-xs font-medium text-sage-600 font-body">{title}</p>
+        <p className="text-2xl font-bold text-islamic-700 font-display">{value}</p>
         {subtitle && (
-          <p className="text-xs text-sage-500 font-body mt-2">{subtitle}</p>
+          <p className="text-xs text-sage-500 font-body mt-1">{subtitle}</p>
         )}
       </div>
     </div>

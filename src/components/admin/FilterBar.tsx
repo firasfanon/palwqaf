@@ -25,25 +25,25 @@ const FilterBar: React.FC<FilterBarProps> = ({
   const hasActiveFilters = filters.some(f => f.value);
 
   return (
-    <div className="card-islamic mb-6">
-      <div className="flex items-center space-x-3 space-x-reverse mb-4">
-        <Filter className="w-5 h-5 text-islamic-600" />
-        <h3 className="text-lg font-semibold text-islamic-800 font-display">تصفية البيانات</h3>
+    <div className="card-islamic mb-3 p-3">
+      <div className="flex items-center space-x-2 space-x-reverse mb-3">
+        <Filter className="w-4 h-4 text-islamic-600" />
+        <h3 className="text-sm font-semibold text-islamic-800 font-display">تصفية البيانات</h3>
         {showClearButton && hasActiveFilters && (
           <button
             onClick={onClear}
-            className="mr-auto text-sm text-red-600 hover:text-red-700 font-medium font-body flex items-center space-x-1 space-x-reverse"
+            className="mr-auto text-xs text-red-600 hover:text-red-700 font-medium font-body flex items-center space-x-1 space-x-reverse"
           >
-            <X className="w-4 h-4" />
+            <X className="w-3.5 h-3.5" />
             <span>مسح الكل</span>
           </button>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
         {filters.map((filter) => (
-          <div key={filter.id} className="space-y-2">
-            <label className="block text-sm font-medium text-islamic-700 font-body">
+          <div key={filter.id} className="space-y-1">
+            <label className="block text-xs font-medium text-islamic-700 font-body">
               {filter.label}
             </label>
 
@@ -64,25 +64,25 @@ const FilterBar: React.FC<FilterBarProps> = ({
 
             {filter.type === 'search' && (
               <div className="relative">
-                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sage-400 w-4 h-4" />
+                <Search className="absolute right-2 top-1/2 transform -translate-y-1/2 text-sage-400 w-3.5 h-3.5" />
                 <input
                   type="text"
                   value={filter.value || ''}
                   onChange={(e) => filter.onChange?.(e.target.value)}
                   placeholder={filter.placeholder || 'بحث...'}
-                  className="form-input pr-10"
+                  className="form-input pr-8 py-1.5 text-xs"
                 />
               </div>
             )}
 
             {filter.type === 'date' && (
               <div className="relative">
-                <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sage-400 w-4 h-4" />
+                <Calendar className="absolute right-2 top-1/2 transform -translate-y-1/2 text-sage-400 w-3.5 h-3.5" />
                 <input
                   type="date"
                   value={filter.value || ''}
                   onChange={(e) => filter.onChange?.(e.target.value)}
-                  className="form-input pr-10"
+                  className="form-input pr-8 py-1.5 text-xs"
                 />
               </div>
             )}

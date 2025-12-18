@@ -150,27 +150,27 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       
       {/* Sidebar */}
       <div className={`
-        fixed top-0 right-0 h-full w-80 bg-white shadow-elegant z-50 transform transition-transform duration-300 ease-in-out border-l border-islamic-200
+        fixed top-0 right-0 h-full w-64 bg-white shadow-elegant z-50 transform transition-transform duration-300 ease-in-out border-l border-islamic-200
         ${isOpen ? 'translate-x-0' : 'translate-x-full'}
         lg:translate-x-0 lg:static lg:z-auto
       `}>
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="p-8 border-b border-islamic-200 islamic-pattern">
-            <div className="flex items-center space-x-3 space-x-reverse">
-              <div className="w-16 h-16 islamic-gradient rounded-full flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-lg font-display">أوقاف</span>
+          <div className="p-4 border-b border-islamic-200 islamic-pattern">
+            <div className="flex items-center space-x-2 space-x-reverse">
+              <div className="w-12 h-12 islamic-gradient rounded-full flex items-center justify-center shadow-lg">
+                <span className="text-white font-bold text-sm font-display">أوقاف</span>
               </div>
               <div>
-                <h2 className="font-bold text-xl text-islamic-800 font-display">نظام إدارة الأوقاف</h2>
-                <p className="text-sm text-sage-600 font-body">النظام المتكامل</p>
+                <h2 className="font-bold text-base text-islamic-800 font-display">نظام إدارة الأوقاف</h2>
+                <p className="text-xs text-sage-600 font-body">النظام المتكامل</p>
               </div>
             </div>
           </div>
 
           {/* Menu Items */}
-          <div className="flex-1 overflow-y-auto py-6">
-            <nav className="space-y-2 px-6">
+          <div className="flex-1 overflow-y-auto py-3">
+            <nav className="space-y-1 px-3">
               {menuItems.map((item) => {
                 const isActive = location.pathname === item.path;
                 return (
@@ -179,15 +179,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     to={item.path}
                     onClick={onClose}
                     className={`
-                      flex items-center space-x-3 space-x-reverse px-6 py-4 rounded-xl transition-all duration-300 font-body
-                      ${isActive 
-                        ? 'bg-islamic-50 text-islamic-700 border-r-4 border-islamic-600 shadow-md' 
+                      flex items-center space-x-2 space-x-reverse px-3 py-2.5 rounded-lg transition-all duration-300 font-body text-sm
+                      ${isActive
+                        ? 'bg-islamic-50 text-islamic-700 border-r-4 border-islamic-600 shadow-sm'
                         : 'text-sage-700 hover:bg-islamic-50 hover:text-islamic-700'
                       }
                     `}
                   >
-                    <item.icon className={`w-6 h-6 ${isActive ? 'text-islamic-600' : item.color}`} />
-                    <span className="font-semibold">{item.name}</span>
+                    <item.icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-islamic-600' : item.color}`} />
+                    <span className="font-medium">{item.name}</span>
                   </Link>
                 );
               })}
@@ -195,8 +195,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </div>
 
           {/* Footer */}
-          <div className="p-6 border-t border-islamic-200 bg-islamic-50">
-            <div className="text-center text-sm text-sage-600 font-body">
+          <div className="p-3 border-t border-islamic-200 bg-islamic-50">
+            <div className="text-center text-xs text-sage-600 font-body">
               <p className="font-semibold">© 2024 وزارة الأوقاف</p>
               <p>النسخة 2.0</p>
             </div>

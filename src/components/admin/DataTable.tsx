@@ -88,10 +88,10 @@ function DataTable<T extends Record<string, any>>({
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="space-y-3">
+      <div className="flex items-center justify-between gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sage-400 w-5 h-5" />
+          <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sage-400 w-4 h-4" />
           <input
             type="text"
             placeholder="بحث..."
@@ -100,7 +100,7 @@ function DataTable<T extends Record<string, any>>({
               setSearchTerm(e.target.value);
               setCurrentPage(1);
             }}
-            className="form-input pr-10"
+            className="form-input pr-10 py-2 text-sm"
           />
         </div>
 
@@ -108,13 +108,13 @@ function DataTable<T extends Record<string, any>>({
           {showExport && (
             <button
               onClick={onExport}
-              className="btn-secondary text-sm"
+              className="btn-secondary text-sm px-3 py-2"
             >
               <Download className="w-4 h-4 ml-1" />
               تصدير
             </button>
           )}
-          <button className="btn-outline text-sm">
+          <button className="btn-outline text-sm px-3 py-2">
             <Filter className="w-4 h-4 ml-1" />
             تصفية
           </button>
@@ -129,7 +129,7 @@ function DataTable<T extends Record<string, any>>({
                 {columns.map((column) => (
                   <th
                     key={column.key}
-                    className={`px-6 py-3 text-right text-sm font-semibold text-islamic-800 ${
+                    className={`px-3 py-2 text-right text-xs font-semibold text-islamic-800 ${
                       column.sortable ? 'cursor-pointer hover:bg-islamic-100' : ''
                     } ${column.width || ''}`}
                     onClick={() => column.sortable && handleSort(column.key)}
@@ -158,7 +158,7 @@ function DataTable<T extends Record<string, any>>({
                   </th>
                 ))}
                 {actions && (
-                  <th className="px-6 py-3 text-right text-sm font-semibold text-islamic-800">
+                  <th className="px-3 py-2 text-right text-xs font-semibold text-islamic-800">
                     الإجراءات
                   </th>
                 )}
@@ -169,7 +169,7 @@ function DataTable<T extends Record<string, any>>({
                 <tr>
                   <td
                     colSpan={columns.length + (actions ? 1 : 0)}
-                    className="px-6 py-12 text-center text-sage-500 font-body"
+                    className="px-3 py-8 text-center text-sage-500 font-body text-sm"
                   >
                     {emptyMessage}
                   </td>
@@ -184,13 +184,13 @@ function DataTable<T extends Record<string, any>>({
                     onClick={() => onRowClick && onRowClick(item)}
                   >
                     {columns.map((column) => (
-                      <td key={column.key} className="px-6 py-4 text-sm text-sage-700 font-body">
+                      <td key={column.key} className="px-3 py-2.5 text-xs text-sage-700 font-body">
                         {column.render ? column.render(item) : item[column.key]}
                       </td>
                     ))}
                     {actions && (
-                      <td className="px-6 py-4 text-sm text-sage-700 font-body">
-                        <div className="flex items-center space-x-2 space-x-reverse">
+                      <td className="px-3 py-2.5 text-xs text-sage-700 font-body">
+                        <div className="flex items-center space-x-1 space-x-reverse">
                           {actions(item)}
                         </div>
                       </td>
@@ -203,8 +203,8 @@ function DataTable<T extends Record<string, any>>({
         </div>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-6 py-3 bg-sage-50 border-t border-sage-200">
-            <div className="text-sm text-sage-600 font-body">
+          <div className="flex items-center justify-between px-4 py-2 bg-sage-50 border-t border-sage-200">
+            <div className="text-xs text-sage-600 font-body">
               عرض {(currentPage - 1) * pageSize + 1} إلى{' '}
               {Math.min(currentPage * pageSize, sortedData.length)} من{' '}
               {sortedData.length} نتيجة
@@ -214,9 +214,9 @@ function DataTable<T extends Record<string, any>>({
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className="p-2 rounded-lg hover:bg-islamic-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="p-1.5 rounded-lg hover:bg-islamic-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                <ChevronRight className="w-5 h-5 text-islamic-600" />
+                <ChevronRight className="w-4 h-4 text-islamic-600" />
               </button>
 
               <div className="flex items-center space-x-1 space-x-reverse">
@@ -236,7 +236,7 @@ function DataTable<T extends Record<string, any>>({
                     <button
                       key={pageNum}
                       onClick={() => setCurrentPage(pageNum)}
-                      className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
                         currentPage === pageNum
                           ? 'bg-islamic-600 text-white'
                           : 'hover:bg-islamic-100 text-islamic-700'
@@ -251,9 +251,9 @@ function DataTable<T extends Record<string, any>>({
               <button
                 onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
-                className="p-2 rounded-lg hover:bg-islamic-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="p-1.5 rounded-lg hover:bg-islamic-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                <ChevronLeft className="w-5 h-5 text-islamic-600" />
+                <ChevronLeft className="w-4 h-4 text-islamic-600" />
               </button>
             </div>
           </div>

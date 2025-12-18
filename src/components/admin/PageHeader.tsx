@@ -19,9 +19,9 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   onBack
 }) => {
   return (
-    <div className="mb-6">
+    <div className="mb-4">
       {breadcrumbs && breadcrumbs.length > 0 && (
-        <nav className="flex items-center space-x-2 space-x-reverse text-sm text-sage-600 mb-4 font-body">
+        <nav className="flex items-center space-x-2 space-x-reverse text-xs text-sage-600 mb-2 font-body">
           {breadcrumbs.map((crumb, index) => (
             <React.Fragment key={index}>
               {crumb.href ? (
@@ -43,32 +43,32 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       )}
 
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4 space-x-reverse">
+        <div className="flex items-center space-x-3 space-x-reverse">
           {onBack && (
             <button
               onClick={onBack}
-              className="p-2 rounded-lg hover:bg-islamic-100 text-islamic-600 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-islamic-100 text-islamic-600 transition-colors"
             >
-              <ArrowRight className="w-6 h-6" />
+              <ArrowRight className="w-5 h-5" />
             </button>
           )}
 
           {Icon && (
-            <div className="w-12 h-12 bg-islamic-500 rounded-xl flex items-center justify-center shadow-lg">
-              <Icon className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 bg-islamic-500 rounded-lg flex items-center justify-center shadow">
+              <Icon className="w-5 h-5 text-white" />
             </div>
           )}
 
           <div>
-            <h1 className="heading-1 text-islamic-800">{title}</h1>
+            <h1 className="text-xl font-bold text-islamic-800">{title}</h1>
             {subtitle && (
-              <p className="body-text text-sage-600 mt-1">{subtitle}</p>
+              <p className="text-xs text-sage-600 mt-0.5">{subtitle}</p>
             )}
           </div>
         </div>
 
         {actions && (
-          <div className="flex items-center space-x-3 space-x-reverse">
+          <div className="flex items-center space-x-2 space-x-reverse">
             {actions}
           </div>
         )}

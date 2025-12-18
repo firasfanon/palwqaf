@@ -81,8 +81,8 @@ const AdminLayout: React.FC = () => {
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
         {/* Main Content */}
-        <main className="flex-1 lg:mr-80">
-          <div className="p-6">
+        <main className="flex-1 lg:mr-64">
+          <div className="p-4">
             <Outlet />
           </div>
         </main>

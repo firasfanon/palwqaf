@@ -411,6 +411,73 @@ const GeneralSettings: React.FC = () => {
     event.target.value = '';
   };
 
+  const handleSystemAction = async (action: string) => {
+    const confirmMessage = {
+      'clear_cache': 'هل تريد مسح ذاكرة التخزين المؤقت؟',
+      'optimize_db': 'هل تريد تحسين قاعدة البيانات؟',
+      'backup': 'هل تريد إنشاء نسخة احتياطية من البيانات؟',
+      'clear_logs': 'هل تريد مسح السجلات القديمة؟',
+      'reset_app': 'تحذير: سيتم إعادة تعيين التطبيق. هل أنت متأكد؟'
+    }[action];
+
+    if (!window.confirm(confirmMessage || 'هل تريد تنفيذ هذا الإجراء؟')) return;
+
+    try {
+      setSaving(true);
+
+      switch (action) {
+        case 'clear_cache':
+          localStorage.clear();
+          sessionStorage.clear();
+          showToast('تم مسح ذاكرة التخزين المؤقت بنجاح', 'success');
+          break;
+
+        case 'optimize_db':
+          await supabase.rpc('optimize_database');
+          showToast('تم تحسين قاعدة البيانات بنجاح', 'success');
+          break;
+
+        case 'backup':
+          const { data: backupData } = await supabase
+            .from('system_settings')
+            .select('*');
+
+          const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `backup-${new Date().toISOString()}.json`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          showToast('تم إنشاء النسخة الاحتياطية بنجاح', 'success');
+          break;
+
+        case 'clear_logs':
+          await supabase.from('audit_logs').delete().lt('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
+          showToast('تم مسح السجلات القديمة بنجاح', 'success');
+          break;
+
+        case 'reset_app':
+          await supabase.from('system_settings').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+          localStorage.clear();
+          sessionStorage.clear();
+          showToast('تم إعادة تعيين التطبيق. سيتم إعادة التحميل...', 'info');
+          setTimeout(() => window.location.reload(), 2000);
+          break;
+
+        default:
+          showToast('إجراء غير معروف', 'error');
+      }
+    } catch (error: any) {
+      showToast(`خطأ في تنفيذ الإجراء: ${error.message}`, 'error');
+      console.error('Error executing action:', error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const filteredSettings = () => {
     const currentSettings = settings[activeTab] || [];
     if (!searchQuery) return currentSettings;
@@ -623,6 +690,116 @@ const GeneralSettings: React.FC = () => {
                 ))}
               </div>
             )}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg">
+                <Zap className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-white">إجراءات النظام</h2>
+                <p className="text-xs text-blue-100">تنفيذ مهام الصيانة والإدارة</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <button
+                onClick={() => handleSystemAction('clear_cache')}
+                disabled={saving}
+                className="group relative overflow-hidden bg-gradient-to-br from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 border-2 border-blue-200 rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="bg-blue-500 p-3 rounded-lg group-hover:scale-110 transition-transform">
+                    <RefreshCw className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-right flex-1">
+                    <h3 className="text-base font-bold text-gray-800 mb-1">مسح الذاكرة المؤقتة</h3>
+                    <p className="text-xs text-gray-600">تنظيف الكاش وتحسين الأداء</p>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => handleSystemAction('optimize_db')}
+                disabled={saving}
+                className="group relative overflow-hidden bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 border-2 border-green-200 rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="bg-green-500 p-3 rounded-lg group-hover:scale-110 transition-transform">
+                    <Database className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-right flex-1">
+                    <h3 className="text-base font-bold text-gray-800 mb-1">تحسين قاعدة البيانات</h3>
+                    <p className="text-xs text-gray-600">تنظيم وضغط البيانات</p>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => handleSystemAction('backup')}
+                disabled={saving}
+                className="group relative overflow-hidden bg-gradient-to-br from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 border-2 border-purple-200 rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="bg-purple-500 p-3 rounded-lg group-hover:scale-110 transition-transform">
+                    <HardDrive className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-right flex-1">
+                    <h3 className="text-base font-bold text-gray-800 mb-1">نسخ احتياطي</h3>
+                    <p className="text-xs text-gray-600">حفظ نسخة من البيانات</p>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => handleSystemAction('clear_logs')}
+                disabled={saving}
+                className="group relative overflow-hidden bg-gradient-to-br from-orange-50 to-amber-50 hover:from-orange-100 hover:to-amber-100 border-2 border-orange-200 rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="bg-orange-500 p-3 rounded-lg group-hover:scale-110 transition-transform">
+                    <FileText className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-right flex-1">
+                    <h3 className="text-base font-bold text-gray-800 mb-1">مسح السجلات القديمة</h3>
+                    <p className="text-xs text-gray-600">حذف سجلات أقدم من 30 يوم</p>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => handleSystemAction('reset_app')}
+                disabled={saving}
+                className="group relative overflow-hidden bg-gradient-to-br from-red-50 to-rose-50 hover:from-red-100 hover:to-rose-100 border-2 border-red-200 rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="bg-red-500 p-3 rounded-lg group-hover:scale-110 transition-transform">
+                    <AlertCircle className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-right flex-1">
+                    <h3 className="text-base font-bold text-gray-800 mb-1">إعادة تعيين التطبيق</h3>
+                    <p className="text-xs text-gray-600">حذف جميع الإعدادات</p>
+                  </div>
+                </div>
+              </button>
+
+              <div className="bg-gradient-to-br from-gray-50 to-slate-50 border-2 border-gray-200 rounded-xl p-6">
+                <div className="flex items-start gap-4">
+                  <div className="bg-gray-400 p-3 rounded-lg">
+                    <Info className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-right flex-1">
+                    <h3 className="text-base font-bold text-gray-800 mb-1">ملاحظة</h3>
+                    <p className="text-xs text-gray-600">قد تستغرق بعض الإجراءات وقتاً</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Globe,
   FileText,
@@ -13,21 +13,41 @@ import {
   CheckCircle,
   AlertTriangle,
   Users,
-  Clock
+  Clock,
+  Loader,
+  Save,
+  X
 } from 'lucide-react';
 import { PageHeader, DataTable, StatCard, Modal } from '../../components/admin';
 import type { Column } from '../../components/admin/DataTable';
 import { useToast } from '../../hooks/useToast';
+import { supabase } from '../../lib/supabase';
 
 interface Page {
   id: string;
-  name: string;
+  page_id: string;
+  name_ar: string;
+  name_en?: string;
   url: string;
   status: 'published' | 'draft' | 'archived';
-  lastModified: string;
-  views: number;
-  seoScore: number;
-  type: 'dynamic' | 'static';
+  page_type: 'dynamic' | 'static';
+  views_count: number;
+  seo_score: number;
+  meta_title?: string;
+  meta_description?: string;
+  updated_at: string;
+}
+
+interface SEOMetric {
+  id: string;
+  page_id: string;
+  score: number;
+  issues_count: number;
+  suggestions: string[];
+  performance_score?: number;
+  accessibility_score?: number;
+  best_practices_score?: number;
+  checked_at: string;
 }
 
 const WebsiteManagement: React.FC = () => {
@@ -36,6 +56,91 @@ const WebsiteManagement: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [selectedPage, setSelectedPage] = useState<Page | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [pages, setPages] = useState<Page[]>([]);
+  const [seoMetrics, setSeoMetrics] = useState<SEOMetric[]>([]);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+
+      const { data: pagesData, error: pagesError } = await supabase
+        .from('website_pages')
+        .select('*')
+        .order('updated_at', { ascending: false });
+
+      if (pagesError) throw pagesError;
+
+      const { data: seoData, error: seoError } = await supabase
+        .from('page_seo_metrics')
+        .select('*')
+        .order('checked_at', { ascending: false });
+
+      if (seoError) throw seoError;
+
+      setPages(pagesData || []);
+      setSeoMetrics(seoData || []);
+    } catch (error: any) {
+      showError('خطأ', 'فشل تحميل البيانات');
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdatePage = async () => {
+    if (!selectedPage) return;
+
+    try {
+      setSaving(true);
+
+      const { error } = await supabase
+        .from('website_pages')
+        .update({
+          name_ar: selectedPage.name_ar,
+          status: selectedPage.status,
+          meta_title: selectedPage.meta_title,
+          meta_description: selectedPage.meta_description,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', selectedPage.id);
+
+      if (error) throw error;
+
+      success('تم التحديث', 'تم تحديث معلومات الصفحة بنجاح');
+      setShowModal(false);
+      await fetchData();
+    } catch (error: any) {
+      showError('خطأ', 'فشل تحديث الصفحة');
+      console.error('Error updating page:', error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeletePage = async (pageId: string) => {
+    if (!confirm('هل أنت متأكد من حذف هذه الصفحة؟')) return;
+
+    try {
+      const { error } = await supabase
+        .from('website_pages')
+        .delete()
+        .eq('id', pageId);
+
+      if (error) throw error;
+
+      success('تم الحذف', 'تم حذف الصفحة بنجاح');
+      await fetchData();
+    } catch (error: any) {
+      showError('خطأ', 'فشل حذف الصفحة');
+      console.error('Error deleting page:', error);
+    }
+  };
 
   const tabs = [
     { id: 'pages', name: 'إدارة الصفحات', icon: FileText, color: 'text-blue-600' },
@@ -44,131 +149,25 @@ const WebsiteManagement: React.FC = () => {
     { id: 'media', name: 'الوسائط', icon: ImageIcon, color: 'text-orange-600' }
   ];
 
-  const pages: Page[] = [
-    {
-      id: 'home',
-      name: 'الصفحة الرئيسية',
-      url: '/',
-      status: 'published',
-      lastModified: '2024-01-15',
-      views: 15420,
-      type: 'dynamic',
-      seoScore: 95
-    },
-    {
-      id: 'about',
-      name: 'عن الوزارة',
-      url: '/about',
-      status: 'published',
-      lastModified: '2024-01-14',
-      views: 3250,
-      type: 'static',
-      seoScore: 88
-    },
-    {
-      id: 'minister',
-      name: 'كلمة الوزير',
-      url: '/minister',
-      status: 'published',
-      lastModified: '2024-01-13',
-      views: 2180,
-      type: 'static',
-      seoScore: 92
-    },
-    {
-      id: 'news',
-      name: 'الأخبار',
-      url: '/news',
-      status: 'published',
-      lastModified: '2024-01-15',
-      views: 8750,
-      type: 'dynamic',
-      seoScore: 93
-    },
-    {
-      id: 'services',
-      name: 'الخدمات الإلكترونية',
-      url: '/e-services',
-      status: 'published',
-      lastModified: '2024-01-09',
-      views: 4560,
-      type: 'dynamic',
-      seoScore: 92
-    },
-    {
-      id: 'contact',
-      name: 'اتصل بنا',
-      url: '/contact',
-      status: 'published',
-      lastModified: '2024-01-08',
-      views: 2780,
-      type: 'static',
-      seoScore: 84
-    }
-  ];
-
-  const seoMetrics = [
-    { page: 'الصفحة الرئيسية', score: 95, issues: 0, color: 'text-green-600' },
-    { page: 'الأخبار', score: 93, issues: 1, color: 'text-green-600' },
-    { page: 'كلمة الوزير', score: 92, issues: 1, color: 'text-green-600' },
-    { page: 'الرؤية والرسالة', score: 90, issues: 2, color: 'text-yellow-600' },
-    { page: 'عن الوزارة', score: 88, issues: 2, color: 'text-yellow-600' },
-    { page: 'اتصل بنا', score: 84, issues: 3, color: 'text-orange-600' }
-  ];
-
-  const analyticsData = {
-    visitorsToday: 1247,
-    pageViews: 3456,
-    bounceRate: 23,
-    avgSessionDuration: '4:32'
-  };
-
-  const mediaLibrary = [
-    {
-      id: 1,
-      name: 'صورة المسجد الأقصى',
-      type: 'image',
-      size: '2.5 MB',
-      url: 'https://images.pexels.com/photos/378570/pexels-photo-378570.jpeg',
-      usedIn: 3
-    },
-    {
-      id: 2,
-      name: 'شعار الوزارة',
-      type: 'image',
-      size: '512 KB',
-      url: '/images/logo.png',
-      usedIn: 8
-    },
-    {
-      id: 3,
-      name: 'فيديو افتتاح المسجد',
-      type: 'video',
-      size: '45 MB',
-      url: '/videos/opening.mp4',
-      usedIn: 2
-    }
-  ];
-
   const pageColumns: Column<Page>[] = [
     {
-      key: 'name',
+      key: 'name_ar',
       label: 'اسم الصفحة',
       render: (page) => (
         <div>
-          <div className="font-medium text-gray-900">{page.name}</div>
+          <div className="font-medium text-gray-900">{page.name_ar}</div>
           <div className="text-sm text-gray-500">{page.url}</div>
         </div>
       )
     },
     {
-      key: 'type',
+      key: 'page_type',
       label: 'النوع',
       render: (page) => (
         <span className={`px-2 py-1 text-xs rounded-full ${
-          page.type === 'dynamic' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+          page.page_type === 'dynamic' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
         }`}>
-          {page.type === 'dynamic' ? 'ديناميكية' : 'ثابتة'}
+          {page.page_type === 'dynamic' ? 'ديناميكية' : 'ثابتة'}
         </span>
       )
     },
@@ -183,40 +182,37 @@ const WebsiteManagement: React.FC = () => {
             <Clock className="w-4 h-4 text-yellow-500" />
           )}
           <span className={`px-2 py-1 text-xs rounded-full ${
-            page.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+            page.status === 'published' ? 'bg-green-100 text-green-800' :
+            page.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
+            'bg-gray-100 text-gray-800'
           }`}>
-            {page.status === 'published' ? 'منشورة' : 'مسودة'}
+            {page.status === 'published' ? 'منشورة' : page.status === 'draft' ? 'مسودة' : 'مؤرشفة'}
           </span>
         </div>
       )
     },
     {
-      key: 'views',
+      key: 'views_count',
       label: 'المشاهدات',
-      render: (page) => page.views.toLocaleString()
+      render: (page) => page.views_count.toLocaleString()
     },
     {
-      key: 'seoScore',
-      label: 'SEO',
+      key: 'seo_score',
+      label: 'نقاط SEO',
       render: (page) => (
         <div className="flex items-center space-x-2 space-x-reverse">
-          <div className="w-16 bg-gray-200 rounded-full h-2">
+          <div className="flex-1 bg-gray-200 rounded-full h-2">
             <div
               className={`h-2 rounded-full ${
-                page.seoScore >= 90 ? 'bg-green-500' :
-                page.seoScore >= 80 ? 'bg-yellow-500' : 'bg-red-500'
+                page.seo_score >= 90 ? 'bg-green-500' :
+                page.seo_score >= 70 ? 'bg-yellow-500' : 'bg-red-500'
               }`}
-              style={{ width: `${page.seoScore}%` }}
-            ></div>
+              style={{ width: `${page.seo_score}%` }}
+            />
           </div>
-          <span className="text-sm font-medium">{page.seoScore}%</span>
+          <span className="text-sm font-medium text-gray-700">{page.seo_score}</span>
         </div>
       )
-    },
-    {
-      key: 'lastModified',
-      label: 'آخر تحديث',
-      render: (page) => new Date(page.lastModified).toLocaleDateString('ar-EG')
     },
     {
       key: 'actions',
@@ -224,299 +220,277 @@ const WebsiteManagement: React.FC = () => {
       render: (page) => (
         <div className="flex items-center space-x-2 space-x-reverse">
           <button
+            onClick={() => window.open(page.url, '_blank')}
+            className="p-2 hover:bg-blue-50 rounded text-blue-600"
+            title="معاينة"
+          >
+            <Eye className="w-4 h-4" />
+          </button>
+          <button
             onClick={() => {
               setSelectedPage(page);
               setShowModal(true);
             }}
-            className="p-1 hover:bg-blue-50 rounded"
+            className="p-2 hover:bg-green-50 rounded text-green-600"
+            title="تحرير"
           >
-            <Eye className="w-4 h-4 text-blue-600" />
+            <Edit className="w-4 h-4" />
           </button>
-          <button className="p-1 hover:bg-green-50 rounded">
-            <Edit className="w-4 h-4 text-green-600" />
-          </button>
-          <button className="p-1 hover:bg-red-50 rounded">
-            <Trash2 className="w-4 h-4 text-red-600" />
+          <button
+            onClick={() => handleDeletePage(page.id)}
+            className="p-2 hover:bg-red-50 rounded text-red-600"
+            title="حذف"
+          >
+            <Trash2 className="w-4 h-4" />
           </button>
         </div>
       )
     }
   ];
 
-  const stats = [
-    {
-      title: 'إجمالي الصفحات',
-      value: pages.length,
-      icon: FileText,
-      color: 'bg-blue-500',
-      change: '+2'
-    },
-    {
-      title: 'صفحات منشورة',
-      value: pages.filter(p => p.status === 'published').length,
-      icon: CheckCircle,
-      color: 'bg-green-500',
-      change: '+1'
-    },
-    {
-      title: 'إجمالي المشاهدات',
-      value: pages.reduce((sum, p) => sum + p.views, 0).toLocaleString(),
-      icon: Eye,
-      color: 'bg-purple-500',
-      change: '+12%'
-    },
-    {
-      title: 'متوسط SEO',
-      value: Math.round(pages.reduce((sum, p) => sum + p.seoScore, 0) / pages.length) + '%',
-      icon: TrendingUp,
-      color: 'bg-orange-500',
-      change: '+5%'
-    }
-  ];
+  const filteredPages = pages.filter(page =>
+    page.name_ar.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    page.url.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'pages':
-        return (
-          <div className="card">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-800">جميع الصفحات</h3>
-              <button className="btn-primary">
-                <Plus className="w-5 h-5 ml-2" />
-                إضافة صفحة جديدة
-              </button>
-            </div>
-            <DataTable
-              columns={pageColumns}
-              data={pages}
-              searchable
-              searchPlaceholder="البحث في الصفحات..."
-            />
-          </div>
-        );
-
-      case 'seo':
-        return (
-          <div className="card">
-            <h3 className="text-lg font-semibold text-gray-800 mb-6">تحسين محركات البحث (SEO)</h3>
-            <div className="space-y-4">
-              {seoMetrics.map((metric, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-medium text-gray-800">{metric.page}</h4>
-                    <div className="flex items-center space-x-2 space-x-reverse">
-                      <div className="w-20 bg-gray-200 rounded-full h-2">
-                        <div
-                          className={`h-2 rounded-full ${
-                            metric.score >= 90 ? 'bg-green-500' :
-                            metric.score >= 80 ? 'bg-yellow-500' : 'bg-red-500'
-                          }`}
-                          style={{ width: `${metric.score}%` }}
-                        ></div>
-                      </div>
-                      <span className={`text-sm font-bold ${metric.color}`}>{metric.score}%</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2 space-x-reverse">
-                      {metric.issues > 0 ? (
-                        <>
-                          <AlertTriangle className="w-4 h-4 text-orange-500" />
-                          <span className="text-sm text-gray-600">{metric.issues} مشكلة</span>
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                          <span className="text-sm text-gray-600">لا توجد مشاكل</span>
-                        </>
-                      )}
-                    </div>
-                    <button className="text-islamic-600 hover:text-islamic-700 text-sm font-medium">
-                      عرض التفاصيل
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-
-      case 'analytics':
-        return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="card">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">زوار اليوم</p>
-                    <p className="text-3xl font-bold text-gray-800">{analyticsData.visitorsToday.toLocaleString()}</p>
-                  </div>
-                  <Users className="w-8 h-8 text-blue-500" />
-                </div>
-              </div>
-              <div className="card">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">مشاهدات الصفحات</p>
-                    <p className="text-3xl font-bold text-gray-800">{analyticsData.pageViews.toLocaleString()}</p>
-                  </div>
-                  <Eye className="w-8 h-8 text-green-500" />
-                </div>
-              </div>
-              <div className="card">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">معدل الارتداد</p>
-                    <p className="text-3xl font-bold text-gray-800">{analyticsData.bounceRate}%</p>
-                  </div>
-                  <TrendingUp className="w-8 h-8 text-purple-500" />
-                </div>
-              </div>
-              <div className="card">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">متوسط الجلسة</p>
-                    <p className="text-3xl font-bold text-gray-800">{analyticsData.avgSessionDuration}</p>
-                  </div>
-                  <Clock className="w-8 h-8 text-orange-500" />
-                </div>
-              </div>
-            </div>
-
-            <div className="card">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">أداء الصفحات</h3>
-              <div className="space-y-3">
-                {pages.slice(0, 6).map((page) => (
-                  <div key={page.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center space-x-3 space-x-reverse">
-                      <FileText className="w-5 h-5 text-gray-400" />
-                      <div>
-                        <p className="text-sm font-medium text-gray-800">{page.name}</p>
-                        <p className="text-xs text-gray-500">{page.url}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold text-gray-800">{page.views.toLocaleString()}</p>
-                      <p className="text-xs text-gray-500">مشاهدة</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'media':
-        return (
-          <div className="card">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-800">مكتبة الوسائط</h3>
-              <button className="btn-primary">
-                <Plus className="w-5 h-5 ml-2" />
-                رفع ملف جديد
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {mediaLibrary.map((media) => (
-                <div key={media.id} className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition">
-                  <div className="aspect-video bg-gray-100 flex items-center justify-center">
-                    {media.type === 'image' ? (
-                      <img src={media.url} alt={media.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <ImageIcon className="w-12 h-12 text-gray-400" />
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <h4 className="font-medium text-gray-800 mb-2 truncate">{media.name}</h4>
-                    <div className="space-y-1 text-xs text-gray-600">
-                      <p>الحجم: {media.size}</p>
-                      <p>مستخدم في: {media.usedIn} صفحة</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-
-      default:
-        return null;
-    }
+  const stats = {
+    totalPages: pages.length,
+    publishedPages: pages.filter(p => p.status === 'published').length,
+    totalViews: pages.reduce((sum, p) => sum + p.views_count, 0),
+    avgSeoScore: Math.round(pages.reduce((sum, p) => sum + p.seo_score, 0) / pages.length) || 0
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader className="w-8 h-8 animate-spin text-islamic-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="إدارة الموقع الإلكتروني"
-        description="إدارة شاملة لصفحات ومحتوى الموقع"
+        title="إدارة الموقع"
+        description="إدارة صفحات الموقع وتحسين SEO ومتابعة التحليلات"
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <StatCard key={index} {...stat} />
-        ))}
+        <StatCard
+          title="إجمالي الصفحات"
+          value={stats.totalPages.toString()}
+          icon={FileText}
+          color="blue"
+        />
+        <StatCard
+          title="الصفحات المنشورة"
+          value={stats.publishedPages.toString()}
+          icon={CheckCircle}
+          color="green"
+        />
+        <StatCard
+          title="إجمالي المشاهدات"
+          value={stats.totalViews.toLocaleString()}
+          icon={Eye}
+          color="purple"
+        />
+        <StatCard
+          title="متوسط نقاط SEO"
+          value={`${stats.avgSeoScore}%`}
+          icon={TrendingUp}
+          color="orange"
+        />
       </div>
 
       <div className="card">
-        <div className="flex space-x-2 space-x-reverse border-b">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center space-x-2 space-x-reverse px-6 py-3 font-medium transition-colors ${
-                  activeTab === tab.id
-                    ? `${tab.color} border-b-2 border-current`
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                <span>{tab.name}</span>
-              </button>
-            );
-          })}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex space-x-2 space-x-reverse">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center space-x-2 space-x-reverse px-4 py-2 rounded-lg transition-colors ${
+                    activeTab === tab.id
+                      ? 'bg-islamic-50 text-islamic-700'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span className="font-medium">{tab.name}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="relative">
+            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="بحث..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="form-input pr-10"
+            />
+          </div>
         </div>
 
-        <div className="p-6">
-          {renderContent()}
-        </div>
+        {activeTab === 'pages' && (
+          <DataTable
+            data={filteredPages}
+            columns={pageColumns}
+          />
+        )}
+
+        {activeTab === 'seo' && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">مقاييس SEO للصفحات</h3>
+            {pages.map((page) => {
+              const metric = seoMetrics.find(m => m.page_id === page.id);
+              return (
+                <div key={page.id} className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h4 className="font-medium text-gray-900">{page.name_ar}</h4>
+                      <p className="text-sm text-gray-500">{page.url}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className={`text-2xl font-bold ${
+                        page.seo_score >= 90 ? 'text-green-600' :
+                        page.seo_score >= 70 ? 'text-yellow-600' : 'text-red-600'
+                      }`}>
+                        {page.seo_score}
+                      </div>
+                      <p className="text-xs text-gray-500">نقاط SEO</p>
+                    </div>
+                  </div>
+
+                  {metric && (
+                    <div className="grid grid-cols-3 gap-4 pt-3 border-t border-gray-200">
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">الأداء</p>
+                        <p className="text-sm font-medium">{metric.performance_score || 0}%</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">إمكانية الوصول</p>
+                        <p className="text-sm font-medium">{metric.accessibility_score || 0}%</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">أفضل الممارسات</p>
+                        <p className="text-sm font-medium">{metric.best_practices_score || 0}%</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {metric && metric.issues_count > 0 && (
+                    <div className="mt-3 pt-3 border-t border-gray-200">
+                      <div className="flex items-center text-sm text-amber-600">
+                        <AlertTriangle className="w-4 h-4 ml-1" />
+                        {metric.issues_count} مشكلة تحتاج إلى إصلاح
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {activeTab === 'analytics' && (
+          <div className="text-center py-12">
+            <BarChart3 className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">التحليلات</h3>
+            <p className="text-gray-600">سيتم إضافة تحليلات الموقع قريباً</p>
+          </div>
+        )}
+
+        {activeTab === 'media' && (
+          <div className="text-center py-12">
+            <ImageIcon className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">مكتبة الوسائط</h3>
+            <p className="text-gray-600">سيتم إضافة مكتبة الوسائط قريباً</p>
+          </div>
+        )}
       </div>
 
       <Modal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        title={`تفاصيل الصفحة: ${selectedPage?.name}`}
+        title={`تحرير: ${selectedPage?.name_ar}`}
         size="large"
       >
         {selectedPage && (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">اسم الصفحة</label>
-                <p className="text-gray-900">{selectedPage.name}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">الرابط</label>
-                <p className="text-gray-900">{selectedPage.url}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">النوع</label>
-                <p className="text-gray-900">{selectedPage.type === 'dynamic' ? 'ديناميكية' : 'ثابتة'}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">المشاهدات</label>
-                <p className="text-gray-900">{selectedPage.views.toLocaleString()}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">SEO Score</label>
-                <p className="text-gray-900">{selectedPage.seoScore}%</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">آخر تحديث</label>
-                <p className="text-gray-900">{new Date(selectedPage.lastModified).toLocaleDateString('ar-EG')}</p>
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">اسم الصفحة</label>
+              <input
+                type="text"
+                value={selectedPage.name_ar}
+                onChange={(e) => setSelectedPage({ ...selectedPage, name_ar: e.target.value })}
+                className="form-input"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">الحالة</label>
+              <select
+                value={selectedPage.status}
+                onChange={(e) => setSelectedPage({ ...selectedPage, status: e.target.value as any })}
+                className="form-select"
+              >
+                <option value="published">منشورة</option>
+                <option value="draft">مسودة</option>
+                <option value="archived">مؤرشفة</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">عنوان SEO</label>
+              <input
+                type="text"
+                value={selectedPage.meta_title || ''}
+                onChange={(e) => setSelectedPage({ ...selectedPage, meta_title: e.target.value })}
+                className="form-input"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">وصف SEO</label>
+              <textarea
+                value={selectedPage.meta_description || ''}
+                onChange={(e) => setSelectedPage({ ...selectedPage, meta_description: e.target.value })}
+                className="form-textarea"
+                rows={3}
+              />
+            </div>
+
+            <div className="flex justify-end space-x-3 space-x-reverse pt-4 border-t">
+              <button
+                onClick={() => setShowModal(false)}
+                className="btn-outline"
+                disabled={saving}
+              >
+                <X className="w-4 h-4 ml-2" />
+                إلغاء
+              </button>
+              <button
+                onClick={handleUpdatePage}
+                className="btn-primary"
+                disabled={saving}
+              >
+                {saving ? (
+                  <>
+                    <Loader className="w-4 h-4 ml-2 animate-spin" />
+                    جاري الحفظ...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 ml-2" />
+                    حفظ التغييرات
+                  </>
+                )}
+              </button>
             </div>
           </div>
         )}

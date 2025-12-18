@@ -23,20 +23,45 @@ import {
   Smartphone,
   Tablet,
   X,
-  CheckCircle
+  CheckCircle,
+  Loader
 } from 'lucide-react';
 import { useToast } from '../../hooks/useToast';
 import { Modal, PageHeader } from '../../components/admin';
 import FileUpload from '../../components/UI/FileUpload';
+import { supabase } from '../../lib/supabase';
 
 interface HomeSection {
   id: string;
+  section_name: string;
   name: string;
   icon: any;
   enabled: boolean;
   order: number;
   settings?: any;
 }
+
+const sectionIcons: {[key: string]: any} = {
+  hero: Crown,
+  minister: Users,
+  statistics: BarChart3,
+  news: Newspaper,
+  announcements: Megaphone,
+  events: Calendar,
+  services: Settings,
+  media: ImageIcon
+};
+
+const sectionNames: {[key: string]: string} = {
+  hero: 'القسم الرئيسي (Hero)',
+  minister: 'كلمة الوزير',
+  statistics: 'الإحصائيات',
+  news: 'آخر الأخبار',
+  announcements: 'الإعلانات',
+  events: 'الفعاليات',
+  services: 'الخدمات الإلكترونية',
+  media: 'معرض الوسائط'
+};
 
 const HomePageManagement: React.FC = () => {
   const { success, error: showError } = useToast();
@@ -45,117 +70,42 @@ const HomePageManagement: React.FC = () => {
   const [hasChanges, setHasChanges] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedSection, setSelectedSection] = useState<HomeSection | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [sections, setSections] = useState<HomeSection[]>([]);
 
-  const [sections, setSections] = useState<HomeSection[]>([
-    {
-      id: 'hero',
-      name: 'القسم الرئيسي (Hero)',
-      icon: Crown,
-      enabled: true,
-      order: 1,
-      settings: {
-        title: 'وزارة الأوقاف والشؤون الدينية',
-        subtitle: 'دولة فلسطين',
-        description: 'نسعى لخدمة المجتمع الفلسطيني وتعزيز القيم الإسلامية',
-        backgroundImage: 'https://images.pexels.com/photos/378570/pexels-photo-378570.jpeg',
-        showCTA: true,
-        ctaText: 'استكشف خدماتنا',
-        ctaLink: '/services'
-      }
-    },
-    {
-      id: 'minister',
-      name: 'كلمة الوزير',
-      icon: Users,
-      enabled: true,
-      order: 2,
-      settings: {
-        title: 'كلمة معالي الوزير',
-        ministerName: 'د. محمد صالح',
-        photo: '/images/minister.jpg',
-        message: 'نص كلمة الوزير...',
-        showFullMessage: false
-      }
-    },
-    {
-      id: 'statistics',
-      name: 'الإحصائيات',
-      icon: BarChart3,
-      enabled: true,
-      order: 3,
-      settings: {
-        stats: [
-          { label: 'المساجد', value: 1420, icon: 'building' },
-          { label: 'الأراضي الوقفية', value: 850, icon: 'map' },
-          { label: 'المستفيدون', value: 5400, icon: 'users' },
-          { label: 'المشاريع', value: 230, icon: 'briefcase' }
-        ]
-      }
-    },
-    {
-      id: 'news',
-      name: 'آخر الأخبار',
-      icon: Newspaper,
-      enabled: true,
-      order: 4,
-      settings: {
-        title: 'آخر الأخبار',
-        itemsToShow: 6,
-        showImages: true,
-        showDate: true,
-        showCategory: true
-      }
-    },
-    {
-      id: 'announcements',
-      name: 'الإعلانات',
-      icon: Megaphone,
-      enabled: true,
-      order: 5,
-      settings: {
-        title: 'الإعلانات الهامة',
-        itemsToShow: 4,
-        showPriority: true,
-        highlightUrgent: true
-      }
-    },
-    {
-      id: 'events',
-      name: 'الفعاليات',
-      icon: Calendar,
-      enabled: true,
-      order: 6,
-      settings: {
-        title: 'الفعاليات القادمة',
-        itemsToShow: 3,
-        showDate: true,
-        showLocation: true
-      }
-    },
-    {
-      id: 'services',
-      name: 'الخدمات الإلكترونية',
-      icon: Settings,
-      enabled: true,
-      order: 7,
-      settings: {
-        title: 'خدماتنا الإلكترونية',
-        layout: 'grid',
-        itemsToShow: 6
-      }
-    },
-    {
-      id: 'media',
-      name: 'معرض الوسائط',
-      icon: ImageIcon,
-      enabled: false,
-      order: 8,
-      settings: {
-        title: 'معرض الصور',
-        itemsToShow: 8
-      }
+  useEffect(() => {
+    fetchSections();
+  }, []);
+
+  const fetchSections = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('homepage_sections')
+        .select('*')
+        .order('display_order');
+
+      if (error) throw error;
+
+      const transformedSections: HomeSection[] = (data || []).map(section => ({
+        id: section.section_name,
+        section_name: section.section_name,
+        name: sectionNames[section.section_name] || section.section_name,
+        icon: sectionIcons[section.section_name] || Home,
+        enabled: section.is_active,
+        order: section.display_order,
+        settings: section.settings || {}
+      }));
+
+      setSections(transformedSections);
+    } catch (error: any) {
+      showError('خطأ', 'فشل تحميل أقسام الصفحة الرئيسية');
+      console.error('Error fetching sections:', error);
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
 
   const moveSection = (index: number, direction: 'up' | 'down') => {
     const newSections = [...sections];
@@ -184,10 +134,30 @@ const HomePageManagement: React.FC = () => {
 
   const handleSave = async () => {
     try {
+      setSaving(true);
+
+      for (const section of sections) {
+        const { error } = await supabase
+          .from('homepage_sections')
+          .update({
+            is_active: section.enabled,
+            display_order: section.order,
+            settings: section.settings,
+            updated_at: new Date().toISOString()
+          })
+          .eq('section_name', section.section_name);
+
+        if (error) throw error;
+      }
+
       success('تم الحفظ', 'تم حفظ التغييرات بنجاح');
       setHasChanges(false);
+      await fetchSections();
     } catch (err) {
       showError('خطأ', 'فشل حفظ التغييرات');
+      console.error('Error saving:', err);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -219,16 +189,48 @@ const HomePageManagement: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">العنوان الفرعي</label>
               <input
                 type="text"
-                value={selectedSection.settings.subtitle}
+                value={selectedSection.settings.subtitle || ''}
+                onChange={(e) => setSelectedSection({
+                  ...selectedSection,
+                  settings: { ...selectedSection.settings, subtitle: e.target.value }
+                })}
                 className="form-input"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">الوصف</label>
               <textarea
-                value={selectedSection.settings.description}
+                value={selectedSection.settings.description || ''}
+                onChange={(e) => setSelectedSection({
+                  ...selectedSection,
+                  settings: { ...selectedSection.settings, description: e.target.value }
+                })}
                 className="form-textarea"
                 rows={3}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">نص الزر</label>
+              <input
+                type="text"
+                value={selectedSection.settings.ctaText || ''}
+                onChange={(e) => setSelectedSection({
+                  ...selectedSection,
+                  settings: { ...selectedSection.settings, ctaText: e.target.value }
+                })}
+                className="form-input"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">رابط الزر</label>
+              <input
+                type="text"
+                value={selectedSection.settings.ctaLink || ''}
+                onChange={(e) => setSelectedSection({
+                  ...selectedSection,
+                  settings: { ...selectedSection.settings, ctaLink: e.target.value }
+                })}
+                className="form-input"
               />
             </div>
             <FileUpload
@@ -247,16 +249,40 @@ const HomePageManagement: React.FC = () => {
       case 'statistics':
         return (
           <div className="space-y-4">
-            {selectedSection.settings.stats.map((stat: any, index: number) => (
+            {selectedSection.settings.stats?.map((stat: any, index: number) => (
               <div key={index} className="border border-gray-200 rounded-lg p-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">التسمية</label>
-                    <input type="text" value={stat.label} className="form-input" />
+                    <input
+                      type="text"
+                      value={stat.label}
+                      onChange={(e) => {
+                        const newStats = [...selectedSection.settings.stats];
+                        newStats[index].label = e.target.value;
+                        setSelectedSection({
+                          ...selectedSection,
+                          settings: { ...selectedSection.settings, stats: newStats }
+                        });
+                      }}
+                      className="form-input"
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">القيمة</label>
-                    <input type="number" value={stat.value} className="form-input" />
+                    <input
+                      type="number"
+                      value={stat.value}
+                      onChange={(e) => {
+                        const newStats = [...selectedSection.settings.stats];
+                        newStats[index].value = Number(e.target.value);
+                        setSelectedSection({
+                          ...selectedSection,
+                          settings: { ...selectedSection.settings, stats: newStats }
+                        });
+                      }}
+                      className="form-input"
+                    />
                   </div>
                 </div>
               </div>
@@ -273,7 +299,11 @@ const HomePageManagement: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">العنوان</label>
               <input
                 type="text"
-                value={selectedSection.settings.title}
+                value={selectedSection.settings.title || ''}
+                onChange={(e) => setSelectedSection({
+                  ...selectedSection,
+                  settings: { ...selectedSection.settings, title: e.target.value }
+                })}
                 className="form-input"
               />
             </div>
@@ -281,7 +311,11 @@ const HomePageManagement: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">عدد العناصر المعروضة</label>
               <input
                 type="number"
-                value={selectedSection.settings.itemsToShow}
+                value={selectedSection.settings.itemsToShow || 6}
+                onChange={(e) => setSelectedSection({
+                  ...selectedSection,
+                  settings: { ...selectedSection.settings, itemsToShow: Number(e.target.value) }
+                })}
                 className="form-input"
                 min="1"
                 max="12"
@@ -299,16 +333,24 @@ const HomePageManagement: React.FC = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader className="w-8 h-8 animate-spin text-islamic-600" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="إدارة الصفحة الرئيسية"
         description="تخصيص وترتيب أقسام الصفحة الرئيسية"
         action={{
-          label: hasChanges ? 'حفظ التغييرات' : 'محفوظ',
-          icon: hasChanges ? Save : CheckCircle,
+          label: saving ? 'جاري الحفظ...' : hasChanges ? 'حفظ التغييرات' : 'محفوظ',
+          icon: saving ? Loader : hasChanges ? Save : CheckCircle,
           onClick: handleSave,
-          disabled: !hasChanges
+          disabled: !hasChanges || saving
         }}
       />
 

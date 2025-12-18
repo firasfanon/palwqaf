@@ -435,23 +435,29 @@ const HomePageManagement: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="flex items-center space-x-2 space-x-reverse">
+                      <div className="flex items-center space-x-3 space-x-reverse">
                         <button
                           onClick={() => handleEditSection(section)}
-                          className="p-2 hover:bg-blue-50 rounded text-blue-600"
+                          className="p-2 hover:bg-blue-50 rounded text-blue-600 transition-colors"
+                          title="تحرير القسم"
                         >
-                          <Edit className="w-4 h-4" />
+                          <Edit className="w-5 h-5" />
                         </button>
 
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={section.enabled}
-                            onChange={() => toggleSection(section.id)}
-                            className="sr-only peer"
-                          />
-                          <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-islamic-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-islamic-600"></div>
-                        </label>
+                        <div className="flex items-center space-x-2 space-x-reverse bg-gray-50 rounded-lg px-3 py-2 border border-gray-200">
+                          <span className="text-sm font-medium text-gray-700">
+                            {section.enabled ? 'مفعّل' : 'معطّل'}
+                          </span>
+                          <label className="relative inline-flex items-center cursor-pointer" title={section.enabled ? 'إخفاء القسم' : 'إظهار القسم'}>
+                            <input
+                              type="checkbox"
+                              checked={section.enabled}
+                              onChange={() => toggleSection(section.id)}
+                              className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-islamic-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-islamic-600"></div>
+                          </label>
+                        </div>
                       </div>
                     </div>
                   </div>

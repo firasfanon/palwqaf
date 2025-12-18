@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Lock, User, Eye, EyeOff } from 'lucide-react';
 
@@ -18,22 +18,14 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      // محاكاة تسجيل الدخول
-      if (email === 'admin@awqaf.gov.ps' && password === 'admin123') {
-        login({ 
-          id: 1, 
-          email: 'admin@awqaf.gov.ps', 
-          name: 'مدير النظام',
-          role: 'admin',
-          department: 'الإدارة العامة',
-          permissions: ['all']
-        });
-        navigate('/admin');
-      } else {
+      await login(email, password);
+      navigate('/admin');
+    } catch (err: any) {
+      if (err.message?.includes('Invalid login credentials')) {
         setError('بيانات تسجيل الدخول غير صحيحة');
+      } else {
+        setError(err.message || 'حدث خطأ في تسجيل الدخول');
       }
-    } catch (err) {
-      setError('حدث خطأ في تسجيل الدخول');
     } finally {
       setLoading(false);
     }
@@ -128,9 +120,15 @@ const LoginPage = () => {
               {loading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
             </button>
 
-            <div className="text-center pt-4">
+            <div className="text-center pt-4 border-t border-gray-200 space-y-3">
               <p className="text-sm text-sage-600 font-body">
-              بيانات التجربة: admin@awqaf.gov.ps / admin123
+                ليس لديك حساب؟{' '}
+                <Link to="/register" className="font-semibold text-islamic-600 hover:text-islamic-700 transition-colors">
+                  إنشاء حساب جديد
+                </Link>
+              </p>
+              <p className="text-xs text-sage-500 font-body">
+                أو استخدم بيانات التجربة: admin@awqaf.gov.ps / admin123
               </p>
             </div>
           </form>

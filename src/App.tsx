@@ -14,6 +14,7 @@ import DocumentsManagement from './pages/admin/DocumentsManagement';
 import ElectronicArchive from './pages/admin/ElectronicArchive';
 import AdvancedSearch from './pages/admin/AdvancedSearch';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import UsersManagement from './pages/admin/UsersManagement';
 import AppointmentsCalendar from './pages/admin/AppointmentsCalendar';
 import GISSystem from './pages/admin/GISSystem';
@@ -94,7 +95,8 @@ const AppContent = () => {
                 </div>
               } />
               <Route path="/login" element={<LoginPage />} />
-              
+              <Route path="/register" element={<RegisterPage />} />
+
               {/* Search and Utility Pages */}
               <Route path="/search" element={
                 <div className="min-h-screen bg-gray-50" dir="rtl">

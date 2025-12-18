@@ -22,6 +22,7 @@ import NationalWaqfRegistryPage from './pages/admin/NationalWaqfRegistry';
 import GeneralSettings from './pages/admin/GeneralSettings';
 import HomePageManagement from './pages/admin/HomePageManagement';
 import WebsiteManagement from './pages/admin/WebsiteManagement';
+import TasksManagement from './pages/admin/TasksManagement';
 import AboutPage from './pages/AboutPage';
 import MinisterPage from './pages/MinisterPage';
 import VisionMissionPage from './pages/VisionMissionPage';
@@ -154,6 +155,7 @@ const AppContent = () => {
                 <Route path="gis" element={<GISSystem />} />
                 <Route path="search" element={<AdvancedSearch />} />
                 <Route path="appointments" element={<AppointmentsCalendar />} />
+                <Route path="tasks" element={<TasksManagement />} />
                 <Route path="users" element={<UsersManagement />} />
                 <Route path="reports" element={<ReportsStatistics />} />
                 <Route path="notifications" element={<NotificationsPage />} />

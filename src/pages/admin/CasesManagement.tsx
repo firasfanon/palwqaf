@@ -1,95 +1,87 @@
-import React, { useState } from 'react';
-import { 
-  Plus, 
-  Search, 
-  Filter, 
-  Edit, 
-  Eye, 
-  Trash2, 
-  Clock, 
-  User, 
+import React, { useState, useEffect } from 'react';
+import {
+  Plus,
+  Search,
+  Filter,
+  Edit,
+  Eye,
+  Trash2,
+  Clock,
+  User,
   AlertCircle,
   CheckCircle,
   XCircle,
   Calendar,
   FileText,
-  MapPin
+  MapPin,
+  Loader
 } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+import { useToast } from '../../hooks/useToast';
+
+interface Case {
+  id: number;
+  title: string;
+  description: string | null;
+  type: string;
+  status: string;
+  priority: string;
+  waqf_land_id: number | null;
+  assigned_to: number | null;
+  created_by: number | null;
+  due_date: string | null;
+  resolved_date: string | null;
+  resolution_notes: string | null;
+  created_at: string;
+  updated_at: string;
+  waqf_lands?: {
+    name: string;
+  };
+  assigned_user?: {
+    full_name: string;
+  };
+  created_user?: {
+    full_name: string;
+  };
+}
 
 const CasesManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
   const [showModal, setShowModal] = useState(false);
-  const [selectedCase, setSelectedCase] = useState<any>(null);
+  const [selectedCase, setSelectedCase] = useState<Case | null>(null);
+  const [cases, setCases] = useState<Case[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { showToast } = useToast();
 
-  // بيانات تجريبية للقضايا
-  const cases = [
-    {
-      id: 1,
-      title: 'نزاع حدود أرض المسجد الكبير',
-      description: 'نزاع حول الحدود الشرقية لأرض المسجد الكبير مع الأراضي المجاورة',
-      type: 'boundary',
-      status: 'in_progress',
-      priority: 'high',
-      waqfLandId: 1,
-      waqfLandName: 'أرض المسجد الكبير',
-      assignedTo: 'أحمد محمد',
-      createdBy: 'محمد علي',
-      dueDate: '2024-02-15',
-      createdAt: '2024-01-10',
-      documentsCount: 5,
-      timelineCount: 8
-    },
-    {
-      id: 2,
-      title: 'مراجعة إيرادات وقف الزيتون',
-      description: 'مراجعة شاملة لإيرادات ومصروفات وقف الزيتون للربع الأخير',
-      type: 'income',
-      status: 'open',
-      priority: 'medium',
-      waqfLandId: 2,
-      waqfLandName: 'وقف الزيتون',
-      assignedTo: 'فاطمة أحمد',
-      createdBy: 'سارة خالد',
-      dueDate: '2024-01-30',
-      createdAt: '2024-01-12',
-      documentsCount: 12,
-      timelineCount: 3
-    },
-    {
-      id: 3,
-      title: 'صيانة طارئة لمسجد الرحمة',
-      description: 'إصلاح تسريب في سقف مسجد الرحمة وتجديد نظام الإضاءة',
-      type: 'maintenance',
-      status: 'resolved',
-      priority: 'urgent',
-      waqfLandId: 3,
-      waqfLandName: 'مسجد الرحمة',
-      assignedTo: 'خالد يوسف',
-      createdBy: 'أحمد محمد',
-      dueDate: '2024-01-20',
-      createdAt: '2024-01-08',
-      documentsCount: 8,
-      timelineCount: 15
-    },
-    {
-      id: 4,
-      title: 'تحديث سندات ملكية المقبرة الشرقية',
-      description: 'تحديث وتجديد سندات ملكية المقبرة الشرقية وفقاً للقوانين الجديدة',
-      type: 'ownership',
-      status: 'pending',
-      priority: 'high',
-      waqfLandId: 4,
-      waqfLandName: 'المقبرة الشرقية',
-      assignedTo: 'نور الدين',
-      createdBy: 'فاطمة أحمد',
-      dueDate: '2024-02-28',
-      createdAt: '2024-01-15',
-      documentsCount: 3,
-      timelineCount: 2
+  // Fetch cases from database
+  useEffect(() => {
+    fetchCases();
+  }, []);
+
+  const fetchCases = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('cases')
+        .select(`
+          *,
+          waqf_lands (name),
+          assigned_user:users!assigned_to (full_name),
+          created_user:users!created_by (full_name)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setCases(data || []);
+    } catch (error: any) {
+      showToast('حدث خطأ في تحميل القضايا', 'error');
+      console.error('Error fetching cases:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const statusOptions = [
     { value: 'all', label: 'جميع الحالات' },
@@ -161,7 +153,7 @@ const CasesManagement: React.FC = () => {
 
   const filteredCases = cases.filter(caseItem => {
     const matchesSearch = caseItem.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         caseItem.description.toLowerCase().includes(searchTerm.toLowerCase());
+                         (caseItem.description?.toLowerCase() || '').includes(searchTerm.toLowerCase());
     const matchesStatus = selectedStatus === 'all' || caseItem.status === selectedStatus;
     const matchesType = selectedType === 'all' || caseItem.type === selectedType;
     return matchesSearch && matchesStatus && matchesType;
@@ -227,108 +219,124 @@ const CasesManagement: React.FC = () => {
 
       {/* Cases List */}
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  القضية
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  النوع
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  الحالة
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  الأولوية
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  المسؤول
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  الموعد النهائي
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  الإجراءات
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredCases.map((caseItem) => (
-                <tr key={caseItem.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{caseItem.title}</div>
-                      <div className="text-sm text-gray-500">{caseItem.description.slice(0, 60)}...</div>
-                      <div className="flex items-center mt-1 text-xs text-gray-400">
-                        <MapPin className="w-3 h-3 ml-1" />
-                        <span>{caseItem.waqfLandName}</span>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                      {typeOptions.find(t => t.value === caseItem.type)?.label}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      {getStatusIcon(caseItem.status)}
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full mr-2 ${getStatusBadge(caseItem.status)}`}>
-                        {statusOptions.find(s => s.value === caseItem.status)?.label}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityBadge(caseItem.priority)}`}>
-                      {caseItem.priority === 'urgent' ? 'عاجل' : 
-                       caseItem.priority === 'high' ? 'مهم' :
-                       caseItem.priority === 'medium' ? 'متوسط' : 'منخفض'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <User className="w-4 h-4 text-gray-400 ml-2" />
-                      <span className="text-sm text-gray-900">{caseItem.assignedTo}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <Calendar className="w-4 h-4 text-gray-400 ml-2" />
-                      <span className="text-sm text-gray-900">
-                        {new Date(caseItem.dueDate).toLocaleDateString('ar-EG')}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex items-center space-x-2 space-x-reverse">
-                      <button 
-                        onClick={() => setSelectedCase(caseItem)}
-                        className="text-blue-600 hover:text-blue-700"
-                        title="عرض التفاصيل"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <button 
-                        className="text-green-600 hover:text-green-700"
-                        title="تعديل"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button 
-                        className="text-red-600 hover:text-red-700"
-                        title="حذف"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader className="w-8 h-8 animate-spin text-green-600" />
+          </div>
+        ) : filteredCases.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500">لا توجد قضايا مطابقة للبحث</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    القضية
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    النوع
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    الحالة
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    الأولوية
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    المسؤول
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    الموعد النهائي
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    الإجراءات
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredCases.map((caseItem) => (
+                  <tr key={caseItem.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">{caseItem.title}</div>
+                        <div className="text-sm text-gray-500">
+                          {caseItem.description ? caseItem.description.slice(0, 60) + '...' : 'لا يوجد وصف'}
+                        </div>
+                        {caseItem.waqf_lands && (
+                          <div className="flex items-center mt-1 text-xs text-gray-400">
+                            <MapPin className="w-3 h-3 ml-1" />
+                            <span>{caseItem.waqf_lands.name}</span>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                        {typeOptions.find(t => t.value === caseItem.type)?.label}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        {getStatusIcon(caseItem.status)}
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full mr-2 ${getStatusBadge(caseItem.status)}`}>
+                          {statusOptions.find(s => s.value === caseItem.status)?.label}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityBadge(caseItem.priority)}`}>
+                        {caseItem.priority === 'urgent' ? 'عاجل' :
+                         caseItem.priority === 'high' ? 'مهم' :
+                         caseItem.priority === 'medium' ? 'متوسط' : 'منخفض'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <User className="w-4 h-4 text-gray-400 ml-2" />
+                        <span className="text-sm text-gray-900">
+                          {caseItem.assigned_user?.full_name || 'غير محدد'}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <Calendar className="w-4 h-4 text-gray-400 ml-2" />
+                        <span className="text-sm text-gray-900">
+                          {caseItem.due_date ? new Date(caseItem.due_date).toLocaleDateString('ar-EG') : 'غير محدد'}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex items-center space-x-2 space-x-reverse">
+                        <button
+                          onClick={() => setSelectedCase(caseItem)}
+                          className="text-blue-600 hover:text-blue-700"
+                          title="عرض التفاصيل"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          className="text-green-600 hover:text-green-700"
+                          title="تعديل"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          className="text-red-600 hover:text-red-700"
+                          title="حذف"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Case Details Modal */}
@@ -351,13 +359,13 @@ const CasesManagement: React.FC = () => {
                   <h3 className="font-semibold text-gray-800 mb-2">معلومات أساسية</h3>
                   <div className="bg-gray-50 p-4 rounded-lg space-y-2">
                     <p><span className="font-medium">العنوان:</span> {selectedCase.title}</p>
-                    <p><span className="font-medium">الوصف:</span> {selectedCase.description}</p>
-                    <p><span className="font-medium">الأرض الوقفية:</span> {selectedCase.waqfLandName}</p>
-                    <p><span className="font-medium">المسؤول:</span> {selectedCase.assignedTo}</p>
-                    <p><span className="font-medium">تاريخ الإنشاء:</span> {new Date(selectedCase.createdAt).toLocaleDateString('ar-EG')}</p>
+                    <p><span className="font-medium">الوصف:</span> {selectedCase.description || 'لا يوجد وصف'}</p>
+                    <p><span className="font-medium">الأرض الوقفية:</span> {selectedCase.waqf_lands?.name || 'غير محدد'}</p>
+                    <p><span className="font-medium">المسؤول:</span> {selectedCase.assigned_user?.full_name || 'غير محدد'}</p>
+                    <p><span className="font-medium">تاريخ الإنشاء:</span> {new Date(selectedCase.created_at).toLocaleDateString('ar-EG')}</p>
                   </div>
                 </div>
-                
+
                 <div>
                   <h3 className="font-semibold text-gray-800 mb-2">الحالة والأولوية</h3>
                   <div className="bg-gray-50 p-4 rounded-lg">
@@ -370,7 +378,7 @@ const CasesManagement: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <span>الأولوية:</span>
                       <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityBadge(selectedCase.priority)}`}>
-                        {selectedCase.priority === 'urgent' ? 'عاجل' : 
+                        {selectedCase.priority === 'urgent' ? 'عاجل' :
                          selectedCase.priority === 'high' ? 'مهم' :
                          selectedCase.priority === 'medium' ? 'متوسط' : 'منخفض'}
                       </span>
@@ -378,25 +386,38 @@ const CasesManagement: React.FC = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-semibold text-gray-800 mb-2">الإحصائيات</h3>
+                  <h3 className="font-semibold text-gray-800 mb-2">التواريخ المهمة</h3>
                   <div className="bg-gray-50 p-4 rounded-lg space-y-2">
                     <div className="flex items-center justify-between">
-                      <span>عدد الوثائق:</span>
-                      <span className="font-medium">{selectedCase.documentsCount}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>عدد التحديثات:</span>
-                      <span className="font-medium">{selectedCase.timelineCount}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
                       <span>الموعد النهائي:</span>
-                      <span className="font-medium">{new Date(selectedCase.dueDate).toLocaleDateString('ar-EG')}</span>
+                      <span className="font-medium">
+                        {selectedCase.due_date ? new Date(selectedCase.due_date).toLocaleDateString('ar-EG') : 'غير محدد'}
+                      </span>
+                    </div>
+                    {selectedCase.resolved_date && (
+                      <div className="flex items-center justify-between">
+                        <span>تاريخ الحل:</span>
+                        <span className="font-medium">{new Date(selectedCase.resolved_date).toLocaleDateString('ar-EG')}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between">
+                      <span>آخر تحديث:</span>
+                      <span className="font-medium">{new Date(selectedCase.updated_at).toLocaleDateString('ar-EG')}</span>
                     </div>
                   </div>
                 </div>
+
+                {selectedCase.resolution_notes && (
+                  <div>
+                    <h3 className="font-semibold text-gray-800 mb-2">ملاحظات الحل</h3>
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <p className="text-sm">{selectedCase.resolution_notes}</p>
+                    </div>
+                  </div>
+                )}
                 
                 <div>
                   <h3 className="font-semibold text-gray-800 mb-2">إجراءات سريعة</h3>

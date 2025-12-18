@@ -177,60 +177,65 @@ const HomePageManagement: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">العنوان الرئيسي</label>
               <input
                 type="text"
-                value={selectedSection.settings.title}
+                value={selectedSection.settings?.title || ''}
                 onChange={(e) => setSelectedSection({
                   ...selectedSection,
                   settings: { ...selectedSection.settings, title: e.target.value }
                 })}
                 className="form-input"
+                placeholder="أدخل العنوان الرئيسي"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">العنوان الفرعي</label>
               <input
                 type="text"
-                value={selectedSection.settings.subtitle || ''}
+                value={selectedSection.settings?.subtitle || ''}
                 onChange={(e) => setSelectedSection({
                   ...selectedSection,
                   settings: { ...selectedSection.settings, subtitle: e.target.value }
                 })}
                 className="form-input"
+                placeholder="أدخل العنوان الفرعي"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">الوصف</label>
               <textarea
-                value={selectedSection.settings.description || ''}
+                value={selectedSection.settings?.description || ''}
                 onChange={(e) => setSelectedSection({
                   ...selectedSection,
                   settings: { ...selectedSection.settings, description: e.target.value }
                 })}
                 className="form-textarea"
                 rows={3}
+                placeholder="أدخل وصف القسم"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">نص الزر</label>
               <input
                 type="text"
-                value={selectedSection.settings.ctaText || ''}
+                value={selectedSection.settings?.ctaText || ''}
                 onChange={(e) => setSelectedSection({
                   ...selectedSection,
                   settings: { ...selectedSection.settings, ctaText: e.target.value }
                 })}
                 className="form-input"
+                placeholder="مثال: اكتشف المزيد"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">رابط الزر</label>
               <input
                 type="text"
-                value={selectedSection.settings.ctaLink || ''}
+                value={selectedSection.settings?.ctaLink || ''}
                 onChange={(e) => setSelectedSection({
                   ...selectedSection,
                   settings: { ...selectedSection.settings, ctaLink: e.target.value }
                 })}
                 className="form-input"
+                placeholder="/services"
               />
             </div>
             <FileUpload
@@ -478,6 +483,7 @@ const HomePageManagement: React.FC = () => {
                     .sort((a, b) => a.order - b.order)
                     .map((section, index) => {
                       const Icon = section.icon;
+                      const hasSettings = section.settings && Object.keys(section.settings).length > 0;
                       return (
                         <div key={section.id} className="bg-white rounded-lg p-3 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
                           <div className="flex items-center space-x-3 space-x-reverse">
@@ -486,7 +492,20 @@ const HomePageManagement: React.FC = () => {
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium text-gray-800 truncate">{section.name}</p>
-                              <p className="text-xs text-gray-500">الترتيب: {index + 1}</p>
+                              <div className="flex items-center space-x-2 space-x-reverse">
+                                <p className="text-xs text-gray-500">الترتيب: {index + 1}</p>
+                                {hasSettings && (
+                                  <>
+                                    <span className="text-xs text-gray-300">•</span>
+                                    <p className="text-xs text-green-600">مُعد</p>
+                                  </>
+                                )}
+                              </div>
+                              {section.settings?.title && (
+                                <p className="text-xs text-gray-600 mt-1 truncate">
+                                  {section.settings.title}
+                                </p>
+                              )}
                             </div>
                             <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
                           </div>
@@ -541,7 +560,10 @@ const HomePageManagement: React.FC = () => {
 
           <div className="flex justify-end space-x-3 space-x-reverse pt-4 border-t">
             <button
-              onClick={() => setShowModal(false)}
+              onClick={() => {
+                setShowModal(false);
+                setSelectedSection(null);
+              }}
               className="btn-outline"
             >
               <X className="w-4 h-4 ml-2" />
@@ -549,9 +571,19 @@ const HomePageManagement: React.FC = () => {
             </button>
             <button
               onClick={() => {
-                setHasChanges(true);
+                if (selectedSection) {
+                  setSections(prev =>
+                    prev.map(section =>
+                      section.id === selectedSection.id
+                        ? { ...selectedSection }
+                        : section
+                    )
+                  );
+                  setHasChanges(true);
+                  success('تم التحديث', 'تم تحديث إعدادات القسم');
+                }
                 setShowModal(false);
-                success('تم التحديث', 'تم تحديث إعدادات القسم');
+                setSelectedSection(null);
               }}
               className="btn-primary"
             >

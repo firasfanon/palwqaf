@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   FileText,
   Plus,
@@ -12,308 +12,321 @@ import {
   Folder,
   Image,
   FileSpreadsheet,
-  FileCode
+  X,
+  Save,
+  RefreshCw
 } from 'lucide-react';
 import { PageHeader, DataTable, StatCard, FilterBar, Modal } from '../../components/admin';
+import FileUpload from '../../components/UI/FileUpload';
 import type { Column } from '../../components/admin/DataTable';
 import type { FilterOption } from '../../components/admin/FilterBar';
 import { useToast } from '../../hooks/useToast';
+import { useDocuments } from '../../hooks/useDatabase';
+import { DocumentsService } from '../../services/database';
+import { StorageService } from '../../services/storage';
 
-interface Document {
-  id: number;
+interface DocumentForm {
   name: string;
   type: string;
   category: string;
-  size: number;
-  uploadedBy: string;
-  uploadDate: string;
-  lastModified: string;
-  downloads: number;
-  status: 'active' | 'archived';
+  access_level: string;
+  file_path?: string;
+  file_url?: string;
+  size?: number;
+  content?: string;
+  tags?: string[];
+  related_to_type?: string;
+  related_to_id?: number;
 }
 
 const DocumentsManagementImproved: React.FC = () => {
   const { success, error: showError } = useToast();
+  const { data: documents, loading, error, refetch, create } = useDocuments();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
+  const [selectedDoc, setSelectedDoc] = useState<any | null>(null);
+  const [isViewMode, setIsViewMode] = useState(false);
+
+  const [formData, setFormData] = useState<DocumentForm>({
+    name: '',
+    type: 'pdf',
+    category: 'legal',
+    access_level: 'internal',
+    content: '',
+    tags: []
+  });
 
   const [filters, setFilters] = useState({
     type: '',
     category: '',
-    status: '',
-    search: '',
-    dateFrom: '',
-    dateTo: ''
-  });
-
-  const mockDocuments: Document[] = [
-    {
-      id: 1,
-      name: 'سند ملكية أرض وقف المسجد الكبير',
-      type: 'pdf',
-      category: 'سندات',
-      size: 2.5,
-      uploadedBy: 'أحمد محمد',
-      uploadDate: '2024-01-15',
-      lastModified: '2024-01-15',
-      downloads: 45,
-      status: 'active'
-    },
-    {
-      id: 2,
-      name: 'تقرير فحص أرض وقف الزيتون',
-      type: 'pdf',
-      category: 'تقارير',
-      size: 1.8,
-      uploadedBy: 'فاطمة خالد',
-      uploadDate: '2024-01-14',
-      lastModified: '2024-01-14',
-      downloads: 23,
-      status: 'active'
-    },
-    {
-      id: 3,
-      name: 'خريطة توضيحية لحدود الوقف',
-      type: 'jpg',
-      category: 'خرائط',
-      size: 4.2,
-      uploadedBy: 'محمد علي',
-      uploadDate: '2024-01-13',
-      lastModified: '2024-01-13',
-      downloads: 67,
-      status: 'active'
-    },
-    {
-      id: 4,
-      name: 'كشف حساب شهر يناير',
-      type: 'xlsx',
-      category: 'مالية',
-      size: 0.8,
-      uploadedBy: 'سارة أحمد',
-      uploadDate: '2024-01-12',
-      lastModified: '2024-01-14',
-      downloads: 12,
-      status: 'active'
-    },
-    {
-      id: 5,
-      name: 'قرار محكمة قضية رقم 245',
-      type: 'pdf',
-      category: 'قرارات قانونية',
-      size: 1.2,
-      uploadedBy: 'خالد يوسف',
-      uploadDate: '2024-01-10',
-      lastModified: '2024-01-10',
-      downloads: 34,
-      status: 'archived'
-    }
-  ];
-
-  const filteredDocs = mockDocuments.filter(doc => {
-    if (filters.type && doc.type !== filters.type) return false;
-    if (filters.category && doc.category !== filters.category) return false;
-    if (filters.status && doc.status !== filters.status) return false;
-    if (filters.search) {
-      const search = filters.search.toLowerCase();
-      return (
-        doc.name.toLowerCase().includes(search) ||
-        doc.uploadedBy.toLowerCase().includes(search)
-      );
-    }
-    return true;
+    access_level: '',
+    search: ''
   });
 
   const filterOptions: FilterOption[] = [
     {
-      id: 'type',
+      key: 'category',
+      label: 'الفئة',
+      options: [
+        { value: '', label: 'الكل' },
+        { value: 'legal', label: 'قانوني' },
+        { value: 'financial', label: 'مالي' },
+        { value: 'technical', label: 'تقني' },
+        { value: 'administrative', label: 'إداري' },
+        { value: 'other', label: 'أخرى' }
+      ]
+    },
+    {
+      key: 'type',
       label: 'نوع الملف',
-      type: 'select',
-      value: filters.type,
-      onChange: (value) => setFilters(prev => ({ ...prev, type: value })),
       options: [
+        { value: '', label: 'الكل' },
         { value: 'pdf', label: 'PDF' },
-        { value: 'jpg', label: 'صورة' },
-        { value: 'xlsx', label: 'Excel' },
-        { value: 'docx', label: 'Word' }
+        { value: 'doc', label: 'Word' },
+        { value: 'xls', label: 'Excel' },
+        { value: 'image', label: 'صورة' },
+        { value: 'other', label: 'أخرى' }
       ]
     },
     {
-      id: 'category',
-      label: 'التصنيف',
-      type: 'select',
-      value: filters.category,
-      onChange: (value) => setFilters(prev => ({ ...prev, category: value })),
+      key: 'access_level',
+      label: 'مستوى الوصول',
       options: [
-        { value: 'سندات', label: 'سندات' },
-        { value: 'تقارير', label: 'تقارير' },
-        { value: 'خرائط', label: 'خرائط' },
-        { value: 'مالية', label: 'مالية' },
-        { value: 'قرارات قانونية', label: 'قرارات قانونية' }
+        { value: '', label: 'الكل' },
+        { value: 'public', label: 'عام' },
+        { value: 'internal', label: 'داخلي' },
+        { value: 'restricted', label: 'محدود' }
       ]
-    },
-    {
-      id: 'status',
-      label: 'الحالة',
-      type: 'select',
-      value: filters.status,
-      onChange: (value) => setFilters(prev => ({ ...prev, status: value })),
-      options: [
-        { value: 'active', label: 'نشط' },
-        { value: 'archived', label: 'مؤرشف' }
-      ]
-    },
-    {
-      id: 'search',
-      label: 'بحث',
-      type: 'search',
-      value: filters.search,
-      onChange: (value) => setFilters(prev => ({ ...prev, search: value })),
-      placeholder: 'البحث بالاسم أو المستخدم...'
     }
   ];
 
-  const getFileIcon = (type: string) => {
-    switch (type.toLowerCase()) {
-      case 'pdf':
-        return <File className="w-5 h-5 text-red-500" />;
-      case 'jpg':
-      case 'jpeg':
-      case 'png':
-        return <Image className="w-5 h-5 text-blue-500" />;
-      case 'xlsx':
-      case 'xls':
-        return <FileSpreadsheet className="w-5 h-5 text-green-500" />;
-      case 'docx':
-      case 'doc':
-        return <FileText className="w-5 h-5 text-blue-600" />;
-      default:
-        return <FileCode className="w-5 h-5 text-gray-500" />;
-    }
-  };
-
-  const formatSize = (size: number) => {
-    return `${size.toFixed(1)} MB`;
-  };
-
-  const columns: Column<Document>[] = [
+  const columns: Column<any>[] = [
     {
       key: 'name',
-      title: 'اسم الملف',
-      sortable: true,
+      label: 'اسم الوثيقة',
       render: (doc) => (
-        <div className="flex items-center space-x-3 space-x-reverse">
-          <div className="w-10 h-10 bg-islamic-50 rounded-lg flex items-center justify-center">
-            {getFileIcon(doc.type)}
-          </div>
+        <div className="flex items-center space-x-2 space-x-reverse">
+          {getFileIcon(doc.type)}
           <div>
-            <p className="font-medium text-islamic-800">{doc.name}</p>
-            <p className="text-xs text-sage-500">{doc.type.toUpperCase()} • {formatSize(doc.size)}</p>
+            <p className="font-medium text-gray-900">{doc.name}</p>
+            <p className="text-xs text-gray-500">{doc.type?.toUpperCase()}</p>
           </div>
         </div>
       )
     },
     {
       key: 'category',
-      title: 'التصنيف',
-      sortable: true,
+      label: 'الفئة',
       render: (doc) => (
-        <span className="px-3 py-1 bg-islamic-100 text-islamic-700 rounded-full text-xs font-medium">
-          {doc.category}
+        <span className={`px-2 py-1 text-xs rounded-full ${getCategoryColor(doc.category)}`}>
+          {getCategoryLabel(doc.category)}
         </span>
       )
     },
     {
-      key: 'uploadedBy',
-      title: 'تم الرفع بواسطة',
-      sortable: true
+      key: 'size',
+      label: 'الحجم',
+      render: (doc) => StorageService.formatFileSize(doc.size || 0)
     },
     {
-      key: 'uploadDate',
-      title: 'تاريخ الرفع',
-      sortable: true,
-      render: (doc) => new Date(doc.uploadDate).toLocaleDateString('ar-EG')
+      key: 'uploaded_at',
+      label: 'تاريخ الرفع',
+      render: (doc) => new Date(doc.uploaded_at).toLocaleDateString('ar-EG')
     },
     {
-      key: 'downloads',
-      title: 'التحميلات',
-      sortable: true,
+      key: 'view_count',
+      label: 'المشاهدات',
       render: (doc) => (
-        <span className="text-islamic-700 font-medium">{doc.downloads}</span>
+        <div className="flex items-center space-x-1 space-x-reverse">
+          <Eye className="w-4 h-4 text-gray-400" />
+          <span>{doc.view_count || 0}</span>
+        </div>
       )
     },
     {
-      key: 'status',
-      title: 'الحالة',
-      sortable: true,
+      key: 'actions',
+      label: 'الإجراءات',
       render: (doc) => (
-        <span
-          className={`px-3 py-1 rounded-full text-xs font-medium ${
-            doc.status === 'active'
-              ? 'bg-green-100 text-green-700'
-              : 'bg-gray-100 text-gray-700'
-          }`}
-        >
-          {doc.status === 'active' ? 'نشط' : 'مؤرشف'}
-        </span>
+        <div className="flex items-center space-x-2 space-x-reverse">
+          <button
+            onClick={() => handleView(doc)}
+            className="p-1 hover:bg-blue-50 rounded"
+            title="عرض"
+          >
+            <Eye className="w-4 h-4 text-blue-600" />
+          </button>
+          <button
+            onClick={() => handleDownload(doc)}
+            className="p-1 hover:bg-green-50 rounded"
+            title="تحميل"
+          >
+            <Download className="w-4 h-4 text-green-600" />
+          </button>
+          <button
+            onClick={() => handleDelete(doc)}
+            className="p-1 hover:bg-red-50 rounded"
+            title="حذف"
+          >
+            <Trash2 className="w-4 h-4 text-red-600" />
+          </button>
+        </div>
       )
     }
   ];
 
-  const handleDownload = (doc: Document) => {
-    success('جاري التحميل', `جاري تحميل ${doc.name}`);
-  };
-
-  const handleView = (doc: Document) => {
-    setSelectedDoc(doc);
-    setIsModalOpen(true);
-  };
-
-  const handleDelete = (doc: Document) => {
-    if (confirm(`هل أنت متأكد من حذف ${doc.name}؟`)) {
-      success('تم الحذف', `تم حذف ${doc.name} بنجاح`);
+  const getFileIcon = (type: string) => {
+    switch (type?.toLowerCase()) {
+      case 'pdf':
+        return <FileText className="w-5 h-5 text-red-600" />;
+      case 'doc':
+      case 'docx':
+        return <File className="w-5 h-5 text-blue-600" />;
+      case 'xls':
+      case 'xlsx':
+        return <FileSpreadsheet className="w-5 h-5 text-green-600" />;
+      case 'image':
+      case 'jpg':
+      case 'png':
+        return <Image className="w-5 h-5 text-purple-600" />;
+      default:
+        return <Folder className="w-5 h-5 text-gray-600" />;
     }
   };
 
-  const handleArchive = (doc: Document) => {
-    success(
-      doc.status === 'active' ? 'تم الأرشفة' : 'تم إلغاء الأرشفة',
-      `تم ${doc.status === 'active' ? 'أرشفة' : 'إلغاء أرشفة'} ${doc.name}`
-    );
+  const getCategoryColor = (category: string) => {
+    const colors: Record<string, string> = {
+      legal: 'bg-blue-100 text-blue-800',
+      financial: 'bg-green-100 text-green-800',
+      technical: 'bg-purple-100 text-purple-800',
+      administrative: 'bg-orange-100 text-orange-800',
+      other: 'bg-gray-100 text-gray-800'
+    };
+    return colors[category] || colors.other;
+  };
+
+  const getCategoryLabel = (category: string) => {
+    const labels: Record<string, string> = {
+      legal: 'قانوني',
+      financial: 'مالي',
+      technical: 'تقني',
+      administrative: 'إداري',
+      other: 'أخرى'
+    };
+    return labels[category] || category;
+  };
+
+  const handleOpenModal = () => {
+    setSelectedDoc(null);
+    setIsViewMode(false);
+    setFormData({
+      name: '',
+      type: 'pdf',
+      category: 'legal',
+      access_level: 'internal',
+      content: '',
+      tags: []
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleView = (doc: any) => {
+    setSelectedDoc(doc);
+    setIsViewMode(true);
+    setIsModalOpen(true);
+  };
+
+  const handleDownload = async (doc: any) => {
+    try {
+      if (doc.file_path) {
+        const data = await StorageService.downloadFile('documents', doc.file_path);
+        const url = window.URL.createObjectURL(data);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = doc.name;
+        a.click();
+        window.URL.revokeObjectURL(url);
+
+        await DocumentsService.incrementDownloadCount(doc.id);
+        success('تم تحميل الملف', 'تم تحميل الملف بنجاح');
+      }
+    } catch (err) {
+      showError('خطأ', 'فشل تحميل الملف');
+    }
+  };
+
+  const handleDelete = async (doc: any) => {
+    if (!confirm('هل أنت متأكد من حذف هذه الوثيقة؟')) return;
+
+    try {
+      if (doc.file_path) {
+        await StorageService.deleteFile('documents', doc.file_path);
+      }
+
+      await refetch();
+      success('تم الحذف', 'تم حذف الوثيقة بنجاح');
+    } catch (err) {
+      showError('خطأ', 'فشل حذف الوثيقة');
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      await create({
+        ...formData,
+        uploader_id: 1,
+        uploaded_at: new Date().toISOString()
+      });
+
+      success('تم الحفظ', 'تم حفظ الوثيقة بنجاح');
+      setIsModalOpen(false);
+      refetch();
+    } catch (err) {
+      showError('خطأ', 'فشل حفظ الوثيقة');
+    }
+  };
+
+  const handleFileUpload = (filePath: string, fileUrl: string) => {
+    setFormData(prev => ({
+      ...prev,
+      file_path: filePath,
+      file_url: fileUrl
+    }));
   };
 
   const stats = [
     {
       title: 'إجمالي الوثائق',
-      value: mockDocuments.length.toString(),
+      value: documents?.length || 0,
       icon: FileText,
-      color: 'blue' as const,
-      trend: 'up' as const,
-      trendValue: '+12',
-      subtitle: 'وثيقة مرفوعة في النظام'
+      color: 'bg-blue-500',
+      change: '+12%'
     },
     {
-      title: 'الوثائق النشطة',
-      value: mockDocuments.filter(d => d.status === 'active').length.toString(),
-      icon: File,
-      color: 'green' as const,
-      subtitle: 'وثيقة قابلة للوصول'
+      title: 'تم رفعها هذا الشهر',
+      value: documents?.filter(d => {
+        const uploadDate = new Date(d.uploaded_at);
+        const now = new Date();
+        return uploadDate.getMonth() === now.getMonth();
+      }).length || 0,
+      icon: Upload,
+      color: 'bg-green-500',
+      change: '+8%'
     },
     {
-      title: 'الوثائق المؤرشفة',
-      value: mockDocuments.filter(d => d.status === 'archived').length.toString(),
+      title: 'وثائق قانونية',
+      value: documents?.filter(d => d.category === 'legal').length || 0,
       icon: Archive,
-      color: 'orange' as const,
-      subtitle: 'وثيقة في الأرشيف'
+      color: 'bg-purple-500',
+      change: '+3%'
     },
     {
-      title: 'إجمالي التحميلات',
-      value: mockDocuments.reduce((sum, d) => sum + d.downloads, 0).toString(),
+      title: 'التحميلات',
+      value: documents?.reduce((sum, d) => sum + (d.download_count || 0), 0) || 0,
       icon: Download,
-      color: 'purple' as const,
-      trend: 'up' as const,
-      trendValue: '+45',
-      subtitle: 'عملية تحميل'
+      color: 'bg-orange-500',
+      change: '+15%'
     }
   ];
 
@@ -321,24 +334,12 @@ const DocumentsManagementImproved: React.FC = () => {
     <div className="space-y-6">
       <PageHeader
         title="إدارة الوثائق"
-        subtitle="إدارة وتنظيم جميع الوثائق والملفات"
-        icon={FileText}
-        actions={
-          <>
-            <button className="btn-secondary">
-              <Folder className="w-5 h-5 ml-2" />
-              المجلدات
-            </button>
-            <button onClick={() => setIsModalOpen(true)} className="btn-primary">
-              <Upload className="w-5 h-5 ml-2" />
-              رفع وثيقة
-            </button>
-          </>
-        }
-        breadcrumbs={[
-          { label: 'الرئيسية', href: '/admin' },
-          { label: 'إدارة الوثائق' }
-        ]}
+        description="إدارة وتنظيم جميع الوثائق والمستندات"
+        action={{
+          label: 'رفع وثيقة جديدة',
+          icon: Plus,
+          onClick: handleOpenModal
+        }}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -348,201 +349,175 @@ const DocumentsManagementImproved: React.FC = () => {
       </div>
 
       <FilterBar
-        filters={filterOptions}
-        onClear={() =>
-          setFilters({
-            type: '',
-            category: '',
-            status: '',
-            search: '',
-            dateFrom: '',
-            dateTo: ''
-          })
-        }
+        filters={filters}
+        onFilterChange={setFilters}
+        filterOptions={filterOptions}
+        onRefresh={refetch}
+        showRefresh
       />
 
-      <DataTable
-        data={filteredDocs}
-        columns={columns}
-        searchKeys={['name', 'uploadedBy']}
-        onRowClick={(doc) => handleView(doc)}
-        actions={(doc) => (
-          <>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleView(doc);
-              }}
-              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-              title="عرض"
-            >
-              <Eye className="w-4 h-4" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDownload(doc);
-              }}
-              className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-              title="تحميل"
-            >
-              <Download className="w-4 h-4" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleArchive(doc);
-              }}
-              className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
-              title={doc.status === 'active' ? 'أرشفة' : 'إلغاء الأرشفة'}
-            >
-              <Archive className="w-4 h-4" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDelete(doc);
-              }}
-              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-              title="حذف"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-          </>
-        )}
-        pageSize={10}
-        showExport={true}
-        onExport={() => success('تم التصدير', 'جاري تحميل قائمة الوثائق')}
-      />
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <RefreshCw className="w-8 h-8 animate-spin text-islamic-600" />
+          <span className="mr-3 text-gray-600">جاري التحميل...</span>
+        </div>
+      ) : error ? (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-800">{error}</p>
+        </div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={documents || []}
+          searchable
+          searchPlaceholder="البحث في الوثائق..."
+        />
+      )}
 
       <Modal
         isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setSelectedDoc(null);
-        }}
-        title={selectedDoc ? 'تفاصيل الوثيقة' : 'رفع وثيقة جديدة'}
-        size="lg"
+        onClose={() => setIsModalOpen(false)}
+        title={isViewMode ? 'عرض الوثيقة' : selectedDoc ? 'تعديل الوثيقة' : 'رفع وثيقة جديدة'}
+        size="large"
       >
-        {selectedDoc ? (
-          <div className="space-y-6">
-            <div className="flex items-center space-x-4 space-x-reverse p-4 bg-islamic-50 rounded-lg">
-              <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                {getFileIcon(selectedDoc.type)}
-              </div>
-              <div className="flex-1">
-                <h4 className="font-semibold text-islamic-800 text-lg">{selectedDoc.name}</h4>
-                <p className="text-sm text-sage-600 mt-1">
-                  {selectedDoc.type.toUpperCase()} • {formatSize(selectedDoc.size)}
-                </p>
-              </div>
-            </div>
-
+        {isViewMode && selectedDoc ? (
+          <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-sage-600">التصنيف</label>
-                <p className="text-islamic-800 font-medium mt-1">{selectedDoc.category}</p>
+                <label className="block text-sm font-medium text-gray-700 mb-1">اسم الوثيقة</label>
+                <p className="text-gray-900">{selectedDoc.name}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-sage-600">الحالة</label>
-                <p className="text-islamic-800 font-medium mt-1">
-                  {selectedDoc.status === 'active' ? 'نشط' : 'مؤرشف'}
-                </p>
+                <label className="block text-sm font-medium text-gray-700 mb-1">النوع</label>
+                <p className="text-gray-900">{selectedDoc.type}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-sage-600">تم الرفع بواسطة</label>
-                <p className="text-islamic-800 font-medium mt-1">{selectedDoc.uploadedBy}</p>
+                <label className="block text-sm font-medium text-gray-700 mb-1">الفئة</label>
+                <p className="text-gray-900">{getCategoryLabel(selectedDoc.category)}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-sage-600">تاريخ الرفع</label>
-                <p className="text-islamic-800 font-medium mt-1">
-                  {new Date(selectedDoc.uploadDate).toLocaleDateString('ar-EG')}
-                </p>
+                <label className="block text-sm font-medium text-gray-700 mb-1">مستوى الوصول</label>
+                <p className="text-gray-900">{selectedDoc.access_level}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-sage-600">عدد التحميلات</label>
-                <p className="text-islamic-800 font-medium mt-1">{selectedDoc.downloads}</p>
+                <label className="block text-sm font-medium text-gray-700 mb-1">تاريخ الرفع</label>
+                <p className="text-gray-900">{new Date(selectedDoc.uploaded_at).toLocaleDateString('ar-EG')}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-sage-600">آخر تعديل</label>
-                <p className="text-islamic-800 font-medium mt-1">
-                  {new Date(selectedDoc.lastModified).toLocaleDateString('ar-EG')}
-                </p>
+                <label className="block text-sm font-medium text-gray-700 mb-1">عدد المشاهدات</label>
+                <p className="text-gray-900">{selectedDoc.view_count || 0}</p>
               </div>
             </div>
-
-            <div className="flex items-center justify-end space-x-3 space-x-reverse pt-4 border-t border-sage-200">
-              <button onClick={() => setIsModalOpen(false)} className="btn-outline">
-                إغلاق
-              </button>
-              <button onClick={() => handleDownload(selectedDoc)} className="btn-primary">
-                <Download className="w-5 h-5 ml-2" />
-                تحميل الوثيقة
-              </button>
-            </div>
+            {selectedDoc.content && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">المحتوى</label>
+                <p className="text-gray-900 whitespace-pre-wrap">{selectedDoc.content}</p>
+              </div>
+            )}
           </div>
         ) : (
-          <form className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-islamic-700 mb-2">اسم الوثيقة</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                اسم الوثيقة *
+              </label>
               <input
                 type="text"
+                required
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="form-input"
                 placeholder="أدخل اسم الوثيقة"
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-islamic-700 mb-2">التصنيف</label>
-                <select className="form-select">
-                  <option value="">اختر التصنيف</option>
-                  <option value="سندات">سندات</option>
-                  <option value="تقارير">تقارير</option>
-                  <option value="خرائط">خرائط</option>
-                  <option value="مالية">مالية</option>
-                  <option value="قرارات قانونية">قرارات قانونية</option>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  نوع الملف *
+                </label>
+                <select
+                  required
+                  value={formData.type}
+                  onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                  className="form-select"
+                >
+                  <option value="pdf">PDF</option>
+                  <option value="doc">Word</option>
+                  <option value="xls">Excel</option>
+                  <option value="image">صورة</option>
+                  <option value="other">أخرى</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-islamic-700 mb-2">الحالة</label>
-                <select className="form-select">
-                  <option value="active">نشط</option>
-                  <option value="archived">مؤرشف</option>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  الفئة *
+                </label>
+                <select
+                  required
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="form-select"
+                >
+                  <option value="legal">قانوني</option>
+                  <option value="financial">مالي</option>
+                  <option value="technical">تقني</option>
+                  <option value="administrative">إداري</option>
+                  <option value="other">أخرى</option>
                 </select>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-islamic-700 mb-2">رفع الملف</label>
-              <div className="border-2 border-dashed border-sage-300 rounded-lg p-8 text-center hover:border-islamic-500 transition-colors cursor-pointer">
-                <Upload className="w-12 h-12 text-sage-400 mx-auto mb-3" />
-                <p className="text-sm text-sage-600 font-medium">اسحب الملف هنا أو انقر للاختيار</p>
-                <p className="text-xs text-sage-500 mt-1">PDF, JPG, PNG, XLSX (الحد الأقصى: 10MB)</p>
-                <input type="file" className="hidden" />
-              </div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                مستوى الوصول *
+              </label>
+              <select
+                required
+                value={formData.access_level}
+                onChange={(e) => setFormData({ ...formData, access_level: e.target.value })}
+                className="form-select"
+              >
+                <option value="public">عام</option>
+                <option value="internal">داخلي</option>
+                <option value="restricted">محدود</option>
+              </select>
             </div>
 
-            <div className="flex items-center justify-end space-x-3 space-x-reverse pt-4 border-t border-sage-200">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                المحتوى
+              </label>
+              <textarea
+                value={formData.content}
+                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                className="form-textarea"
+                rows={4}
+                placeholder="وصف أو محتوى الوثيقة"
+              />
+            </div>
+
+            <FileUpload
+              onUpload={handleFileUpload}
+              bucket="documents"
+              folder={formData.category}
+              label="رفع الملف"
+              description="اسحب الملف هنا أو انقر للاختيار"
+            />
+
+            <div className="flex justify-end space-x-3 space-x-reverse pt-4">
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
                 className="btn-outline"
               >
+                <X className="w-4 h-4 ml-2" />
                 إلغاء
               </button>
-              <button
-                type="submit"
-                onClick={(e) => {
-                  e.preventDefault();
-                  success('تم الرفع', 'تم رفع الوثيقة بنجاح');
-                  setIsModalOpen(false);
-                }}
-                className="btn-primary"
-              >
-                <Upload className="w-5 h-5 ml-2" />
-                رفع الوثيقة
+              <button type="submit" className="btn-primary">
+                <Save className="w-4 h-4 ml-2" />
+                حفظ
               </button>
             </div>
           </form>

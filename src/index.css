@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import './design-system.css';
 
 @tailwind base;
 @tailwind components;
@@ -43,39 +44,39 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
 }
 
-/* Islamic Design Elements */
+/* Islamic Design Elements - تحديث الألوان */
 .islamic-border {
-  border-image: linear-gradient(45deg, #22c55e, #eab308) 1;
+  border-image: linear-gradient(45deg, #1a472a, #d4af37) 1;
 }
 
 .islamic-gradient {
-  background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #eab308 100%);
+  background: linear-gradient(135deg, #1a472a 0%, #2d5a3a 50%, #d4af37 100%);
 }
 
 .golden-gradient {
-  background: linear-gradient(135deg, #f59e0b 0%, #eab308 50%, #d97706 100%);
+  background: linear-gradient(135deg, #d4af37 0%, #b8941f 50%, #9c7d1a 100%);
 }
 
 .sage-gradient {
   background: linear-gradient(135deg, #5a7a5a 0%, #4a6b4a 50%, #3d5a3d 100%);
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar - تحديث الألوان */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f0fdf4;
+  background: #e8f5e9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #22c55e;
+  background: #2d5a3a;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #16a34a;
+  background: #1a472a;
 }
 
 /* Text Utilities */
@@ -93,42 +94,42 @@ h1, h2, h3, h4, h5, h6 {
   overflow: hidden;
 }
 
-/* Islamic Patterns */
+/* Islamic Patterns - تحديث الألوان */
 .islamic-pattern {
-  background-image: radial-gradient(circle at 1px 1px, rgba(34, 197, 94, 0.08) 1px, transparent 0);
+  background-image: radial-gradient(circle at 1px 1px, rgba(26, 71, 42, 0.08) 1px, transparent 0);
   background-size: 24px 24px;
 }
 
 .geometric-pattern {
-  background-image: 
-    linear-gradient(45deg, rgba(34, 197, 94, 0.05) 25%, transparent 25%),
-    linear-gradient(-45deg, rgba(34, 197, 94, 0.05) 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, rgba(234, 179, 8, 0.05) 75%),
-    linear-gradient(-45deg, transparent 75%, rgba(234, 179, 8, 0.05) 75%);
+  background-image:
+    linear-gradient(45deg, rgba(26, 71, 42, 0.05) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(26, 71, 42, 0.05) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(212, 175, 55, 0.05) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(212, 175, 55, 0.05) 75%);
   background-size: 32px 32px;
   background-position: 0 0, 0 16px, 16px -16px, -16px 0px;
 }
 
-/* Hover Effects */
+/* Hover Effects - تحديث الألوان */
 .hover-lift {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .hover-lift:hover {
   transform: translateY(-5px);
-  box-shadow: 0 12px 28px rgba(34, 197, 94, 0.15);
+  box-shadow: 0 12px 28px rgba(26, 71, 42, 0.15);
 }
 
-/* Gradient Text */
+/* Gradient Text - تحديث الألوان */
 .gradient-text {
-  background: linear-gradient(135deg, #22c55e, #eab308);
+  background: linear-gradient(135deg, #1a472a, #d4af37);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .islamic-text {
-  background: linear-gradient(135deg, #16a34a, #22c55e, #eab308);
+  background: linear-gradient(135deg, #0d2b1a, #1a472a, #d4af37);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -262,10 +263,10 @@ h1, h2, h3, h4, h5, h6 {
 
 @keyframes glow {
   0%, 100% {
-    box-shadow: 0 0 5px rgba(34, 197, 94, 0.5);
+    box-shadow: 0 0 5px rgba(26, 71, 42, 0.5);
   }
   50% {
-    box-shadow: 0 0 20px rgba(34, 197, 94, 0.8);
+    box-shadow: 0 0 20px rgba(26, 71, 42, 0.8);
   }
 }
 
@@ -273,21 +274,21 @@ h1, h2, h3, h4, h5, h6 {
   animation: glow 2s ease-in-out infinite;
 }
 
-/* Loading States */
+/* Loading States - تحديث الألوان */
 .loading-shimmer {
-  background: linear-gradient(90deg, #f0fdf4 25%, #dcfce7 50%, #f0fdf4 75%);
+  background: linear-gradient(90deg, #e8f5e9 25%, #c8e6c9 50%, #e8f5e9 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
 
-/* Interactive Elements */
+/* Interactive Elements - تحديث الألوان */
 .interactive-hover {
   transition: all 0.3s ease;
 }
 
 .interactive-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.15);
+  box-shadow: 0 8px 25px rgba(26, 71, 42, 0.15);
 }
 
 /* Focus States */
@@ -406,19 +407,19 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Islamic Design Components */
+/* Islamic Design Components - تحديث الألوان */
 .mosque-dome {
-  background: radial-gradient(ellipse at center, #22c55e 0%, #16a34a 70%, #15803d 100%);
+  background: radial-gradient(ellipse at center, #2d5a3a 0%, #1a472a 70%, #0d2b1a 100%);
   border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
 }
 
 .minaret {
-  background: linear-gradient(to bottom, #eab308 0%, #ca8a04 100%);
+  background: linear-gradient(to bottom, #d4af37 0%, #b8941f 100%);
   border-radius: 4px 4px 0 0;
 }
 
 .crescent {
-  border: 3px solid #eab308;
+  border: 3px solid #d4af37;
   border-radius: 50%;
   border-right-color: transparent;
   transform: rotate(-45deg);
